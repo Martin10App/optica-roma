@@ -102,7 +102,7 @@ export default function HeroSection() {
                 muted
                 playsInline
                 className="w-full h-full object-cover"
-                poster="/media/familia-en-optica.png"
+                poster="/media/video-poster.jpg"
               >
                 <source src="/media/video-horizontal-optica.mp4" type="video/mp4" />
               </video>
