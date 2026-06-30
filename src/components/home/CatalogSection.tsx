@@ -1,0 +1,348 @@
+'use client';
+
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import ProductCard from '@/components/ui/ProductCard';
+import { ChevronDown, ChevronUp, Check, Filter, X } from 'lucide-react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
+
+interface Product {
+  id: number;
+  modelo: string;
+  marca: string;
+  categoria: string;
+  precio: number;
+  imagen_url: string;
+}
+
+const CATEGORIES = ['Todas', 'Armazones de Receta', 'Lentes de Sol', 'Lentes de Contacto', 'Accesorios'];
+
+function CatalogContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  useScrollReveal();
+  // State from URL or defaults
+  const initialCategory = searchParams.get('categoria');
+  // Match initial category from URL to our exact names (case insensitive)
+  const matchedCategory = initialCategory 
+    ? CATEGORIES.find(c => c.toLowerCase().replace(/-/g, ' ') === initialCategory.toLowerCase().replace(/-/g, ' ')) || 'Todas'
+    : 'Todas';
+
+  const [activeCategory, setActiveCategory] = useState<string>(matchedCategory);
+  const [activeBrands, setActiveBrands] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<string>('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 12;
+
+  // Data states
+  const [products, setProducts] = useState<Product[]>([]);
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  // UI states
+  const [isBrandsOpen, setIsBrandsOpen] = useState(true);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  // Fetch unique brands based on category
+  useEffect(() => {
+    async function fetchBrands() {
+      try {
+        const params = new URLSearchParams();
+        if (activeCategory !== 'Todas') {
+          params.set('categoria', activeCategory.toLowerCase().replace(/\s+/g, '-'));
+        }
+        const res = await fetch(`/api/armazones/marcas?${params.toString()}`);
+        const json = await res.json();
+        if (json.success) setAvailableBrands(json.data);
+      } catch (err) {
+        console.error("Failed to load brands", err);
+      }
+    }
+    fetchBrands();
+  }, [activeCategory]);
+
+  // Fetch products based on filters
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const params = new URLSearchParams();
+      params.set('page', currentPage.toString());
+      params.set('limit', limit.toString());
+      params.set('sort', sortOrder);
+      
+      if (activeCategory !== 'Todas') {
+        params.set('categoria', activeCategory.toLowerCase().replace(/\s+/g, '-'));
+      }
+      if (activeBrands.length > 0) {
+        params.set('marcas', activeBrands.join(','));
+      }
+
+      const res = await fetch(`/api/armazones?${params.toString()}`);
+      if (!res.ok) throw new Error('Error al cargar catálogo');
+      const json = await res.json();
+      
+      if (json.success) {
+        setProducts(json.data);
+        setTotalItems(json.pagination.total);
+        setTotalPages(json.pagination.totalPages);
+      } else {
+        throw new Error(json.error || 'Error desconocido');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeCategory, activeBrands, sortOrder, currentPage]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Sync category state when URL changes
+  useEffect(() => {
+    const catUrl = searchParams.get('categoria');
+    if (catUrl) {
+      const matched = CATEGORIES.find(c => c.toLowerCase().replace(/-/g, ' ') === catUrl.toLowerCase().replace(/-/g, ' '));
+      if (matched && matched !== activeCategory) {
+        setActiveCategory(matched);
+        setCurrentPage(1);
+      }
+    }
+  }, [searchParams]);
+
+  // Update URL when category changes to allow sharing links
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setActiveBrands([]); // Clear brands when changing category
+    setCurrentPage(1);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    if (cat === 'Todas') {
+      params.delete('categoria');
+    } else {
+      params.set('categoria', cat.toLowerCase().replace(/\s+/g, '-'));
+    }
+    router.push(`/?${params.toString()}#catalogo`, { scroll: false });
+  };
+
+  const toggleBrand = (brand: string) => {
+    setActiveBrands(prev => 
+      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+    );
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOrder(e.target.value);
+    setCurrentPage(1);
+  };
+
+  return (
+    <section id="catalogo" className="py-20 md:py-28 bg-white relative">
+      {/* Separator */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <div className="section-label mb-5 inline-flex">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
+            Catálogo
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+            Explorá nuestros <span className="gradient-text">armazones</span>
+          </h2>
+        </div>
+        
+        {/* Mobile Filter Button */}
+        <div className="md:hidden flex justify-between items-center mb-6">
+          <p className="text-slate-500 text-sm">{totalItems} productos</p>
+          <button 
+            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+            className="flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-600 px-4 py-2 rounded-full font-medium text-sm"
+          >
+            <Filter size={16} />
+            Filtros
+          </button>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar */}
+          <aside className={`w-full md:w-1/4 flex-shrink-0 ${isMobileFiltersOpen ? 'block' : 'hidden md:block'}`}>
+            <div className="sticky top-28">
+              {/* Categories */}
+              <div className="mb-6">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Categorías</h3>
+                <ul className="space-y-1">
+                  {CATEGORIES.map(cat => (
+                    <li key={cat}>
+                      <button
+                        onClick={() => handleCategoryChange(cat)}
+                        className={`w-full text-left py-2 px-3 rounded-xl text-sm transition-all duration-200 ${
+                          activeCategory === cat 
+                            ? 'bg-blue-50 text-blue-700 font-bold border border-blue-300' 
+                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Brands */}
+              <div className="border-t border-slate-200 pt-5">
+                <button 
+                  onClick={() => setIsBrandsOpen(!isBrandsOpen)}
+                  className="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest mb-4"
+                >
+                  Marcas
+                  {isBrandsOpen ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
+                </button>
+                
+                {isBrandsOpen && (
+                  <div className="space-y-1.5 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                    {availableBrands.map(brand => (
+                      <label 
+                        key={brand} 
+                        onClick={() => toggleBrand(brand)}
+                        className="flex items-center gap-3 cursor-pointer group py-0.5 select-none"
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200 ${
+                            activeBrands.includes(brand) 
+                              ? 'bg-blue-500 border-blue-500' 
+                              : 'border-slate-300 group-hover:border-blue-400'
+                          }`}
+                        >
+                          {activeBrands.includes(brand) && <Check size={10} className="text-white" />}
+                        </div>
+                        <span className="text-sm text-slate-500 group-hover:text-slate-900 transition-colors">{brand}</span>
+                      </label>
+                    ))}
+                    {availableBrands.length === 0 && (
+                      <p className="text-sm text-slate-600 italic">Cargando marcas...</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Clear filters */}
+                {activeBrands.length > 0 && (
+                  <button
+                    onClick={() => setActiveBrands([])}
+                    className="mt-4 flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+                  >
+                    <X size={12} />
+                    Limpiar marcas ({activeBrands.length})
+                  </button>
+                )}
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="w-full md:w-3/4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-slate-200">
+              <div className="mb-4 sm:mb-0">
+                <p className="text-sm text-slate-500">
+                  Mostrando <span className="font-bold text-slate-900">{totalItems}</span> productos
+                  {activeCategory !== 'Todas' && <span> en <span className="font-bold text-blue-700">{activeCategory}</span></span>}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort" className="text-sm font-medium text-slate-500">Ordenar por:</label>
+                <select 
+                  id="sort"
+                  value={sortOrder}
+                  onChange={handleSortChange}
+                  className="bg-white border border-slate-300 text-slate-600 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5"
+                >
+                  <option value="newest">Más recientes</option>
+                  <option value="price_asc">Precio: Menor a Mayor</option>
+                  <option value="price_desc">Precio: Mayor a Menor</option>
+                </select>
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="flex flex-col justify-center items-center py-24 gap-4">
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full border-3 border-slate-200 border-t-blue-700 animate-spin" />
+                  <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent animate-spin" style={{borderBottomColor:'#06b6d4', animationDirection:'reverse', animationDuration:'0.8s'}} />
+                </div>
+                <p className="text-slate-500 text-sm">Cargando catálogo...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-20 card p-8">
+                <p className="text-red-600 font-medium">No se pudo cargar el catálogo.</p>
+                <p className="text-slate-500 text-sm mt-2">{error}</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-20 card p-8">
+                <p className="text-2xl mb-3">🔍</p>
+                <p className="text-slate-600 font-semibold text-lg mb-2">No encontramos productos</p>
+                <p className="text-slate-500 text-sm mb-6">No hay productos que coincidan con tu búsqueda.</p>
+                <button 
+                  onClick={() => { setActiveCategory('Todas'); setActiveBrands([]); }}
+                  className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-3 mt-12">
+                    <button 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
+                    >
+                      ← Anterior
+                    </button>
+                    <span className="text-sm font-medium text-slate-500 px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <button 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
+                    >
+                      Siguiente →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </main>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function CatalogSection() {
+  return (
+    <Suspense fallback={
+      <div className="py-24 text-center bg-white">
+        <div className="inline-block w-12 h-12 rounded-full border-2 border-blue-900 animate-spin" style={{borderTopColor:'#4f8ef7'}} />
+        <p className="mt-4 text-slate-500">Cargando catálogo...</p>
+      </div>
+    }>
+      <CatalogContent />
+    </Suspense>
+  );
+}
