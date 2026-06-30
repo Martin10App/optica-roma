@@ -4,7 +4,18 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Star, ThumbsUp, Share2 } from 'lucide-react';
 import Image from 'next/image';
 
-const baseReviews = [
+interface Review {
+  name: string;
+  initial: string;
+  color: string;
+  opinions: string;
+  date: string;
+  text: string;
+  ownerResponse?: string;
+  image?: string;
+}
+
+const baseReviews: Review[] = [
   {
     name: 'Rosario Martinez',
     initial: 'R',
