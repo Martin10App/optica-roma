@@ -270,63 +270,81 @@ function CatalogContent() {
               </div>
             </div>
 
-            {isLoading ? (
-              <div className="flex flex-col justify-center items-center py-24 gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full border-3 border-slate-200 border-t-blue-700 animate-spin" />
-                  <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent animate-spin" style={{borderBottomColor:'#06b6d4', animationDirection:'reverse', animationDuration:'0.8s'}} />
-                </div>
-                <p className="text-slate-500 text-sm">Cargando catálogo...</p>
-              </div>
-            ) : error ? (
-              <div className="text-center py-20 card p-8">
-                <p className="text-red-600 font-medium">No se pudo cargar el catálogo.</p>
-                <p className="text-slate-500 text-sm mt-2">{error}</p>
-              </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-20 card p-8">
-                <p className="text-2xl mb-3">🔍</p>
-                <p className="text-slate-600 font-semibold text-lg mb-2">No encontramos productos</p>
-                <p className="text-slate-500 text-sm mb-6">No hay productos que coincidan con tu búsqueda.</p>
-                <button 
-                  onClick={() => { setActiveCategory('Todas'); setActiveBrands([]); }}
-                  className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-                
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-3 mt-12">
-                    <button 
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                      className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
-                    >
-                      ← Anterior
-                    </button>
-                    <span className="text-sm font-medium text-slate-500 px-2">
-                      {currentPage} / {totalPages}
-                    </span>
-                    <button 
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
-                    >
-                      Siguiente →
-                    </button>
+            <div className="relative min-h-[600px]">
+              {isLoading && (
+                <div className="absolute inset-0 bg-white/70 z-10 flex flex-col items-center justify-start pt-32 backdrop-blur-[2px]">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-700 animate-spin shadow-lg" />
+                    <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent animate-spin" style={{borderBottomColor:'#06b6d4', animationDirection:'reverse', animationDuration:'0.8s'}} />
                   </div>
-                )}
-              </>
-            )}
+                  <p className="text-slate-700 font-semibold text-sm mt-4 bg-white px-4 py-1 rounded-full shadow-sm">Cargando...</p>
+                </div>
+              )}
+
+              {error ? (
+                <div className="text-center py-20 card p-8 relative z-0">
+                  <p className="text-red-600 font-medium">No se pudo cargar el catálogo.</p>
+                  <p className="text-slate-500 text-sm mt-2">{error}</p>
+                </div>
+              ) : products.length === 0 && !isLoading ? (
+                <div className="text-center py-20 card p-8 relative z-0">
+                  <p className="text-2xl mb-3">🔍</p>
+                  <p className="text-slate-600 font-semibold text-lg mb-2">No encontramos productos</p>
+                  <p className="text-slate-500 text-sm mb-6">No hay productos que coincidan con tu búsqueda.</p>
+                  <button 
+                    onClick={() => { setActiveCategory('Todas'); setActiveBrands([]); }}
+                    className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              ) : (
+                <div className={`transition-opacity duration-300 relative z-0 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {products.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                  
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-3 mt-12">
+                      <button 
+                        onClick={() => {
+                          setCurrentPage(p => Math.max(1, p - 1));
+                          const section = document.getElementById('catalogo');
+                          if (section) {
+                            const y = section.getBoundingClientRect().top + window.scrollY - 100;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                          }
+                        }}
+                        disabled={currentPage === 1}
+                        className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
+                      >
+                        ← Anterior
+                      </button>
+                      <span className="text-sm font-medium text-slate-500 px-2">
+                        {currentPage} / {totalPages}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          setCurrentPage(p => Math.min(totalPages, p + 1));
+                          const section = document.getElementById('catalogo');
+                          if (section) {
+                            const y = section.getBoundingClientRect().top + window.scrollY - 100;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                          }
+                        }}
+                        disabled={currentPage === totalPages}
+                        className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-30 font-medium text-sm transition-all"
+                      >
+                        Siguiente →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </main>
         </div>
       </div>
