@@ -14,7 +14,7 @@ export default function BlueBlockPage() {
       {/* Hero Section */}
       <div className="relative h-[55vh] flex items-center justify-center overflow-hidden">
         <video
-          poster="/media/portada-cadenas.jpeg"
+
           autoPlay loop muted playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-20"
         >
@@ -62,7 +62,7 @@ export default function BlueBlockPage() {
 
           <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
             <video
-              poster="/media/portada-cadenas.jpeg"
+
               autoPlay loop muted playsInline
               className="w-full aspect-video object-cover opacity-85"
             >

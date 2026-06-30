@@ -13,7 +13,7 @@ export default function VariluxXSeriesPage() {
       {/* Hero Section */}
       <div className="relative h-[65vh] flex items-center justify-center overflow-hidden">
         <video
-          poster="/media/portada-cadenas.jpeg"
+
           autoPlay loop muted playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-30"
         >
@@ -41,7 +41,7 @@ export default function VariluxXSeriesPage() {
         <div className="grid lg:grid-cols-2 gap-12 items-center reveal">
           <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.15)] bg-white">
             <video
-              poster="/media/portada-cadenas.jpeg"
+
               autoPlay loop muted playsInline
               className="w-full aspect-square object-cover opacity-80"
             >
@@ -121,7 +121,7 @@ export default function VariluxXSeriesPage() {
           </div>
           <div className="md:w-1/2 w-full rounded-2xl overflow-hidden border border-amber-500/20 shadow-lg">
             <video
-              poster="/media/portada-cadenas.jpeg"
+
               autoPlay loop muted playsInline
               className="w-full object-cover"
             >
