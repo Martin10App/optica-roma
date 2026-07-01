@@ -146,9 +146,21 @@ function CatalogContent() {
   };
 
   const toggleBrand = (brand: string) => {
-    setActiveBrands(prev => 
-      prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-    );
+    setActiveBrands(prev => {
+      const newBrands = prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand];
+      
+      // Sync URL
+      const params = new URLSearchParams(searchParams.toString());
+      if (newBrands.length > 0) {
+        params.set('marcas', newBrands.join(','));
+      } else {
+        params.delete('marcas');
+      }
+      
+      router.push(`${pathname}?${params.toString()}#catalogo`, { scroll: false });
+      
+      return newBrands;
+    });
     setCurrentPage(1);
   };
 
@@ -264,11 +276,28 @@ function CatalogContent() {
           {/* Main Content */}
           <main className="w-full md:w-3/4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 pb-4 border-b border-slate-200">
-              <div className="mb-4 sm:mb-0">
+              <div className="mb-4 sm:mb-0 flex items-center gap-4">
                 <p className="text-sm text-slate-500">
                   Mostrando <span className="font-bold text-slate-900">{totalItems}</span> productos
                   {activeCategory !== 'Todas' && <span> en <span className="font-bold text-blue-700">{activeCategory}</span></span>}
                 </p>
+                {(activeBrands.length > 0 || activeCategory !== 'Todas') && (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      const btn = document.getElementById('share-btn-text');
+                      if (btn) {
+                        const original = btn.innerText;
+                        btn.innerText = '¡Copiado!';
+                        setTimeout(() => { btn.innerText = original; }, 2000);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                    <span id="share-btn-text">Copiar Enlace</span>
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <label htmlFor="sort" className="text-sm font-medium text-slate-500">Ordenar por:</label>
