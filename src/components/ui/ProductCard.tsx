@@ -13,6 +13,8 @@ interface Product {
   precio: number;
   precio_original?: number | string | null;
   imagen_url: string;
+  stock_visible?: boolean;
+  mas_vendido?: boolean;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -70,6 +72,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    if (product.stock_visible === false) return;
 
     let opcionesText = '';
     if (isLenteContacto) {
@@ -138,11 +141,11 @@ export default function ProductCard({ product }: { product: Product }) {
             <div className="absolute top-3 left-3 z-10 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-indigo-200 shadow-sm animate-pulse-slow">
               🏷️ En Oferta
             </div>
-          ) : product.id % 5 === 0 ? (
+          ) : product.stock_visible === false ? (
             <div className="absolute top-3 left-3 z-10 bg-red-50 text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-red-200">
-              ⏱️ Último en stock
+              🔴 Agotado
             </div>
-          ) : product.id % 3 === 0 ? (
+          ) : product.mas_vendido === true ? (
             <div className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-amber-200">
               🔥 Más vendido
             </div>
@@ -153,7 +156,7 @@ export default function ProductCard({ product }: { product: Product }) {
             alt={`${product.marca} ${product.modelo}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+            className={`object-contain p-6 transition-transform duration-500 group-hover:scale-105 ${product.stock_visible === false ? 'opacity-50 grayscale' : ''}`}
           />
           {/* Overlay on hover */}
           <div className="absolute inset-0 bg-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
@@ -167,7 +170,8 @@ export default function ProductCard({ product }: { product: Product }) {
             {!isLenteContacto && (
               <button
                 onClick={handleAddToCart}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-lg"
+                disabled={product.stock_visible === false}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
               >
                 <ShoppingCart size={16} />
                 Agregar
@@ -202,8 +206,11 @@ export default function ProductCard({ product }: { product: Product }) {
             {!isLenteContacto ? (
               <button
                 onClick={handleAddToCart}
+                disabled={product.stock_visible === false}
                 className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
-                  added
+                  product.stock_visible === false
+                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    : added
                     ? 'bg-green-500 text-white scale-95'
                     : 'bg-slate-100 text-slate-700 hover:bg-blue-700 hover:text-white'
                 }`}
@@ -283,10 +290,11 @@ export default function ProductCard({ product }: { product: Product }) {
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      className="flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-lg"
+                      disabled={product.stock_visible === false}
+                      className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
                     >
                       <ShoppingCart size={18} />
-                      Agregar al Carrito
+                      {product.stock_visible === false ? 'Agotado' : 'Agregar al Carrito'}
                     </button>
                   </div>
                 )}

@@ -91,15 +91,15 @@ export default function PromosSection() {
               {/* Right: Visual */}
               <div className="relative min-h-[300px] lg:min-h-0 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100">
                 <Image
-                  src="/media/armazones-natalia-oreiro.jpeg"
+                  src="/media/promo-ninety.jpg"
                   alt="Colección Ninety"
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent lg:bg-gradient-to-r" />
                 <div className="absolute bottom-6 left-6">
                   <a
-                    href="/?categoria=armazones-de-receta&marca=Ninety#catalogo"
+                    href="/?categoria=armazones-de-receta&marcas=Ninety#catalogo"
                     className="px-4 py-2 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors shadow-lg"
                   >
                     Ver Colección Ninety →

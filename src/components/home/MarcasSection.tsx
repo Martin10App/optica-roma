@@ -4,11 +4,13 @@ import Image from 'next/image';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const brands = [
-  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/?categoria=armazones-de-receta&marca=Ray-Ban#catalogo' },
-  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/?categoria=armazones-de-receta&marca=Armani%20Exchange#catalogo' },
-  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/?categoria=armazones-de-receta&marca=Vizzini#catalogo' },
-  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/?categoria=armazones-de-receta&marca=Alma%20Santa#catalogo' },
-  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/?categoria=armazones-de-receta&marca=Viky#catalogo' },
+  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/?categoria=armazones-de-receta&marcas=Ray-Ban#catalogo' },
+  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/?categoria=armazones-de-receta&marcas=Armani%20Exchange#catalogo' },
+  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/?categoria=armazones-de-receta&marcas=Vizzini#catalogo' },
+  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/?categoria=armazones-de-receta&marcas=Alma%20Santa#catalogo' },
+  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/?categoria=armazones-de-receta&marcas=Viky#catalogo' },
+  { name: 'Reef', logo: '', fallback: 'REEF', url: '/?categoria=armazones-de-receta&marcas=Reef#catalogo' },
+  { name: 'Natalia Oreiro', logo: 'https://nataliaoreirogafas.com/img/logo-175830415623.svg', fallback: 'NATALIA OREIRO', url: '/?categoria=armazones-de-receta&marcas=Natalia%20Oreiro#catalogo' },
   { name: 'Varilux', logo: '/media/logos/varilux-logo.png', fallback: 'Varilux', url: '/projects/varilux-x-series' },
 ];
 

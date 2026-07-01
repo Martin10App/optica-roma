@@ -11,6 +11,7 @@ import BranchesSection from '@/components/home/BranchesSection';
 import NewsletterSection from '@/components/home/NewsletterSection';
 import CrystalsSection from '@/components/home/CrystalsSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
+import OreiroSection from '@/components/home/OreiroSection';
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <HeroSection />
       <MarcasSection />
       <PromosSection />
+      <OreiroSection />
       <ServicesSection />
       <CatalogSection />
       <CrystalsSection />

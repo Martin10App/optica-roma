@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const brands = searchParams.get('marcas') ? searchParams.get('marcas')!.split(',') : [];
 
   try {
-    let baseQuery = `FROM armazones_publico WHERE stock_visible = true`;
+    let baseQuery = `FROM armazones_publico WHERE 1=1`;
     const queryParams: any[] = [];
     let paramIndex = 1;
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch paginated products
     const result = await pool.query(`
-      SELECT id, modelo, marca, categoria, precio, precio_original, imagen_url 
+      SELECT id, modelo, marca, categoria, precio, precio_original, imagen_url, stock_visible, mas_vendido 
       ${baseQuery} 
       ${orderClause}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}

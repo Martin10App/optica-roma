@@ -29,7 +29,8 @@ function CatalogContent() {
     : 'Todas';
 
   const [activeCategory, setActiveCategory] = useState<string>(matchedCategory);
-  const [activeBrands, setActiveBrands] = useState<string[]>([]);
+  const initialBrands = searchParams.get('marcas') ? searchParams.get('marcas')!.split(',') : [];
+  const [activeBrands, setActiveBrands] = useState<string[]>(initialBrands);
   const [sortOrder, setSortOrder] = useState<string>('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 12;
@@ -103,15 +104,27 @@ function CatalogContent() {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Sync category state when URL changes
+  // Sync category and brand state when URL changes
   useEffect(() => {
+    let changed = false;
     const catUrl = searchParams.get('categoria');
     if (catUrl) {
       const matched = CATEGORIES.find(c => c.toLowerCase().replace(/-/g, ' ') === catUrl.toLowerCase().replace(/-/g, ' '));
       if (matched && matched !== activeCategory) {
         setActiveCategory(matched);
-        setCurrentPage(1);
+        changed = true;
       }
+    }
+    
+    const marcasUrl = searchParams.get('marcas');
+    const urlBrands = marcasUrl ? marcasUrl.split(',') : [];
+    if (JSON.stringify(urlBrands) !== JSON.stringify(activeBrands)) {
+      setActiveBrands(urlBrands);
+      changed = true;
+    }
+    
+    if (changed) {
+      setCurrentPage(1);
     }
   }, [searchParams]);
 
