@@ -1,5 +1,4 @@
 'use client';
-
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';

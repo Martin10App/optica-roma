@@ -43,7 +43,9 @@ export default function ContactSection() {
             <form onSubmit={handleSubmit} className="bg-white border border-slate-200 p-8 rounded-3xl shadow-xl">
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-500 mb-2">Tu Nombre</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-500 mb-2">
+                    Tu Nombre <span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
                     type="text"
                     id="name"
@@ -55,9 +57,12 @@ export default function ContactSection() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="reason" className="block text-sm font-medium text-slate-500 mb-2">Motivo de consulta</label>
+                  <label htmlFor="reason" className="block text-sm font-medium text-slate-500 mb-2">
+                    Motivo de consulta <span className="text-red-500 ml-1">*</span>
+                  </label>
                   <select
                     id="reason"
+                    required
                     className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
                     value={formData.reason}
                     onChange={(e) => setFormData({...formData, reason: e.target.value})}
@@ -69,7 +74,9 @@ export default function ContactSection() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-slate-500 mb-2">Mensaje</label>
+                  <label htmlFor="message" className="block text-sm font-medium text-slate-500 mb-2">
+                    Mensaje <span className="text-red-500 ml-1">*</span>
+                  </label>
                   <textarea
                     id="message"
                     required

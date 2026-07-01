@@ -167,6 +167,7 @@ export default function TestimonialsSection() {
           {reviews.map((review, idx) => (
             <div 
               key={idx}
+              aria-hidden={idx >= baseReviews.length ? "true" : undefined}
               className="w-[300px] md:w-[350px] bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-xl transition-shadow duration-300 flex flex-col mx-3 flex-shrink-0"
               style={{ minHeight: '280px' }}
             >

@@ -15,8 +15,10 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+import { SITE_URL } from "@/lib/constants";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://opticaroma.com.uy"),
+  metadataBase: new URL(SITE_URL),
   title: "Óptica Roma | Tu visión es nuestra prioridad",
   description:
     "Encontrá los mejores armazones y cristales en Óptica Roma. Visitanos en Las Piedras y Canelones. Atención personalizada, revisión visual gratuita y calidad profesional.",
@@ -37,11 +39,11 @@ export const metadata: Metadata = {
     title: "Óptica Roma | Tu visión es nuestra prioridad",
     description:
       "Encontrá los mejores armazones y cristales en Óptica Roma. Visitanos en Las Piedras y Canelones. Atención personalizada y calidad profesional.",
-    url: "https://opticaroma.com.uy",
+    url: SITE_URL,
     siteName: "Óptica Roma",
     images: [
       {
-        url: "/media/expositor-armazoens2.png",
+        url: `${SITE_URL}/media/expositor-armazoens2.png`,
         width: 1200,
         height: 630,
         alt: "Óptica Roma - Interior del local",
@@ -96,8 +98,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Optician",
               name: "Óptica Roma",
-              image: "https://opticaroma.com.uy/media/expositor-armazoens2.png",
-              url: "https://opticaroma.com.uy",
+              image: `${SITE_URL}/media/expositor-armazoens2.png`,
+              url: SITE_URL,
               telephone: "+598 098 871 673",
               priceRange: "$$",
               address: [
