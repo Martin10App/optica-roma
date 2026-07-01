@@ -11,29 +11,35 @@ export default function NataliaOreiroPage() {
     <div className="min-h-screen bg-white pt-24 text-slate-600">
       {/* Hero Section */}
       <div className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://nataliaoreirogafas.com/img/cms/Natalia%20Oreiro/FW26/Natalia%20Oreiro%20oton%CC%83o26_3988_1a.jpg"
-            alt="Natalia Oreiro Gafas"
-            className="object-cover object-top opacity-60 w-full h-full"
-          />
+        <div className="absolute inset-0 z-0 bg-black">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="object-cover object-center opacity-60 w-full h-full"
+          >
+            <source src="/media/natalia-oreiro-gafas-compressed.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent" />
         </div>
         
         <div className="relative z-10 text-left px-4 max-w-7xl mx-auto w-full reveal">
           <div className="max-w-2xl">
-            <div className="section-label mb-5 inline-flex border-slate-900/40 text-slate-800">
+            <div className="section-label mb-5 inline-flex border-slate-900/40 text-slate-800 bg-white/50 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-ping-slow" />
               Exclusividad & Diseño
             </div>
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-              Natalia Oreiro <span className="text-slate-500 font-light block mt-2 text-3xl">Gafas y Armazones</span>
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight drop-shadow-md">
+              Natalia Oreiro <span className="text-slate-800 font-light block mt-2 text-3xl">Gafas y Armazones</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-600 font-light max-w-2xl mb-8">
+            <p className="text-lg md:text-xl text-slate-800 font-medium max-w-2xl mb-8 drop-shadow-md">
               Una colección que refleja la personalidad, elegancia y vanguardia de Natalia Oreiro. Modelos diseñados para deslumbrar en cada mirada.
             </p>
-            <button 
+            <Link 
+              href="?marcas=Natalia%20Oreiro#catalogo"
+              scroll={false}
               onClick={() => {
                 const el = document.getElementById('catalogo');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -44,7 +50,7 @@ export default function NataliaOreiroPage() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
