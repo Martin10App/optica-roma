@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     `, queryParams);
     const total = parseInt(countResult.rows[0].count);
 
-    let orderClause = 'ORDER BY id DESC';
+    let orderClause = 'ORDER BY ventas_count DESC, id DESC';
     if (sort === 'price_asc') orderClause = 'ORDER BY precio ASC, id DESC';
     if (sort === 'price_desc') orderClause = 'ORDER BY precio DESC, id DESC';
 
