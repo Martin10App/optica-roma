@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import ProductCard from '@/components/ui/ProductCard';
 import { ChevronDown, ChevronUp, Check, Filter, X } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -128,6 +128,8 @@ function CatalogContent() {
     }
   }, [searchParams]);
 
+  const pathname = usePathname();
+
   // Update URL when category changes to allow sharing links
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
@@ -140,7 +142,7 @@ function CatalogContent() {
     } else {
       params.set('categoria', cat.toLowerCase().replace(/\s+/g, '-'));
     }
-    router.push(`/?${params.toString()}#catalogo`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}#catalogo`, { scroll: false });
   };
 
   const toggleBrand = (brand: string) => {

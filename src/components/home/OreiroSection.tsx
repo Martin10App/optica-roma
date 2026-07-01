@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 export default function OreiroSection() {
@@ -33,15 +34,15 @@ export default function OreiroSection() {
           </p>
           
           <div className="flex flex-wrap gap-4">
-            <a
-              href="/?categoria=armazones-de-receta&marcas=Natalia%20Oreiro#catalogo"
+            <Link
+              href="/projects/natalia-oreiro"
               className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black text-sm font-bold uppercase tracking-wider rounded-full hover:bg-slate-200 hover:scale-105 transition-all shadow-xl"
             >
               Ver Colección
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
