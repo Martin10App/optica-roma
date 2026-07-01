@@ -29,7 +29,7 @@ function CatalogContent() {
     : 'Todas';
 
   const [activeCategory, setActiveCategory] = useState<string>(matchedCategory);
-  const initialBrands = searchParams.get('marcas') ? searchParams.get('marcas')!.split(',') : [];
+  const initialBrands = searchParams.get('marcas') ? searchParams.get('marcas')!.split(',').filter(Boolean) : [];
   const [activeBrands, setActiveBrands] = useState<string[]>(initialBrands);
   const [sortOrder, setSortOrder] = useState<string>('newest');
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,7 +117,7 @@ function CatalogContent() {
     }
     
     const marcasUrl = searchParams.get('marcas');
-    const urlBrands = marcasUrl ? marcasUrl.split(',') : [];
+    const urlBrands = marcasUrl ? marcasUrl.split(',').filter(Boolean) : [];
     if (JSON.stringify(urlBrands) !== JSON.stringify(activeBrands)) {
       setActiveBrands(urlBrands);
       changed = true;
@@ -137,6 +137,7 @@ function CatalogContent() {
     setCurrentPage(1);
     
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('marcas');
     if (cat === 'Todas') {
       params.delete('categoria');
     } else {
@@ -166,6 +167,21 @@ function CatalogContent() {
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSortOrder(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const clearBrands = () => {
+    setActiveBrands([]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('marcas');
+    router.push(`${pathname}?${params.toString()}#catalogo`, { scroll: false });
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setActiveCategory('Todas');
+    setActiveBrands([]);
+    router.push(`${pathname}#catalogo`, { scroll: false });
     setCurrentPage(1);
   };
 
@@ -262,7 +278,7 @@ function CatalogContent() {
                 {/* Clear filters */}
                 {activeBrands.length > 0 && (
                   <button
-                    onClick={() => setActiveBrands([])}
+                    onClick={clearBrands}
                     className="mt-4 flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
                   >
                     <X size={12} />
@@ -336,7 +352,7 @@ function CatalogContent() {
                   <p className="text-slate-600 font-semibold text-lg mb-2">No encontramos productos</p>
                   <p className="text-slate-500 text-sm mb-6">No hay productos que coincidan con tu búsqueda.</p>
                   <button 
-                    onClick={() => { setActiveCategory('Todas'); setActiveBrands([]); }}
+                    onClick={clearFilters}
                     className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
                   >
                     Limpiar filtros
