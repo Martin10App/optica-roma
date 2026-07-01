@@ -1,0 +1,21 @@
+import sys
+import traceback
+
+def test_db():
+    try:
+        import psycopg
+        conn = psycopg.connect(host='192.168.1.8', port=5432, dbname='optica_roma', user='optica_app', password='Opticaroma0711', connect_timeout=5)
+        cur = conn.cursor()
+        cur.execute("SELECT marca, codigo, material, color, k, a, d, p, stock, precio_venta, imagen FROM public.armazones ORDER BY marca, codigo")
+        rows = cur.fetchall()
+        print("Success:", len(rows), "rows fetched.")
+        if len(rows) > 0:
+            print("First row:", rows[0])
+    except Exception as e:
+        print("Error:", repr(e))
+        traceback.print_exc()
+
+with open('postgres_log.txt', 'w') as f:
+    sys.stdout = f
+    sys.stderr = f
+    test_db()

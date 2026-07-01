@@ -70,11 +70,11 @@ export default function NataliaOreiroPage() {
             </p>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white aspect-[4/3]">
+          <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-slate-50 aspect-[4/3]">
             <img
               src="/media/armazones-natalia-oreiro.jpeg"
               alt="Natalia Oreiro Colección"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
         </div>

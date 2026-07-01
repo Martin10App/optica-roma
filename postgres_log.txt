@@ -1,0 +1,2 @@
+Success: 799 rows fetched.
+First row: ('ALAMA SANTA', 'P6223ALMA', 'ACETATO', 'C3', '52', '39', '52', '16', '1', '6890', 'P6223ALMA_C3.jpeg')

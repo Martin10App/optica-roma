@@ -33,11 +33,13 @@ export default function MarcasSection() {
             <Link
               key={brand.name}
               href={brand.url}
-              scroll={false}
-              onClick={() => {
-                const el = document.getElementById('catalogo');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
+              scroll={!brand.url.startsWith('/?')}
+              onClick={(e) => {
+                if (brand.url.startsWith('/?')) {
+                  const el = document.getElementById('catalogo');
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }
               }}
               className="flex items-center justify-center h-24 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 px-6 group"
