@@ -66,7 +66,7 @@ export default function NataliaOreiroPage() {
 
           <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-xl bg-white aspect-[4/3]">
             <img
-              src="https://nataliaoreirogafas.com/img/cms/Natalia%20Oreiro/FW26/Natalia%20Oreiro%20oton%CC%83o26_4091_2a.jpg"
+              src="/media/armazones-natalia-oreiro.jpeg"
               alt="Natalia Oreiro Colección"
               className="w-full h-full object-cover"
             />

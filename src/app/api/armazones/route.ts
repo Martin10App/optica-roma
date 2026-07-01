@@ -30,9 +30,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (brands.length > 0) {
-      const brandPlaceholders = brands.map((_, i) => `$${paramIndex + i}`).join(', ');
-      baseQuery += ` AND marca IN (${brandPlaceholders})`;
-      queryParams.push(...brands);
+      const placeholders = brands.map((_, i) => `LOWER($${paramIndex + i})`).join(', ');
+      baseQuery += ` AND LOWER(marca) IN (${placeholders})`;
+      queryParams.push(...brands.map(m => m.toLowerCase()));
       paramIndex += brands.length;
     }
 
