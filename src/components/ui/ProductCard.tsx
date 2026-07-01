@@ -47,7 +47,8 @@ export default function ProductCard({ product }: { product: Product }) {
     setMousePos({ x, y });
   };
 
-  const isLenteContacto = product.categoria.toLowerCase() === 'lentes de contacto';
+  const isLiquid = product.modelo.toLowerCase().includes('alvera') || product.modelo.toLowerCase().includes('clarus') || product.modelo.toLowerCase().includes('liquido');
+  const isLenteContacto = product.categoria.toLowerCase() === 'lentes de contacto' && !isLiquid;
   const isAstigmatismo = isLenteContacto && product.modelo.toLowerCase().includes('astigmatismo');
   
   const [esferico, setEsferico] = useState('');

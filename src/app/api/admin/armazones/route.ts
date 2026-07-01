@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const total = parseInt(countResult.rows[0].count);
 
     const result = await pool.query(`
-      SELECT id, modelo, marca, categoria, precio, stock_visible, imagen_url 
+      SELECT id, modelo, marca, categoria, precio, precio_original, stock_visible, imagen_url 
       ${baseQuery} 
       ORDER BY id DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, precio, categoria } = body;
+    const { id, precio, precio_original, categoria } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'ID is required' }, { status: 400 });
@@ -63,10 +63,10 @@ export async function PATCH(request: NextRequest) {
 
     const result = await pool.query(`
       UPDATE armazones_publico
-      SET precio = $1, categoria = $2
-      WHERE id = $3
+      SET precio = $1, categoria = $2, precio_original = $3
+      WHERE id = $4
       RETURNING *
-    `, [precio, categoria, id]);
+    `, [precio, categoria, precio_original !== undefined ? (precio_original === 0 ? null : precio_original) : null, id]);
 
     if (result.rowCount === 0) {
       return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });

@@ -10,6 +10,7 @@ interface Product {
   marca: string;
   categoria: string;
   precio: number;
+  precio_original?: number | null;
   stock_visible: boolean;
   imagen_url: string;
 }
@@ -29,7 +30,7 @@ export default function AdminProductList() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ precio: 0, categoria: '' });
+  const [editForm, setEditForm] = useState({ precio: 0, precio_original: 0 as number | null, categoria: '' });
   const [saving, setSaving] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({ modelo: '', marca: '', categoria: CATEGORIAS[0], precio: 0 });
@@ -61,7 +62,7 @@ export default function AdminProductList() {
 
   const startEditing = (product: Product) => {
     setEditingId(product.id);
-    setEditForm({ precio: product.precio, categoria: product.categoria });
+    setEditForm({ precio: product.precio, precio_original: product.precio_original || 0, categoria: product.categoria });
   };
 
   const cancelEditing = () => {
@@ -74,11 +75,11 @@ export default function AdminProductList() {
       const res = await fetch('/api/admin/armazones', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, precio: editForm.precio, categoria: editForm.categoria })
+        body: JSON.stringify({ id, precio: editForm.precio, precio_original: editForm.precio_original, categoria: editForm.categoria })
       });
       const data = await res.json();
       if (data.success) {
-        setProducts(products.map(p => p.id === id ? { ...p, precio: editForm.precio, categoria: editForm.categoria } : p));
+        setProducts(products.map(p => p.id === id ? { ...p, precio: editForm.precio, precio_original: editForm.precio_original, categoria: editForm.categoria } : p));
         setEditingId(null);
       } else {
         alert('Error al guardar: ' + data.error);
@@ -185,17 +186,18 @@ export default function AdminProductList() {
               <th className="p-4 border-b">Marca</th>
               <th className="p-4 border-b">Categoría</th>
               <th className="p-4 border-b">Precio</th>
+              <th className="p-4 border-b">Precio Orig.</th>
               <th className="p-4 border-b text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="text-center p-8 text-gray-500">Cargando...</td>
+                <td colSpan={8} className="text-center p-8 text-gray-500">Cargando...</td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center p-8 text-gray-500">No se encontraron productos</td>
+                <td colSpan={8} className="text-center p-8 text-gray-500">No se encontraron productos</td>
               </tr>
             ) : (
               products.map((product) => (
@@ -238,6 +240,22 @@ export default function AdminProductList() {
                       </div>
                     ) : (
                       <span className="text-sm font-bold text-gray-900">${product.precio}</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    {editingId === product.id ? (
+                      <div className="flex items-center">
+                        <span className="mr-1">$</span>
+                        <input
+                          type="number"
+                          value={editForm.precio_original || ''}
+                          onChange={(e) => setEditForm({ ...editForm, precio_original: parseFloat(e.target.value) || 0 })}
+                          className="border p-1 rounded text-sm w-24"
+                          placeholder="Nulo"
+                        />
+                      </div>
+                    ) : (
+                      product.precio_original ? <span className="text-sm line-through text-gray-500">${product.precio_original}</span> : <span className="text-sm text-gray-400">-</span>
                     )}
                   </td>
                   <td className="p-4 text-center">
