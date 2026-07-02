@@ -13,7 +13,7 @@ async function run() {
     console.log(`Found ${data.length} armazones in JSON.`);
 
     console.log('Truncating remote armazones_publico...');
-    await neonClient.query('TRUNCATE TABLE armazones_publico RESTART IDENTITY');
+    await neonClient.query("DELETE FROM armazones_publico WHERE categoria = 'Armazones de Receta'");
 
     console.log('Inserting into remote database...');
     let inserted = 0;
