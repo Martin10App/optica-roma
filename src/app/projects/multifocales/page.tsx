@@ -13,11 +13,7 @@ export default function MultifocalesPage() {
     <div className="min-h-screen bg-white pt-24 text-slate-600">
       {/* Hero Section */}
       <div className="relative h-[55vh] flex items-center justify-center overflow-hidden">
-        <video
-
-          autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-        >
+        <video preload="metadata" poster="/media/ess_varilux_seenolimits_30s_arg_1080x1080px-poster.jpg" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20">
           <source src="/media/ess_varilux_seenolimits_30s_arg_1080x1080px.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/70 to-transparent" />
@@ -41,11 +37,7 @@ export default function MultifocalesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 gap-12 items-center reveal">
           <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
-            <video
-
-              autoPlay loop muted playsInline
-              className="w-full aspect-video object-cover opacity-80"
-            >
+            <video preload="metadata" poster="/media/ess_varilux_seenolimits_product_benefice_15s_arg-1080x1080-poster.jpg" autoPlay loop muted playsInline className="w-full aspect-video object-cover opacity-80">
               <source src="/media/ess_varilux_seenolimits_product_benefice_15s_arg-1080x1080.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-t from-white/60 to-transparent" />

@@ -9,6 +9,7 @@ const image = `${SITE_URL}/media/expositor-de-armazones.png`;
 export const metadata: Metadata = {
   title,
   description,
+  alternates: { canonical: url },
   openGraph: {
     title,
     description,

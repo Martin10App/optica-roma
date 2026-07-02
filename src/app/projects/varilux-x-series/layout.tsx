@@ -9,6 +9,7 @@ const image = `${SITE_URL}/media/varilux-1.jpg`;
 export const metadata: Metadata = {
   title,
   description,
+  alternates: { canonical: url },
   openGraph: {
     title,
     description,

@@ -13,7 +13,7 @@ const brands = [
   { name: 'Reef', logo: '', fallback: 'REEF', url: '/?categoria=armazones-de-receta&marcas=Reef#catalogo' },
   { name: 'Santorino', logo: '', fallback: 'SANTORINO', url: '/?categoria=armazones-de-receta&marcas=Santorino#catalogo' },
   { name: 'Amadeus', logo: '', fallback: 'Amadeus', url: '/?categoria=armazones-de-receta&marcas=Amadeus#catalogo' },
-  { name: 'Natalia Oreiro', logo: 'https://nataliaoreirogafas.com/img/logo-175830415623.svg', fallback: 'NATALIA OREIRO', url: '/?categoria=armazones-de-receta&marcas=Natalia%20Oreiro#catalogo' },
+  { name: 'Natalia Oreiro', logo: '/media/logos/natalia-oreiro-logo.svg', fallback: 'NATALIA OREIRO', url: '/?categoria=armazones-de-receta&marcas=Natalia%20Oreiro#catalogo' },
   { name: 'Varilux', logo: '/media/logos/varilux-logo.png', fallback: 'Varilux', url: '/projects/varilux-x-series' },
 ];
 

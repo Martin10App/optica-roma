@@ -117,6 +117,85 @@
 .delay-500 { animation-delay: 0.5s; }
 
 /* ============================================================
+   PREMIUM HERO ANIMATIONS
+   ============================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes aurora {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    33% { transform: translate(30px, -50px) scale(1.1) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) scale(0.9) rotate(240deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(360deg); }
+  }
+
+  @keyframes shine {
+    100% { left: 125%; }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: aurora 20s infinite alternate linear;
+    z-index: 0;
+  }
+
+  /* Micro-interacción premium para CTAs */
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-20deg);
+    transition: all 0.5s;
+    z-index: 1;
+  }
+  
+  .btn-shine:hover::after {
+    animation: shine 1s ease-out forwards;
+  }
+
+  /* Reveal texto palabra por palabra o línea por línea */
+  .reveal-text-line {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.visible .reveal-text-line {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .delay-text-1 { transition-delay: 0.1s; }
+  .delay-text-2 { transition-delay: 0.25s; }
+}
+
+/* Fallback si reduced motion está activado */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob { display: none; }
+  .reveal-text-line { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
    SECTION SCROLL REVEAL (conservado, colores adaptados)
    ============================================================ */
 .reveal {

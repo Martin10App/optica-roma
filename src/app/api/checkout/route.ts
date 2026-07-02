@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const { items } = await request.json();
 
-    if (!items || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ success: false, error: 'Cart is empty' }, { status: 400 });
     }
 
@@ -34,7 +34,56 @@ export async function POST(request: Request) {
     }
 
     const userId = payload.id;
-    const total = items.reduce((acc: number, item: any) => acc + (item.precio * item.cantidad), 0);
+
+    // 1 & 2: Validar items del cliente (solo id y cantidad)
+    const validItems: { id: number, cantidad: number }[] = [];
+    const itemIds: number[] = [];
+    for (const item of items) {
+      const id = parseInt(item.id, 10);
+      const cantidad = parseInt(item.cantidad, 10);
+      if (isNaN(id) || isNaN(cantidad) || cantidad < 1) {
+        return NextResponse.json({ success: false, error: 'Invalid item quantity or id' }, { status: 400 });
+      }
+      validItems.push({ id, cantidad });
+      itemIds.push(id);
+    }
+
+    // 3: Consultar los productos reales en la DB
+    const { rows: dbProducts } = await pool.query(
+      'SELECT id, modelo, marca, precio, stock_visible FROM armazones_publico WHERE id = ANY($1)',
+      [itemIds]
+    );
+
+    // 4 & 5: Validar y construir items procesados
+    let total = 0;
+    const processedItems = [];
+
+    for (const vItem of validItems) {
+      const dbProduct = dbProducts.find((p: any) => p.id === vItem.id);
+      
+      if (!dbProduct) {
+        return NextResponse.json({ success: false, error: `Producto no encontrado: ${vItem.id}` }, { status: 400 });
+      }
+      
+      if (dbProduct.stock_visible !== true) {
+        return NextResponse.json({ success: false, error: `Producto no disponible: ${vItem.id}` }, { status: 400 });
+      }
+      
+      const realPrice = parseFloat(dbProduct.precio);
+      if (isNaN(realPrice) || realPrice <= 0) {
+        return NextResponse.json({ success: false, error: `Precio inválido para producto: ${vItem.id}` }, { status: 400 });
+      }
+
+      total += realPrice * vItem.cantidad;
+      
+      processedItems.push({
+        id: dbProduct.id,
+        modelo: dbProduct.modelo,
+        marca: dbProduct.marca,
+        precio: realPrice,
+        cantidad: vItem.cantidad
+      });
+    }
 
     // Guardar pedido en DB
     const orderResult = await pool.query(
@@ -44,7 +93,7 @@ export async function POST(request: Request) {
     const orderId = orderResult.rows[0].id;
 
     // Guardar items
-    for (const item of items) {
+    for (const item of processedItems) {
       await pool.query(
         'INSERT INTO pedido_items (pedido_id, producto_id, modelo, marca, cantidad, precio) VALUES ($1, $2, $3, $4, $5, $6)',
         [orderId, item.id, item.modelo, item.marca, item.cantidad, item.precio]
@@ -52,7 +101,7 @@ export async function POST(request: Request) {
     }
 
     // Preparar ítems para Mercado Pago
-    const mpItems = items.map((item: any) => ({
+    const mpItems = processedItems.map((item) => ({
       id: item.id.toString(),
       title: `${item.marca} - ${item.modelo}`,
       quantity: item.cantidad,
@@ -75,6 +124,7 @@ export async function POST(request: Request) {
         },
         auto_return: 'approved',
         external_reference: orderId.toString(),
+        notification_url: `${origin}/api/webhooks/mercadopago`,
       }
     });
 

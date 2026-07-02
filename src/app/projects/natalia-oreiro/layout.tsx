@@ -9,6 +9,7 @@ const image = `${SITE_URL}/media/armazones-natalia-oreiro.jpeg`;
 export const metadata: Metadata = {
   title,
   description,
+  alternates: { canonical: url },
   openGraph: {
     title,
     description,

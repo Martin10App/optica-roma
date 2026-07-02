@@ -14,6 +14,7 @@ const branches = [
       { text: '2364 1800', url: 'tel:23641800', isWhatsapp: false }
     ],
     mapUrl: 'https://maps.google.com/maps?q=Rivera%20617,%20Las%20Piedras,%20Uruguay&t=&z=16&ie=UTF8&iwloc=&output=embed',
+    mapLink: 'https://www.google.com/maps/search/?api=1&query=%C3%93ptica%20Roma%20Rivera%20617%20Las%20Piedras%20Uruguay',
     accent: 'from-blue-500 to-cyan-400',
   },
   {
@@ -25,6 +26,7 @@ const branches = [
       { text: '4333 9869', url: 'tel:43339869', isWhatsapp: false }
     ],
     mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3286.262843075677!2d-56.28189672378411!3d-34.54687597297491!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a1ab0f4a821e25%3A0x6b45037d2f9b8898!2zSm9zw6kgRW5yaXF1ZSBSb2TDsyAzMTksIDkwMDAwIENhbmVsb25lcywgRGVwYXJ0YW1lbnRvIGRlIENhbmVsb25lcw!5e0!3m2!1ses-419!2suy!4v1718000000000!5m2!1ses-419!2suy',
+    mapLink: 'https://www.google.com/maps/search/?api=1&query=%C3%93ptica%20Roma%20Enrique%20Rod%C3%B3%20319%20Canelones%20Uruguay',
     accent: 'from-violet-500 to-purple-400',
   },
 ];
@@ -106,7 +108,7 @@ export default function BranchesSection() {
 
                 <div className="mt-6 pt-6 border-t border-slate-200">
                   <a
-                    href={`https://maps.google.com/maps?q=${branch.address.replace(' ', '+')},${branch.name},Uruguay`}
+                    href={branch.mapLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`inline-flex items-center gap-2 text-sm font-semibold bg-gradient-to-r ${branch.accent} bg-clip-text text-transparent hover:opacity-80 transition-opacity`}

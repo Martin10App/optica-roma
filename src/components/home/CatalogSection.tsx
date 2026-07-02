@@ -16,8 +16,9 @@ interface Product {
 }
 
 const CATEGORIES = ['Todas', 'Armazones de Receta', 'Lentes de Sol', 'Lentes de Contacto', 'Accesorios'];
+const LOCKED_BRAND_CATEGORIES = ['Todas', 'Armazones de Receta', 'Lentes de Sol'];
 
-function CatalogContent() {
+function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   useScrollReveal();
@@ -78,7 +79,9 @@ function CatalogContent() {
       if (activeCategory !== 'Todas') {
         params.set('categoria', activeCategory.toLowerCase().replace(/\s+/g, '-'));
       }
-      if (activeBrands.length > 0) {
+      if (lockedBrand) {
+        params.set('marcas', lockedBrand);
+      } else if (activeBrands.length > 0) {
         params.set('marcas', activeBrands.join(','));
       }
 
@@ -133,11 +136,15 @@ function CatalogContent() {
   // Update URL when category changes to allow sharing links
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
-    setActiveBrands([]); // Clear brands when changing category
     setCurrentPage(1);
     
     const params = new URLSearchParams(searchParams.toString());
-    params.delete('marcas');
+    
+    if (!lockedBrand) {
+      setActiveBrands([]); // Clear brands when changing category
+      params.delete('marcas');
+    }
+    
     if (cat === 'Todas') {
       params.delete('categoria');
     } else {
@@ -194,12 +201,18 @@ function CatalogContent() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
-            Catálogo
+            <span className={`w-1.5 h-1.5 rounded-full animate-ping-slow ${lockedBrand ? 'bg-[#c0203a]' : 'bg-blue-400'}`} />
+            {lockedBrand ? 'Colección Exclusiva' : 'Catálogo'}
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Explorá nuestros <span className="gradient-text">armazones</span>
-          </h2>
+          {title ? (
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+              {title}
+            </h2>
+          ) : (
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+              Explorá nuestros <span className="gradient-text">armazones</span>
+            </h2>
+          )}
         </div>
         
         {/* Mobile Filter Button */}
@@ -222,13 +235,13 @@ function CatalogContent() {
               <div className="mb-6">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Categorías</h3>
                 <ul className="space-y-1">
-                  {CATEGORIES.map(cat => (
+                  {(lockedBrand ? LOCKED_BRAND_CATEGORIES : CATEGORIES).map(cat => (
                     <li key={cat}>
                       <button
                         onClick={() => handleCategoryChange(cat)}
                         className={`w-full text-left py-2 px-3 rounded-xl text-sm transition-all duration-200 ${
                           activeCategory === cat 
-                            ? 'bg-blue-50 text-blue-700 font-bold border border-blue-300' 
+                            ? (lockedBrand ? 'bg-[#fdf2f2] text-[#c0203a] font-bold border border-[#c0203a]/40' : 'bg-blue-50 text-blue-700 font-bold border border-blue-300') 
                             : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                         }`}
                       >
@@ -240,52 +253,54 @@ function CatalogContent() {
               </div>
 
               {/* Brands */}
-              <div className="border-t border-slate-200 pt-5">
-                <button 
-                  onClick={() => setIsBrandsOpen(!isBrandsOpen)}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest mb-4"
-                >
-                  Marcas
-                  {isBrandsOpen ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
-                </button>
-                
-                {isBrandsOpen && (
-                  <div className="space-y-1.5 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                    {availableBrands.map(brand => (
-                      <label 
-                        key={brand} 
-                        onClick={() => toggleBrand(brand)}
-                        className="flex items-center gap-3 cursor-pointer group py-0.5 select-none"
-                      >
-                        <div
-                          className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200 ${
-                            activeBrands.includes(brand) 
-                              ? 'bg-blue-500 border-blue-500' 
-                              : 'border-slate-300 group-hover:border-blue-400'
-                          }`}
-                        >
-                          {activeBrands.includes(brand) && <Check size={10} className="text-white" />}
-                        </div>
-                        <span className="text-sm text-slate-500 group-hover:text-slate-900 transition-colors">{brand}</span>
-                      </label>
-                    ))}
-                    {availableBrands.length === 0 && (
-                      <p className="text-sm text-slate-600 italic">Cargando marcas...</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Clear filters */}
-                {activeBrands.length > 0 && (
-                  <button
-                    onClick={clearBrands}
-                    className="mt-4 flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+              {!lockedBrand && (
+                <div className="border-t border-slate-200 pt-5">
+                  <button 
+                    onClick={() => setIsBrandsOpen(!isBrandsOpen)}
+                    className="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest mb-4"
                   >
-                    <X size={12} />
-                    Limpiar marcas ({activeBrands.length})
+                    Marcas
+                    {isBrandsOpen ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
                   </button>
-                )}
-              </div>
+                  
+                  {isBrandsOpen && (
+                    <div className="space-y-1.5 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                      {availableBrands.map(brand => (
+                        <label 
+                          key={brand} 
+                          onClick={() => toggleBrand(brand)}
+                          className="flex items-center gap-3 cursor-pointer group py-0.5 select-none"
+                        >
+                          <div
+                            className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200 ${
+                              activeBrands.includes(brand) 
+                                ? 'bg-blue-500 border-blue-500' 
+                                : 'border-slate-300 group-hover:border-blue-400'
+                            }`}
+                          >
+                            {activeBrands.includes(brand) && <Check size={10} className="text-white" />}
+                          </div>
+                          <span className="text-sm text-slate-500 group-hover:text-slate-900 transition-colors">{brand}</span>
+                        </label>
+                      ))}
+                      {availableBrands.length === 0 && (
+                        <p className="text-sm text-slate-600 italic">Cargando marcas...</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Clear filters */}
+                  {activeBrands.length > 0 && (
+                    <button
+                      onClick={clearBrands}
+                      className="mt-4 flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+                    >
+                      <X size={12} />
+                      Limpiar marcas ({activeBrands.length})
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </aside>
 
@@ -295,7 +310,7 @@ function CatalogContent() {
               <div className="mb-4 sm:mb-0 flex items-center gap-4">
                 <p className="text-sm text-slate-500">
                   Mostrando <span className="font-bold text-slate-900">{totalItems}</span> productos
-                  {activeCategory !== 'Todas' && <span> en <span className="font-bold text-blue-700">{activeCategory}</span></span>}
+                  {activeCategory !== 'Todas' && <span> en <span className={`font-bold ${lockedBrand ? 'text-[#c0203a]' : 'text-blue-700'}`}>{activeCategory}</span></span>}
                 </p>
                 {(activeBrands.length > 0 || activeCategory !== 'Todas') && (
                   <button
@@ -412,7 +427,7 @@ function CatalogContent() {
   );
 }
 
-export default function CatalogSection() {
+export default function CatalogSection({ lockedBrand, title }: { lockedBrand?: string; title?: string }) {
   return (
     <Suspense fallback={
       <div className="py-24 text-center bg-white">
@@ -420,7 +435,7 @@ export default function CatalogSection() {
         <p className="mt-4 text-slate-500">Cargando catálogo...</p>
       </div>
     }>
-      <CatalogContent />
+      <CatalogContent lockedBrand={lockedBrand} title={title} />
     </Suspense>
   );
 }

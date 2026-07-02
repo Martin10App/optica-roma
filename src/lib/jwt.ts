@@ -1,8 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'optica_roma_super_secret_key_2026'
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET no está configurado en las variables de entorno.');
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function signToken(payload: any) {
   return new SignJWT(payload)

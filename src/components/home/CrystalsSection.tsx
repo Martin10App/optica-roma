@@ -82,11 +82,7 @@ export default function CrystalsSection() {
               {/* Background Media */}
               <div className="absolute inset-0">
                 {crystal.mediaType === 'video' ? (
-                  <video
-                    
-                    autoPlay loop muted playsInline
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
-                  >
+                  <video preload="none" poster={crystal.mediaUrl.replace('.mp4', '-poster.jpg')} autoPlay loop muted playsInline className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700">
                     <source src={crystal.mediaUrl} type="video/mp4" />
                   </video>
                 ) : (

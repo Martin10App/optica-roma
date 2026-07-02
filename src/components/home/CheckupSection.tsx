@@ -25,7 +25,7 @@ export default function CheckupSection() {
               Salud Visual
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-              Chequeo visual
+              Chequeo visual{' '}
               <span className="gradient-text block">completamente gratis</span>
             </h2>
             <p className="text-slate-500 text-lg mb-10 leading-relaxed max-w-md">
@@ -73,11 +73,7 @@ export default function CheckupSection() {
 
               {/* Main video box */}
               <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
-                <video
-                  
-                  autoPlay loop muted playsInline
-                  className="w-full aspect-square object-cover"
-                >
+                <video preload="none" poster="/media/nina-fondo-de-ojo-poster.jpg" autoPlay loop muted playsInline className="w-full aspect-square object-cover">
                   <source src="/media/nina-fondo-de-ojo.mp4" type="video/mp4" />
                 </video>
               </div>

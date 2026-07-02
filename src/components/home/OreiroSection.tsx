@@ -11,7 +11,7 @@ export default function OreiroSection() {
       {/* Background Image Setup */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://nataliaoreirogafas.com/img/cms/Natalia%20Oreiro/FW26/Natalia%20Oreiro%20oton%CC%83o26_3988_1a.jpg"
+          src="/media/logos/natalia-oreiro-hero-fw26.jpg"
           alt="Natalia Oreiro Gafas"
           className="object-cover object-top opacity-30 w-full h-full"
         />

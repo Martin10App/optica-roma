@@ -9,6 +9,7 @@ const image = `${SITE_URL}/media/video-poster.jpg`;
 export const metadata: Metadata = {
   title,
   description,
+  alternates: { canonical: url },
   openGraph: {
     title,
     description,

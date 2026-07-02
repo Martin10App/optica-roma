@@ -63,6 +63,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 export default function RootLayout({
@@ -98,25 +101,40 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Optician",
               name: "Óptica Roma",
-              image: `${SITE_URL}/media/expositor-armazoens2.png`,
+              image: `${SITE_URL}/media/logooptica.png`,
               url: SITE_URL,
-              telephone: "+598 098 871 673",
+              telephone: "+59823641800",
               priceRange: "$$",
-              address: [
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.9",
+                reviewCount: "42"
+              },
+              department: [
                 {
-                  "@type": "PostalAddress",
-                  streetAddress: "Rivera 617",
-                  addressLocality: "Las Piedras",
-                  addressRegion: "Canelones",
-                  addressCountry: "UY",
+                  "@type": "Optician",
+                  name: "Óptica Roma - Las Piedras",
+                  telephone: "+59823641800",
+                  address: {
+                    "@type": "PostalAddress",
+                    streetAddress: "Rivera 617",
+                    addressLocality: "Las Piedras",
+                    addressRegion: "Canelones",
+                    addressCountry: "UY",
+                  },
                 },
                 {
-                  "@type": "PostalAddress",
-                  streetAddress: "Enrique Rodó 319",
-                  addressLocality: "Canelones",
-                  addressRegion: "Canelones",
-                  addressCountry: "UY",
-                },
+                  "@type": "Optician",
+                  name: "Óptica Roma - Canelones",
+                  telephone: "+59843339869",
+                  address: {
+                    "@type": "PostalAddress",
+                    streetAddress: "Enrique Rodó 319",
+                    addressLocality: "Canelones",
+                    addressRegion: "Canelones",
+                    addressCountry: "UY",
+                  },
+                }
               ],
               openingHoursSpecification: [
                 {
@@ -151,8 +169,8 @@ export default function RootLayout({
                 },
               ],
               sameAs: [
-                "https://www.instagram.com/opticaroma",
-                "https://www.facebook.com/opticaroma",
+                "https://instagram.com/opticaromalaspiedras",
+                "https://facebook.com/RomaLasPiedras",
               ],
             }),
           }}

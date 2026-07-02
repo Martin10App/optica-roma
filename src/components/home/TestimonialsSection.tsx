@@ -184,7 +184,7 @@ export default function TestimonialsSection() {
                 </div>
                 {/* Google "G" mock */}
                 <div className="w-6 h-6">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="24" height="24" />
+                  <img src="/media/logos/google-g-logo.svg" alt="Google" width="24" height="24" />
                 </div>
               </div>
 

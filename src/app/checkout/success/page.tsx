@@ -1,41 +1,118 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, MessageCircle } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Clock, XCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useCart } from '@/context/CartContext';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
-  const paymentId = searchParams.get('payment_id');
-  const status = searchParams.get('status');
+  const fallbackPaymentId = searchParams.get('payment_id');
+  
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
+  const [paymentId, setPaymentId] = useState<string | null>(fallbackPaymentId);
+  const [loading, setLoading] = useState(true);
+  
   const { clearCart } = useCart();
 
   useEffect(() => {
-    // Si llegamos a esta página y el pago está aprobado, limpiamos el carrito
-    if (status === 'approved') {
-      clearCart();
+    if (!orderId) {
+      setLoading(false);
+      return;
     }
-  }, [status, clearCart]);
+
+    let interval: ReturnType<typeof setInterval>;
+    let isTerminal = false;
+
+    const fetchStatus = async () => {
+      if (isTerminal) return;
+      try {
+        const res = await fetch(`/api/pedidos/estado?orderId=${orderId}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          setOrderStatus(data.estado);
+          if (data.pago_id) {
+            setPaymentId(data.pago_id);
+          }
+          
+          if (data.estado === 'pagado' || data.estado === 'rechazado') {
+            isTerminal = true;
+            if (interval) clearInterval(interval);
+            if (data.estado === 'pagado') {
+              clearCart();
+            }
+          }
+        } else {
+          setOrderStatus('error');
+        }
+      } catch (error) {
+        setOrderStatus('error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatus();
+    // Consultar periódicamente cada 5 segundos hasta llegar a un estado terminal
+    interval = setInterval(fetchStatus, 5000);
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [orderId, clearCart]);
 
   const handleNotifyWhatsApp = () => {
     const phoneNumber = "598098871673";
-    const message = `¡Hola! Acabo de realizar una compra por Mercado Pago.%0A%0A*Pedido N°:* ${orderId}%0A*Referencia de pago:* ${paymentId}%0A%0ATe escribo para coordinar la entrega/retiro.`;
+    const message = `¡Hola! Acabo de realizar una compra por Mercado Pago.%0A%0A*Pedido N°:* ${orderId}%0A*Referencia de pago:* ${paymentId || 'Pendiente'}%0A%0ATe escribo para coordinar la entrega/retiro.`;
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center text-gray-500">
+          <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
+          <p>Verificando estado del pago...</p>
+        </div>
+      </div>
+    );
+  }
+
+  let icon = <CheckCircle2 size={40} />;
+  let iconBg = "bg-green-100 text-green-500";
+  let title = "¡Pago exitoso!";
+  let description = `Tu compra se ha procesado correctamente. El número de pedido es `;
+
+  if (orderStatus === 'pendiente') {
+    icon = <Clock size={40} />;
+    iconBg = "bg-yellow-100 text-yellow-500";
+    title = "Pago pendiente";
+    description = `Estamos esperando la confirmación de tu pago. El número de pedido es `;
+  } else if (orderStatus === 'rechazado') {
+    icon = <XCircle size={40} />;
+    iconBg = "bg-red-100 text-red-500";
+    title = "Pago rechazado";
+    description = `Hubo un problema con tu pago. Por favor intenta de nuevo. El número de pedido es `;
+  } else if (orderStatus === 'error') {
+    icon = <XCircle size={40} />;
+    iconBg = "bg-gray-100 text-gray-500";
+    title = "Error de verificación";
+    description = `No pudimos verificar el estado de tu pedido. El número de pedido es `;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-        <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 size={40} />
+        <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${iconBg}`}>
+          {icon}
         </div>
         
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">¡Pago exitoso!</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
         <p className="text-gray-600 mb-8">
-          Tu compra se ha procesado correctamente. El número de pedido es <strong>#{orderId}</strong>.
+          {description} <strong>#{orderId}</strong>.
         </p>
 
         <div className="space-y-4">
