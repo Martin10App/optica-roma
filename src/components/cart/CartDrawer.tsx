@@ -3,15 +3,10 @@
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
-import AuthModal from '../auth/AuthModal';
 
 export default function CartDrawer() {
   const { isCartOpen, setIsCartOpen, items, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
-  const { user } = useAuth();
-  const [loadingMP, setLoadingMP] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   const formattedTotal = new Intl.NumberFormat('es-UY', {
@@ -46,33 +41,6 @@ export default function CartDrawer() {
     });
     message += `%0A*Total:* ${formattedTotal}`;
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-  };
-
-  const handleMercadoPagoCheckout = async () => {
-    if (!user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    setLoadingMP(true);
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
-      });
-      const data = await res.json();
-      
-      if (data.success && data.init_point) {
-        window.location.href = data.init_point;
-      } else {
-        alert('Error al iniciar el pago con Mercado Pago: ' + (data.error || 'Error desconocido'));
-      }
-    } catch (error) {
-      alert('Error de conexión al iniciar el pago');
-    } finally {
-      setLoadingMP(false);
-    }
   };
 
   return (
@@ -177,12 +145,11 @@ export default function CartDrawer() {
               <span className="text-2xl font-bold text-slate-900">{formattedTotal}</span>
             </div>
             <div className="flex flex-col gap-3">
-              <button 
-                onClick={handleMercadoPagoCheckout}
-                disabled={loadingMP}
-                className="w-full bg-[#009ee3] hover:bg-[#0089c6] text-white font-bold py-3.5 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 text-base flex items-center justify-center gap-2 disabled:opacity-70 disabled:transform-none"
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="w-full bg-[#009ee3] hover:bg-[#0089c6] text-white font-bold py-3.5 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 text-base flex items-center justify-center gap-2"
               >
-                {loadingMP ? 'Cargando...' : 'Pagar con Mercado Pago'}
+                Pagar con QR de Mercado Pago
               </button>
               <button
                 onClick={handleWhatsAppCheckout}
@@ -190,16 +157,7 @@ export default function CartDrawer() {
               >
                 Consultar por WhatsApp
               </button>
-              <button
-                onClick={() => setIsQrModalOpen(true)}
-                className="w-full text-slate-500 hover:text-slate-700 text-sm font-medium underline underline-offset-2 mt-1 transition-colors"
-              >
-                ¿Preferís pagar con QR?
-              </button>
             </div>
-            <p className="text-center text-xs text-slate-400 mt-4">
-              Si pagas con Mercado Pago, asegúrate de ingresar tus datos reales.
-            </p>
           </div>
         )}
       </div>
@@ -248,11 +206,6 @@ export default function CartDrawer() {
           </div>
         </div>
       )}
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
     </>
   );
 }

@@ -136,10 +136,8 @@ export async function POST(request: Request) {
       init_point: response.init_point 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Checkout error:', error);
-    // TEMP DEBUG: exponer detalle del error para diagnosticar, se revierte apenas se resuelva
-    const detail = error?.cause ? JSON.stringify(error.cause) : (error?.message || String(error));
-    return NextResponse.json({ success: false, error: 'Failed to create preference', detail }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to create preference' }, { status: 500 });
   }
 }
