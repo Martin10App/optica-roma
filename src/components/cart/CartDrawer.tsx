@@ -12,6 +12,7 @@ export default function CartDrawer() {
   const { user } = useAuth();
   const [loadingMP, setLoadingMP] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   const formattedTotal = new Intl.NumberFormat('es-UY', {
     style: 'currency',
@@ -30,6 +31,20 @@ export default function CartDrawer() {
       message += `- ${itemName} (${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(item.precio)})%0A`;
     });
     message += `%0A*Total aproximado:* ${formattedTotal}`;
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  };
+
+  const handleQrPaymentWhatsApp = () => {
+    const phoneNumber = "598098871673";
+    let message = "¡Hola! Pagué mi pedido escaneando el código QR de Mercado Pago. Te adjunto la captura del pago.%0A%0A*Mi pedido:*%0A";
+    items.forEach(item => {
+      let itemName = `${item.cantidad}x ${item.marca} ${item.modelo}`;
+      if (item.opciones) {
+        itemName += ` (${item.opciones})`;
+      }
+      message += `- ${itemName} (${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(item.precio)})%0A`;
+    });
+    message += `%0A*Total:* ${formattedTotal}`;
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
@@ -169,11 +184,17 @@ export default function CartDrawer() {
               >
                 {loadingMP ? 'Cargando...' : 'Pagar con Mercado Pago'}
               </button>
-              <button 
+              <button
                 onClick={handleWhatsAppCheckout}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-600/20 transition-all hover:-translate-y-0.5 text-base flex items-center justify-center gap-2"
               >
                 Consultar por WhatsApp
+              </button>
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="w-full text-slate-500 hover:text-slate-700 text-sm font-medium underline underline-offset-2 mt-1 transition-colors"
+              >
+                ¿Preferís pagar con QR?
               </button>
             </div>
             <p className="text-center text-xs text-slate-400 mt-4">
@@ -183,9 +204,54 @@ export default function CartDrawer() {
         )}
       </div>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
+      {/* QR de Mercado Pago */}
+      {isQrModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => setIsQrModalOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-fade-in-up text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsQrModalOpen(false)}
+              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-lg font-bold text-slate-900 mb-1 mt-2">Pagá con QR de Mercado Pago</h3>
+            <p className="text-sm text-slate-500 mb-4">
+              Escaneá el código con la app de Mercado Pago, pagá el monto total y luego enviános la captura del pago por WhatsApp.
+            </p>
+
+            <div className="relative w-full aspect-[3/4] max-w-[220px] mx-auto rounded-xl overflow-hidden border border-slate-200 mb-4 bg-slate-50">
+              <Image
+                src="/media/qr-mercadopago.jpg"
+                alt="Código QR de Mercado Pago - Óptica Roma"
+                fill
+                className="object-contain"
+              />
+            </div>
+
+            <p className="text-sm font-semibold text-slate-900 mb-4">
+              Total a pagar: {formattedTotal}
+            </p>
+
+            <button
+              onClick={handleQrPaymentWhatsApp}
+              className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-600/20 transition-all hover:-translate-y-0.5"
+            >
+              Enviar comprobante por WhatsApp
+            </button>
+          </div>
+        </div>
+      )}
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );
