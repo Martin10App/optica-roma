@@ -1,0 +1,126 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 2,
+});
+
+// Columnas permitidas para insertar/actualizar (evita inyección vía nombres de campo arbitrarios)
+const CAMPOS_PEDIDO = [
+  'sucursal', 'cliente', 'cedula', 'telefono', 'fecha_venta',
+  'numero_trabajo', 'numero_trabajo2', 'numero_trabajo3',
+  'lej_od_eje', 'lej_od_cil', 'lej_od_esf', 'lej_oi_eje', 'lej_oi_cil', 'lej_oi_esf',
+  'add_val',
+  'cer_od_eje', 'cer_od_cil', 'cer_od_esf', 'cer_oi_eje', 'cer_oi_cil', 'cer_oi_esf',
+  'dist_od', 'dist_oi', 'alt_od', 'alt_oi',
+  'k', 'a', 'd', 'p', 'k2', 'a2', 'd2', 'p2',
+  'c1_material', 'c1_tipo', 'c1_color', 'c1_trat',
+  'c2_material', 'c2_tipo', 'c2_color', 'c2_trat',
+  'c3_material', 'c3_tipo', 'c3_color', 'c3_trat',
+  'armazones', 'armazones2', 'armazones3',
+  'precio', 'sena', 'forma_pago', 'saldo', 'tarjeta', 'cuotas',
+  'medico', 'archivo_excel', 'tipo_pedido', 'estado',
+  'fecha_procesado', 'direccion', 'email', 'fecha_nacimiento',
+];
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sucursal = searchParams.get('sucursal');
+
+    let query = 'SELECT * FROM rabaquino_pedidos';
+    const params: any[] = [];
+    if (sucursal && sucursal !== 'todas') {
+      query += ' WHERE sucursal = $1';
+      params.push(sucursal);
+    }
+    query += ' ORDER BY fecha_subida DESC LIMIT 10000';
+
+    const result = await pool.query(query, params);
+    return NextResponse.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Rabaquino GET pedidos error:', error);
+    return NextResponse.json({ success: false, error: 'Error al cargar pedidos' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const campos = Object.keys(body).filter((k) => CAMPOS_PEDIDO.includes(k));
+
+    if (campos.length === 0) {
+      return NextResponse.json({ success: false, error: 'Sin campos válidos' }, { status: 400 });
+    }
+
+    const columnas = campos.join(', ');
+    const marcadores = campos.map((_, i) => `$${i + 1}`).join(', ');
+    const valores = campos.map((c) => body[c]);
+
+    const result = await pool.query(
+      `INSERT INTO rabaquino_pedidos (${columnas}) VALUES (${marcadores}) RETURNING *`,
+      valores
+    );
+    return NextResponse.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('Rabaquino POST pedidos error:', error);
+    return NextResponse.json({ success: false, error: 'Error al crear pedido' }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Falta id' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const campos = Object.keys(body).filter((k) => CAMPOS_PEDIDO.includes(k));
+    if (campos.length === 0) {
+      return NextResponse.json({ success: false, error: 'Sin campos válidos' }, { status: 400 });
+    }
+
+    const sets = campos.map((c, i) => `${c} = $${i + 1}`).join(', ');
+    const valores = campos.map((c) => body[c]);
+    valores.push(id);
+
+    const result = await pool.query(
+      `UPDATE rabaquino_pedidos SET ${sets} WHERE id = $${valores.length} RETURNING *`,
+      valores
+    );
+    if (result.rowCount === 0) {
+      return NextResponse.json({ success: false, error: 'Pedido no encontrado' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('Rabaquino PATCH pedidos error:', error);
+    return NextResponse.json({ success: false, error: 'Error al actualizar pedido' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const usuarioActual = searchParams.get('usuario_actual');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Falta id' }, { status: 400 });
+    }
+    if (usuarioActual !== 'martin') {
+      return NextResponse.json({ success: false, error: 'No autorizado para eliminar' }, { status: 403 });
+    }
+
+    const result = await pool.query('DELETE FROM rabaquino_pedidos WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      return NextResponse.json({ success: false, error: 'Pedido no encontrado' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Rabaquino DELETE pedidos error:', error);
+    return NextResponse.json({ success: false, error: 'Error al eliminar pedido' }, { status: 500 });
+  }
+}
