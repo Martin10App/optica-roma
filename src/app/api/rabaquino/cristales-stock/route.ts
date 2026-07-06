@@ -31,21 +31,33 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const items = Array.isArray(body.items) ? body.items : [];
 
+    const CAMPOS_POR_FILA = 8;
+    const FILAS_POR_LOTE = 500; // se mantiene bien por debajo del limite de parametros de Postgres
+
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM rabaquino_cristales_stock');
-      for (const it of items) {
+
+      for (let i = 0; i < items.length; i += FILAS_POR_LOTE) {
+        const lote = items.slice(i, i + FILAS_POR_LOTE);
+        const valores: unknown[] = [];
+        const placeholders = lote.map((it: any, idx: number) => {
+          const base = idx * CAMPOS_POR_FILA;
+          valores.push(
+            it.tipo || '', it.subtipo || '', it.esf || '', it.cil || '',
+            it.add_val || '', it.ojo || null, !!it.disponible, it.cantidad ?? 0
+          );
+          return `($${base + 1},$${base + 2},$${base + 3},$${base + 4},$${base + 5},$${base + 6},$${base + 7},$${base + 8},NOW())`;
+        });
         await client.query(
           `INSERT INTO rabaquino_cristales_stock
              (tipo, subtipo, esf, cil, add_val, ojo, disponible, cantidad, fecha_sync)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())`,
-          [
-            it.tipo || '', it.subtipo || '', it.esf || '', it.cil || '',
-            it.add_val || '', it.ojo || null, !!it.disponible, it.cantidad ?? 0,
-          ]
+           VALUES ${placeholders.join(',')}`,
+          valores
         );
       }
+
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
