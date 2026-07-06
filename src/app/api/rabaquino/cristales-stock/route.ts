@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
+export const maxDuration = 60;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 2,
@@ -33,6 +35,20 @@ export async function POST(request: NextRequest) {
 
     const CAMPOS_POR_FILA = 8;
     const FILAS_POR_LOTE = 500; // se mantiene bien por debajo del limite de parametros de Postgres
+
+    // Salvaguarda: si una ejecucion anterior murio a mitad de camino (por
+    // ejemplo por el limite de tiempo de la funcion serverless) puede quedar
+    // una transaccion abierta bloqueando la tabla para siempre. La matamos
+    // antes de intentar nuestra propia transaccion.
+    await pool.query(`
+      SELECT pg_terminate_backend(pid)
+      FROM pg_stat_activity
+      WHERE datname = current_database()
+        AND pid <> pg_backend_pid()
+        AND state = 'idle in transaction'
+        AND now() - xact_start > interval '20 seconds'
+        AND query ILIKE '%rabaquino_cristales_stock%'
+    `);
 
     const client = await pool.connect();
     try {
