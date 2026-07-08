@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     let orderClause = 'ORDER BY ventas_count DESC, id DESC';
     if (sort === 'price_asc') orderClause = 'ORDER BY precio ASC, id DESC';
     if (sort === 'price_desc') orderClause = 'ORDER BY precio DESC, id DESC';
+    if (sort === 'bestsellers') orderClause = 'ORDER BY mas_vendido DESC, id DESC';
 
     // Fetch paginated products
     const result = await pool.query(`

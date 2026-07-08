@@ -339,6 +339,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                   className="bg-white border border-slate-300 text-slate-600 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5"
                 >
                   <option value="newest">Más recientes</option>
+                  <option value="bestsellers">Más vendidos</option>
                   <option value="price_asc">Precio: Menor a Mayor</option>
                   <option value="price_desc">Precio: Mayor a Menor</option>
                 </select>
