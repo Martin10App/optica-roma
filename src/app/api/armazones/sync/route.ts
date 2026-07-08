@@ -132,3 +132,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Error al sincronizar armazones' }, { status: 500 });
   }
 }
+
+// Temporal: limpiar filas de prueba (marca que arranca con TEST_) usadas para
+// validar el POST de arriba antes de correr la sincronización real. Solo
+// borra filas cuya marca empieza con "TEST_", nunca puede tocar datos reales.
+export async function DELETE(request: NextRequest) {
+  const secret = request.headers.get('x-sync-secret');
+  if (!secret || secret !== process.env.RABAQUINO_SYNC_SECRET) {
+    return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+  }
+  const result = await pool.query("DELETE FROM armazones_publico WHERE marca LIKE 'TEST\\_%' ESCAPE '\\'");
+  return NextResponse.json({ success: true, borrados: result.rowCount });
+}
