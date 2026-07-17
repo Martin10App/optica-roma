@@ -93,7 +93,7 @@ export default function HeroSection() {
             </h1>
 
             <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-8 max-w-xl">
-              Más de 15 años cuidando la salud visual de Las Piedras y Canelones.
+              Más de 10 años cuidando la salud visual de Las Piedras y Canelones.
               Atención personalizada, taller propio y las mejores marcas de
               cristales Varilux.
             </p>
@@ -136,7 +136,7 @@ export default function HeroSection() {
               </div>
               <div className="w-1 h-1 rounded-full bg-slate-300" />
               <div className="text-xs sm:text-sm font-medium text-slate-600">
-                15+ años de experiencia
+                10+ años de experiencia
               </div>
             </div>
           </div>

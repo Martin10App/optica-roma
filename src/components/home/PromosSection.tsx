@@ -100,7 +100,7 @@ export default function PromosSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent lg:bg-gradient-to-r" />
                 <div className="absolute bottom-6 left-6">
                   <Link
-                    href="/?categoria=armazones-de-receta&marcas=Ninety#catalogo"
+                    href="/?categoria=armazones-de-receta&marcas=NINETY#catalogo"
                     scroll={false}
                     onClick={() => {
                       const el = document.getElementById('catalogo');

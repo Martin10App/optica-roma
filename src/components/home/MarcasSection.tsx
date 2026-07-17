@@ -4,16 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
+// El valor de `marcas` debe coincidir exacto con la columna `marca` de la base:
+// la API filtra sin distinguir mayúsculas, pero el checkbox del catálogo compara
+// el string tal cual, y si no coincide queda sin marcar y se duplica el filtro.
 const brands = [
-  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/?categoria=armazones-de-receta&marcas=Ray-Ban#catalogo' },
-  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/?categoria=armazones-de-receta&marcas=Armani%20Exchange#catalogo' },
-  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/?categoria=armazones-de-receta&marcas=Vizzini#catalogo' },
-  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/?categoria=armazones-de-receta&marcas=Alma%20Santa#catalogo' },
-  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/?categoria=armazones-de-receta&marcas=Viky#catalogo' },
-  { name: 'Reef', logo: '', fallback: 'REEF', url: '/?categoria=armazones-de-receta&marcas=Reef#catalogo' },
-  { name: 'Santorino', logo: '', fallback: 'SANTORINO', url: '/?categoria=armazones-de-receta&marcas=Santorino#catalogo' },
-  { name: 'Amadeus', logo: '', fallback: 'Amadeus', url: '/?categoria=armazones-de-receta&marcas=Amadeus#catalogo' },
-  { name: 'Natalia Oreiro', logo: '/media/logos/natalia-oreiro-logo.svg', fallback: 'NATALIA OREIRO', url: '/?categoria=armazones-de-receta&marcas=Natalia%20Oreiro#catalogo' },
+  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/?marcas=RAYBAN#catalogo' },
+  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/?marcas=ARMANI%20EXCHANGE#catalogo' },
+  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/?marcas=VIZZINI#catalogo' },
+  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/?marcas=ALMA%20SANTA#catalogo' },
+  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/?marcas=VIKY#catalogo' },
+  { name: 'Reef', logo: '', fallback: 'REEF', url: '/?marcas=REEF#catalogo' },
+  { name: 'Santorino', logo: '', fallback: 'SANTORINO', url: '/?marcas=SANTORINO#catalogo' },
+  { name: 'Amadeus', logo: '', fallback: 'Amadeus', url: '/?marcas=AMADEUS#catalogo' },
+  { name: 'Natalia Oreiro', logo: '/media/logos/natalia-oreiro-logo.svg', fallback: 'NATALIA OREIRO', url: '/?marcas=NATALIA%20OREIRO#catalogo' },
   { name: 'Varilux', logo: '/media/logos/varilux-logo.png', fallback: 'Varilux', url: '/projects/varilux-x-series' },
 ];
 
