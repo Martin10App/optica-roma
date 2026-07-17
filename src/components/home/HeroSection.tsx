@@ -19,7 +19,7 @@ export default function HeroSection() {
             // Trigger del contador
             if (entry.target.classList.contains('hero-counter-trigger')) {
               let current = 0;
-              const max = 700;
+              const max = 1000;
               const duration = 1500; // 1.5 segundos
               const stepTime = 30; // ms por frame aproximado
               const steps = duration / stepTime;
@@ -84,10 +84,13 @@ export default function HeroSection() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight mb-6">
-              <span className="block overflow-hidden">
+              {/* El pb extiende la zona de recorte del overflow-hidden para que no corte
+                  los rabitos (la "j" de "mejores"): leading-[1.1] deja la caja de línea
+                  más baja que la fuente. El -mb lo compensa para no correr el layout. */}
+              <span className="block overflow-hidden pb-[0.2em] -mb-[0.2em]">
                 <span className="block reveal-text-line delay-text-1">Tu visión en las</span>
               </span>
-              <span className="block overflow-hidden">
+              <span className="block overflow-hidden pb-[0.2em] -mb-[0.2em]">
                 <span className="block text-blue-700 reveal-text-line delay-text-2">mejores manos</span>
               </span>
             </h1>

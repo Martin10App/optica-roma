@@ -46,7 +46,7 @@ export default function AboutSection() {
               <span className="gradient-text">con tecnología de vanguardia.</span>
             </h2>
             <p className="text-slate-500 text-lg mb-6 leading-relaxed">
-              En Óptica Roma combinamos la atención personalizada con los últimos avances en salud visual. Empezamos hace más de 15 años con una misión clara: ofrecer excelencia y el mejor asesoramiento a las familias de Las Piedras y Canelones.
+              En Óptica Roma combinamos la atención personalizada con los últimos avances en salud visual. Empezamos hace más de 10 años con una misión clara: ofrecer excelencia y el mejor asesoramiento a las familias de Las Piedras y Canelones.
             </p>
             <p className="text-slate-500 text-lg mb-10 leading-relaxed">
               Conocemos a cada cliente por su nombre. Sabemos qué tipo de cristal necesitas para trabajar cómodo frente a la computadora y qué armazón resiste el día a día de tus hijos.
