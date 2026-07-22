@@ -10,10 +10,17 @@ const COLUMNAS_LISTA = `
   (receta_foto IS NOT NULL) AS tiene_receta
 `;
 
-// Campos que el consultorio puede tocar desde la página
+// Lo único que el consultorio puede tocar: coordinar el turno y anotar.
+// Los datos del paciente (nombre, cédula, seña) son de la óptica, que es
+// quien los tomó en el mostrador — el consultorio es un invitado acá.
 const CAMPOS_CONSULTORIO = ['fecha_agendada', 'hora_agendada', 'estado', 'nota'];
-// Campos que puede tocar el programa de escritorio
-const CAMPOS_PROGRAMA = [...CAMPOS_CONSULTORIO, 'receta_bajada', 'telefono', 'sena', 'edad'];
+// La óptica, desde la página, edita además los datos del paciente
+const CAMPOS_OPTICA = [
+  ...CAMPOS_CONSULTORIO,
+  'nombre', 'cedula', 'telefono', 'fnac', 'edad', 'sena',
+];
+// El programa de escritorio, además, marca las recetas como bajadas
+const CAMPOS_PROGRAMA = [...CAMPOS_OPTICA, 'receta_bajada'];
 
 const ESTADOS = ['pendiente', 'agendado', 'atendido', 'cancelado', 'archivado'];
 
@@ -255,13 +262,16 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Borra un registro de la agenda, con sus mensajes. Solo desde el programa de
- * la óptica: el consultorio puede marcar "no vino / canceló", pero no borrar,
- * para que no se pierda el registro de lo que pasó.
+ * Borra un registro de la agenda, con sus mensajes. Lo puede hacer el programa
+ * o el usuario de la óptica desde la página. El consultorio no: puede marcar
+ * "no vino / canceló", pero no borrar, para que no se pierda el registro de lo
+ * que pasó.
  */
 export async function DELETE(request: NextRequest) {
   try {
-    if (!esSyncDelPrograma(request)) {
+    const esPrograma = esSyncDelPrograma(request);
+    const sesion = esPrograma ? null : await sesionDesdeRequest(request);
+    if (!esPrograma && sesion?.rol !== 'optica') {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
@@ -296,7 +306,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Falta id' }, { status: 400 });
     }
 
-    const permitidos = esPrograma ? CAMPOS_PROGRAMA : CAMPOS_CONSULTORIO;
+    const permitidos = esPrograma
+      ? CAMPOS_PROGRAMA
+      : sesion?.rol === 'optica'
+        ? CAMPOS_OPTICA
+        : CAMPOS_CONSULTORIO;
     const body = await request.json();
     const campos = Object.keys(body).filter((k) => permitidos.includes(k));
     if (campos.length === 0) {

@@ -207,6 +207,26 @@ main{padding:16px;max-width:760px;margin:0 auto;}
       </div>
     </div>
 
+    <!-- Solo para el usuario de la óptica: el consultorio no ve este bloque -->
+    <div class="bloque" id="f-editar-bloque" style="display:none">
+      <h3>Editar datos del paciente</h3>
+      <div class="fila-campos" style="margin-bottom:10px">
+        <div class="campo"><label>Nombre</label><input id="e-nombre" autocapitalize="characters"></div>
+      </div>
+      <div class="fila-campos" style="margin-bottom:10px">
+        <div class="campo"><label>Cédula</label><input id="e-cedula" inputmode="numeric"></div>
+        <div class="campo"><label>Teléfono</label><input id="e-telefono" inputmode="tel"></div>
+      </div>
+      <div class="fila-campos" style="margin-bottom:14px">
+        <div class="campo"><label>Nacimiento</label><input id="e-fnac"></div>
+        <div class="campo"><label>Seña</label><input id="e-sena" inputmode="numeric"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="guardarDatos()">Guardar cambios</button>
+        <button class="btn btn-rojo" onclick="eliminarRegistro()">🗑 Eliminar</button>
+      </div>
+    </div>
+
     <div class="bloque" id="f-hist-bloque" style="display:none">
       <h3>Consultas anteriores</h3>
       <div id="f-hist"></div>
@@ -624,6 +644,7 @@ function abrirFicha(id){
   img.src = '';
   if (r.tiene_receta) verReceta(r.id);
 
+  prepararEdicion(r);
   document.getElementById('f-chat-txt').value = '';
   cargarChat(r.id);
   cargarHistorial(r);
@@ -710,6 +731,61 @@ async function guardarAgenda(){
     if (!json.success){ showToast(json.error || 'No se pudo guardar', 'err'); return; }
     aplicar(json.data);
     showToast('Guardado', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
+}
+
+/** Edición y borrado: solo el usuario de la óptica, que es el dueño de los datos. */
+function esOptica(){
+  return SESION && SESION.rol === 'optica';
+}
+
+function prepararEdicion(r){
+  const bloque = document.getElementById('f-editar-bloque');
+  if (!esOptica()){ bloque.style.display = 'none'; return; }
+  document.getElementById('e-nombre').value   = r.nombre || '';
+  document.getElementById('e-cedula').value   = r.cedula || '';
+  document.getElementById('e-telefono').value = r.telefono || '';
+  document.getElementById('e-fnac').value     = r.fnac || '';
+  document.getElementById('e-sena').value     = r.sena || '';
+  bloque.style.display = 'block';
+}
+
+async function guardarDatos(){
+  if (!FICHA) return;
+  const cuerpo = {
+    nombre:   document.getElementById('e-nombre').value.trim().toUpperCase(),
+    cedula:   document.getElementById('e-cedula').value.trim(),
+    telefono: document.getElementById('e-telefono').value.trim(),
+    fnac:     document.getElementById('e-fnac').value.trim(),
+    sena:     document.getElementById('e-sena').value.trim(),
+  };
+  if (!cuerpo.nombre){ showToast('El nombre no puede quedar vacío', 'err'); return; }
+
+  try{
+    const json = await api('/agenda?id=' + FICHA.id, {method:'PATCH', body: JSON.stringify(cuerpo)});
+    if (!json.success){ showToast(json.error || 'No se pudo guardar', 'err'); return; }
+    const id = FICHA.id;
+    aplicar(json.data);
+    abrirFicha(id);   // redibujar la ficha entera con los datos nuevos
+    showToast('Datos actualizados', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
+}
+
+async function eliminarRegistro(){
+  if (!FICHA) return;
+  const nom = FICHA.nombre || 'este paciente';
+  if (!confirm('¿Eliminar a ' + nom + ' de la agenda?\n\n' +
+               'Se borra también su chat. Esto no se puede deshacer y el médico ' +
+               'deja de verlo.\n\nSi solo faltó a la consulta, usá "No vino / canceló", ' +
+               'que conserva el registro.')) return;
+
+  try{
+    const json = await api('/agenda?id=' + FICHA.id, {method:'DELETE'});
+    if (!json.success){ showToast(json.error || 'No se pudo eliminar', 'err'); return; }
+    AGENDA = AGENDA.filter(x => x.id !== FICHA.id);
+    cerrarFicha();
+    render();
+    showToast('Eliminado', 'ok');
   }catch(e){ showToast('Sin conexión', 'err'); }
 }
 
