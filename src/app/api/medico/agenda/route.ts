@@ -230,6 +230,34 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/**
+ * Borra un registro de la agenda, con sus mensajes. Solo desde el programa de
+ * la óptica: el consultorio puede marcar "no vino / canceló", pero no borrar,
+ * para que no se pierda el registro de lo que pasó.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    if (!esSyncDelPrograma(request)) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Falta id' }, { status: 400 });
+    }
+
+    await medicoPool.query('DELETE FROM medico_mensajes WHERE agenda_id = $1::int', [id]);
+    const res = await medicoPool.query('DELETE FROM medico_agenda WHERE id = $1::int', [id]);
+    if (res.rowCount === 0) {
+      return NextResponse.json({ success: false, error: 'No encontrado' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Medico DELETE agenda error:', error);
+    return NextResponse.json({ success: false, error: 'Error al borrar' }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const sesion = await sesionDesdeRequest(request);
