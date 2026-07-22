@@ -6,6 +6,13 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="theme-color" content="#060A13">
 <title>Agenda</title>
+<link rel="manifest" href="/agenda.webmanifest">
+<link rel="apple-touch-icon" href="/icons/agenda-180.png">
+<link rel="icon" href="/icons/agenda-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agenda">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
@@ -257,6 +264,22 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
   box-shadow:0 6px 16px -8px rgba(37,99,235,.55);}
 .chat-vacio{color:var(--text3);font-size:13px;text-align:center;padding:16px 0;}
 
+/* ---------- Notificaciones / instalar ---------- */
+.aviso-inst{display:none;align-items:flex-start;gap:12px;background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(139,92,246,.12));
+  border:1px solid rgba(96,165,250,.4);border-radius:16px;padding:14px 15px;margin-bottom:18px;
+  animation:subir .4s ease both;}
+.aviso-inst.ver{display:flex;}
+.aviso-inst .ic{flex:none;width:38px;height:38px;border-radius:11px;background:rgba(59,130,246,.2);
+  display:flex;align-items:center;justify-content:center;font-size:19px;}
+.aviso-inst .tx{flex:1;min-width:0;}
+.aviso-inst .tt{font-weight:700;font-size:14px;margin-bottom:3px;}
+.aviso-inst .dd{font-size:12.5px;color:var(--text2);line-height:1.5;}
+.aviso-inst .bs{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;}
+.aviso-inst .bs .btn{width:auto;padding:9px 15px;font-size:13px;flex:none;}
+.aviso-inst .cerrar-av{background:none;color:var(--text3);font-size:19px;line-height:1;padding:0 2px;flex:none;}
+.pasos{margin:9px 0 0;padding-left:19px;font-size:12.5px;color:var(--text2);line-height:1.75;}
+.pasos b{color:var(--text);}
+
 /* ---------- Toast ---------- */
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:90;
   background:rgba(17,26,46,.96);border:1px solid var(--border2);border-left:4px solid var(--accent);
@@ -346,7 +369,18 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
     </div>
   </header>
 
-  <main id="contenido"><div class="cargando"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></main>
+  <main>
+    <div class="aviso-inst" id="aviso-notif">
+      <div class="ic" id="notif-ic">🔔</div>
+      <div class="tx">
+        <div class="tt" id="notif-tt">Activá las notificaciones</div>
+        <div class="dd" id="notif-dd"></div>
+        <div class="bs" id="notif-bs"></div>
+      </div>
+      <button class="cerrar-av" onclick="ocultarAvisoNotif()" title="Ahora no">×</button>
+    </div>
+    <div id="contenido"><div class="cargando"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+  </main>
 </div>
 
 <!-- ══════════ FICHA DEL CLIENTE ══════════ -->
@@ -638,6 +672,7 @@ function arrancar(){
   llenarMeses();
   cargarAgenda(true);
   arrancarReloj();
+  revisarNotificaciones();
 }
 
 /** Consultar cada minuto, pero SOLO con la página a la vista.
@@ -1232,6 +1267,141 @@ async function enviarMensajeGeneral(){
     abrirChatGeneral();
   }catch(e){ showToast('Sin conexión', 'err'); ta.value = txt; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Notificaciones (funcionan con la agenda instalada como app)
+   ═══════════════════════════════════════════════════════════ */
+let SW = null;
+
+const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/** ¿Está abierta como aplicación instalada y no como pestaña del navegador? */
+function esApp(){
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+}
+
+async function registrarSW(){
+  if (!('serviceWorker' in navigator)) return null;
+  try{
+    SW = await navigator.serviceWorker.register('/sw-agenda.js', {scope: '/agenda'});
+    return SW;
+  }catch(e){ return null; }
+}
+
+function b64aBytes(base64){
+  const relleno = '='.repeat((4 - base64.length % 4) % 4);
+  const s = (base64 + relleno).replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(s);
+  return Uint8Array.from([...bin].map(c => c.charCodeAt(0)));
+}
+
+function ocultarAvisoNotif(){
+  document.getElementById('aviso-notif').classList.remove('ver');
+  try{ localStorage.setItem('notif_ocultar', Date.now()); }catch(e){}
+}
+
+function mostrarAviso(titulo, detalle, botones, icono){
+  document.getElementById('notif-ic').textContent = icono || '🔔';
+  document.getElementById('notif-tt').textContent = titulo;
+  document.getElementById('notif-dd').innerHTML = detalle;
+  document.getElementById('notif-bs').innerHTML = botones || '';
+  document.getElementById('aviso-notif').classList.add('ver');
+}
+
+/** Decide qué mostrar según el navegador y si ya está instalada. */
+async function revisarNotificaciones(){
+  const aviso = document.getElementById('aviso-notif');
+  aviso.classList.remove('ver');
+
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){
+    // iPhone en pestaña de Safari: el permiso no existe hasta instalarla
+    if (esIOS && !esApp()){
+      mostrarAviso('Instalá la agenda para recibir avisos',
+        'En iPhone los avisos solo llegan con la agenda agregada a la pantalla de inicio.' +
+        '<ol class="pasos"><li>Tocá <b>Compartir</b> ⬆️ abajo en Safari</li>' +
+        '<li>Elegí <b>Agregar a inicio</b></li>' +
+        '<li>Abrila desde el icono nuevo y activá los avisos</li></ol>', '', '📲');
+    }
+    return;
+  }
+
+  if (Notification.permission === 'denied'){
+    mostrarAviso('Los avisos están bloqueados',
+      'Este teléfono tiene las notificaciones de la agenda bloqueadas. Se activan desde ' +
+      'los ajustes del navegador, en los permisos de este sitio.', '', '🔕');
+    return;
+  }
+
+  await registrarSW();
+  const sub = SW && await SW.pushManager.getSubscription();
+  if (sub && Notification.permission === 'granted') return;   // ya está andando
+
+  // Si lo cerraron hace poco, no insistir por 3 días
+  try{
+    const t = Number(localStorage.getItem('notif_ocultar') || 0);
+    if (t && Date.now() - t < 3 * 86400000) return;
+  }catch(e){}
+
+  const extra = (esIOS && !esApp())
+    ? '<ol class="pasos"><li>Tocá <b>Compartir</b> ⬆️ en Safari</li><li><b>Agregar a inicio</b></li>' +
+      '<li>Abrila desde el icono y volvé a tocar Activar</li></ol>'
+    : (!esApp() ? '<div class="pasos" style="padding-left:0">Consejo: instalala como app desde el menú ' +
+                  'del navegador (<b>Instalar</b> o <b>Agregar a pantalla de inicio</b>) y la tenés a un toque.</div>' : '');
+
+  mostrarAviso('Activá las notificaciones',
+    'Te avisamos apenas llega un paciente nuevo o un mensaje, sin tener que entrar a mirar.' + extra,
+    '<button class="btn" onclick="activarNotificaciones()">🔔 Activar</button>');
+}
+
+async function activarNotificaciones(){
+  try{
+    if (esIOS && !esApp()){
+      showToast('En iPhone primero agregala a la pantalla de inicio', 'err');
+      return;
+    }
+
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted'){
+      showToast('No se dio permiso para las notificaciones', 'err');
+      return;
+    }
+
+    if (!SW) await registrarSW();
+    if (!SW){ showToast('Este navegador no soporta notificaciones', 'err'); return; }
+    await navigator.serviceWorker.ready;
+
+    const info = await api('/push');
+    if (!info.success || !info.clave){
+      showToast(info.error || 'El servidor no tiene las notificaciones configuradas', 'err');
+      return;
+    }
+
+    let sub = await SW.pushManager.getSubscription();
+    if (!sub){
+      sub = await SW.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: b64aBytes(info.clave),
+      });
+    }
+
+    const j = sub.toJSON();
+    const r = await api('/push', {
+      method:'POST',
+      body: JSON.stringify({endpoint: j.endpoint, keys: j.keys, prueba: true}),
+    });
+    if (!r.success){ showToast(r.error || 'No se pudo activar', 'err'); return; }
+
+    document.getElementById('aviso-notif').classList.remove('ver');
+    showToast('Listo, ya vas a recibir los avisos', 'ok');
+  }catch(e){
+    showToast('No se pudieron activar: ' + (e.message || e), 'err');
+  }
+}
+
+// El service worker pide refrescar cuando tocan una notificación
+navigator.serviceWorker?.addEventListener?.('message', (e) => {
+  if (e.data?.tipo === 'refrescar' && SESION) refrescar();
+});
 
 /* ═══════════════════════════════════════════════════════════
    Arranque

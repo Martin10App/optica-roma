@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { medicoPool, sesionDesdeRequest, esSyncDelPrograma } from '@/lib/medicoAuth';
+import { avisar } from '@/lib/medicoPush';
 
 // Todo menos receta_foto: la foto se pide aparte por /api/medico/receta, si no
 // cada carga de la lista se traería varios MB al pedo.
@@ -254,6 +255,27 @@ export async function POST(request: NextRequest) {
         b.hora_agendada || null,
       ]
     );
+
+    // Avisar al otro lado. El caso urgente es el paciente que acaba de señar
+    // en la óptica: puede estar yendo al consultorio en este momento.
+    const nombre = res.rows[0].nombre || 'Un paciente';
+    if (origen === 'consultorio') {
+      await avisar('optica', {
+        titulo: 'El consultorio agendó a alguien',
+        cuerpo: nombre + ' dice que viene derivado. Todavía no dejó seña.',
+        tag: 'alta-consultorio',
+      });
+    } else {
+      const monto = Number(String(b.sena || '').replace(/[^\d]/g, '')) || 0;
+      await avisar('consultorio', {
+        titulo: 'Paciente nuevo',
+        cuerpo: nombre + (monto ? ' dejó seña de $' + monto.toLocaleString('es-UY') : ' fue anotado') +
+                '. Falta darle día y hora.',
+        tag: 'alta-optica',
+        importante: true,
+      });
+    }
+
     return NextResponse.json({ success: true, data: res.rows[0], nuevo: true });
   } catch (error) {
     console.error('Medico POST agenda error:', error);

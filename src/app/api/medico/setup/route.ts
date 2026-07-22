@@ -73,6 +73,22 @@ export async function POST(request: NextRequest) {
       )
     `);
 
+    // Suscripciones a las notificaciones. Una fila por dispositivo: el médico
+    // puede tener el celular y la tablet, y la secretaria el suyo.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS medico_push (
+        id         SERIAL PRIMARY KEY,
+        endpoint   TEXT UNIQUE NOT NULL,
+        p256dh     TEXT NOT NULL,
+        auth       TEXT NOT NULL,
+        rol        TEXT NOT NULL DEFAULT 'consultorio',
+        usuario    TEXT,
+        creado_en  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        ultimo_ok  TIMESTAMPTZ
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_medico_push_rol ON medico_push(rol)');
+
     // Índices para las consultas que hace la página (por estado, por mes, por cédula)
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_estado ON medico_agenda(estado)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_fecha ON medico_agenda(fecha_sena DESC)');

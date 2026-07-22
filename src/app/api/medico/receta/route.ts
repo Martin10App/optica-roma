@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { medicoPool, sesionDesdeRequest, esSyncDelPrograma } from '@/lib/medicoAuth';
+import { avisar } from '@/lib/medicoPush';
 
 export const maxDuration = 30;
 
@@ -96,6 +97,13 @@ export async function POST(request: NextRequest) {
     if (res.rowCount === 0) {
       return NextResponse.json({ success: false, error: 'No encontrado' }, { status: 404 });
     }
+
+    await avisar('optica', {
+      titulo: 'Receta nueva',
+      cuerpo: 'El médico subió la receta de ' + (res.rows[0].nombre || 'un paciente') + '.',
+      tag: 'receta',
+    });
+
     return NextResponse.json({ success: true, data: res.rows[0] });
   } catch (error) {
     console.error('Medico POST receta error:', error);

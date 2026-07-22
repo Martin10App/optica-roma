@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { medicoPool, sesionDesdeRequest, esSyncDelPrograma } from '@/lib/medicoAuth';
+import { avisar } from '@/lib/medicoPush';
 
 // El chat es el registro de lo hablado, así que no se borra nada: solo se marca leído.
 // agenda_id NULL = canal general (avisos que no son de ningún cliente en particular).
@@ -92,6 +93,20 @@ export async function POST(request: NextRequest) {
         quien.autor === 'consultorio',
       ]
     );
+    // Avisar al otro lado, no a quien escribió
+    const destino = quien.autor === 'optica' ? 'consultorio' : 'optica';
+    let sobre = '';
+    if (agenda_id) {
+      const p = await medicoPool.query(
+        'SELECT nombre FROM medico_agenda WHERE id = $1::int', [agenda_id]);
+      if (p.rows[0]?.nombre) sobre = ' · ' + p.rows[0].nombre;
+    }
+    await avisar(destino, {
+      titulo: 'Mensaje de ' + (quien.nombre || (quien.autor === 'optica' ? 'la óptica' : 'el consultorio')) + sobre,
+      cuerpo: limpio.length > 120 ? limpio.slice(0, 117) + '…' : limpio,
+      tag: 'chat-' + (agenda_id || 'general'),
+    });
+
     return NextResponse.json({ success: true, data: res.rows[0] });
   } catch (error) {
     console.error('Medico POST mensajes error:', error);
