@@ -249,20 +249,37 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
   box-shadow:var(--sombra);}
 
 /* ---------- Chat ---------- */
-.chat-msgs{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:11px;}
-.msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.45;word-break:break-word;
-  animation:subir .22s ease both;}
-.msg .meta{font-size:10px;opacity:.6;margin-top:4px;}
+.chat-msgs{max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;margin-bottom:11px;
+  padding:4px 2px;scroll-behavior:smooth;}
+.msg{max-width:84%;padding:8px 11px 6px;border-radius:14px;font-size:14px;line-height:1.45;
+  word-break:break-word;position:relative;animation:subir .2s ease both;}
+.msg .meta{font-size:10px;opacity:.65;margin-top:3px;display:flex;align-items:center;gap:4px;
+  justify-content:flex-end;white-space:nowrap;}
 .msg.mio{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:4px;
-  box-shadow:0 6px 16px -8px rgba(37,99,235,.55);}
-.msg.otro{align-self:flex-start;background:var(--card2);border:1px solid var(--border2);border-bottom-left-radius:4px;}
-.chat-input{display:flex;gap:8px;}
+  box-shadow:0 4px 12px -7px rgba(37,99,235,.6);}
+.msg.otro{align-self:flex-start;background:var(--card2);border:1px solid var(--border2);
+  border-bottom-left-radius:4px;}
+.msg.otro .meta{justify-content:flex-start;}
+/* Mensajes seguidos de la misma persona: se pegan, como en WhatsApp */
+.msg.mio + .msg.mio{border-top-right-radius:5px;}
+.msg.otro + .msg.otro{border-top-left-radius:5px;}
+.msg.enviando{opacity:.6;}
+.tilde{font-size:11px;letter-spacing:-2px;padding-left:1px;}
+.tilde.leido{color:#7DD3FC;}
+.dia-chat{align-self:center;background:var(--card2);border:1px solid var(--border);color:var(--text2);
+  font-size:10.5px;font-weight:700;padding:3px 11px;border-radius:20px;margin:9px 0 5px;
+  text-transform:uppercase;letter-spacing:.6px;}
+.chat-input{display:flex;gap:8px;align-items:flex-end;}
 .chat-input textarea{flex:1;background:rgba(6,10,19,.55);border:1px solid var(--border2);color:var(--text);
-  padding:10px 12px;border-radius:12px;outline:none;resize:none;height:44px;transition:border-color .18s, box-shadow .18s;}
+  padding:11px 13px;border-radius:16px;outline:none;resize:none;height:44px;max-height:120px;
+  line-height:1.4;transition:border-color .18s, box-shadow .18s;}
 .chat-input textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.16);}
-.chat-input button{background:var(--grad);color:#fff;border-radius:12px;padding:0 17px;font-weight:700;
-  box-shadow:0 6px 16px -8px rgba(37,99,235,.55);}
-.chat-vacio{color:var(--text3);font-size:13px;text-align:center;padding:16px 0;}
+.chat-input button{background:var(--grad);color:#fff;border-radius:50%;width:44px;height:44px;flex:none;
+  font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 16px -8px rgba(37,99,235,.55);transition:transform .15s, filter .15s;}
+.chat-input button:hover{filter:brightness(1.1);}
+.chat-input button:active{transform:scale(.92);}
+.chat-vacio{color:var(--text3);font-size:13px;text-align:center;padding:22px 0;}
 
 /* ---------- Notificaciones / instalar ---------- */
 .aviso-inst{display:none;align-items:flex-start;gap:12px;background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(139,92,246,.12));
@@ -922,14 +939,18 @@ function abrirFicha(id){
   if (r.tiene_receta) verReceta(r.id);
 
   prepararEdicion(r);
-  document.getElementById('f-chat-txt').value = '';
+  const ta = document.getElementById('f-chat-txt');
+  ta.value = '';
+  ajustarAltura(ta);
   cargarChat(r.id);
+  arrancarRelojChat(r.id);
   cargarHistorial(r);
   document.getElementById('modal-ficha').classList.add('abierto');
 }
 
 function cerrarFicha(){
   FICHA = null;
+  pararRelojChat();
   document.getElementById('modal-ficha').classList.remove('abierto');
 }
 
@@ -1199,18 +1220,95 @@ async function guardarAlta(){
 /* ═══════════════════════════════════════════════════════════
    Chat
    ═══════════════════════════════════════════════════════════ */
+/** Mi rol como autor de mensajes. */
+function miAutor(){
+  return (SESION && SESION.rol === 'optica') ? 'optica' : 'consultorio';
+}
+
+/** Separador de días: "Hoy", "Ayer" o la fecha. */
+function etiquetaDia(iso){
+  const dia = soloFecha(iso);
+  if (!dia) return '';
+  if (dia === hoyISO()) return 'Hoy';
+  const ayer = new Date(Date.now() - 86400000);
+  const ayerISO = ayer.getFullYear() + '-' + String(ayer.getMonth()+1).padStart(2,'0') +
+                  '-' + String(ayer.getDate()).padStart(2,'0');
+  if (dia === ayerISO) return 'Ayer';
+  return fechaLarga(dia);
+}
+
 function pintarChat(cont, msgs){
+  cont._msgs = msgs;   // lo usa el envío optimista para poder revertir
   if (!msgs.length){
-    cont.innerHTML = '<div class="chat-vacio">Todavía no hay mensajes.</div>';
+    cont.innerHTML = '<div class="chat-vacio">Todavía no hay mensajes.<br>' +
+                     'Escribí el primero acá abajo.</div>';
     return;
   }
+
+  const yo = miAutor();
+  // ¿Estaba abajo de todo? Si sí, seguimos el hilo; si estaba leyendo algo
+  // más arriba, no le movemos la pantalla de golpe.
+  const pegadoAbajo = cont.scrollHeight - cont.scrollTop - cont.clientHeight < 60;
+
+  let ultimoDia = '';
   cont.innerHTML = msgs.map(m => {
-    const mio = (m.autor === 'consultorio') === (SESION.rol !== 'optica');
-    return '<div class="msg ' + (mio ? 'mio' : 'otro') + '">' + esc(m.texto) +
-           '<div class="meta">' + esc(m.autor_nombre || (m.autor === 'optica' ? 'Óptica' : 'Consultorio')) +
-           ' · ' + horaCorta(m.creado_en) + '</div></div>';
+    let sep = '';
+    const dia = soloFecha(m.creado_en);
+    if (dia !== ultimoDia){
+      ultimoDia = dia;
+      sep = '<div class="dia-chat">' + esc(etiquetaDia(m.creado_en)) + '</div>';
+    }
+
+    const mio = m.autor === yo;
+    // Tildes solo en los míos: uno gris al enviarse, dos azules cuando el
+    // otro lado ya lo abrió.
+    let tilde = '';
+    if (mio){
+      if (m.enviando) tilde = '<span class="tilde">🕘</span>';
+      else {
+        const loLeyo = yo === 'optica' ? m.leido_consultorio : m.leido_optica;
+        tilde = '<span class="tilde' + (loLeyo ? ' leido' : '') + '">' +
+                (loLeyo ? '✓✓' : '✓') + '</span>';
+      }
+    }
+
+    const quien = mio ? '' :
+      esc(m.autor_nombre || (m.autor === 'optica' ? 'Óptica' : 'Consultorio')) + ' · ';
+
+    return sep + '<div class="msg ' + (mio ? 'mio' : 'otro') + (m.enviando ? ' enviando' : '') + '">' +
+           esc(m.texto) +
+           '<div class="meta">' + quien + horaCorta(m.creado_en) + tilde + '</div></div>';
   }).join('');
-  cont.scrollTop = cont.scrollHeight;
+
+  if (pegadoAbajo) cont.scrollTop = cont.scrollHeight;
+}
+
+/** Crece con el texto, como el campo de WhatsApp. */
+function ajustarAltura(ta){
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+}
+
+/* Mientras hay un chat abierto se consulta más seguido: es una conversación,
+   esperar un minuto la respuesta se siente roto. Al cerrarlo vuelve al ritmo
+   normal, así no gastamos de gusto. */
+let RELOJ_CHAT = null;
+let CHAT_ABIERTO = null;   // id de la ficha, o 'general'
+
+function arrancarRelojChat(cual){
+  CHAT_ABIERTO = cual;
+  clearInterval(RELOJ_CHAT);
+  RELOJ_CHAT = setInterval(() => {
+    if (document.hidden || !SESION) return;
+    if (CHAT_ABIERTO === 'general') refrescarChatGeneral();
+    else if (CHAT_ABIERTO != null) cargarChat(CHAT_ABIERTO);
+  }, 12000);
+}
+
+function pararRelojChat(){
+  clearInterval(RELOJ_CHAT);
+  RELOJ_CHAT = null;
+  CHAT_ABIERTO = null;
 }
 
 async function cargarChat(agendaId){
@@ -1226,26 +1324,72 @@ async function cargarChat(agendaId){
   }catch(e){}
 }
 
-async function enviarMensaje(){
-  if (!FICHA) return;
-  const ta = document.getElementById('f-chat-txt');
+/**
+ * Envío optimista: el mensaje aparece en el acto con un relojito, y cuando el
+ * servidor confirma pasa a tilde. Si falla, se devuelve el texto al campo en
+ * lugar de perderlo.
+ */
+async function enviarGenerico(ta, cont, cuerpo, recargar){
   const txt = ta.value.trim();
   if (!txt) return;
   ta.value = '';
+  ajustarAltura(ta);
+
+  const provisorio = {
+    id: 'tmp' + Date.now(),
+    autor: miAutor(),
+    autor_nombre: SESION.nombre || SESION.usuario,
+    texto: txt,
+    creado_en: new Date().toISOString(),
+    enviando: true,
+  };
+  const previos = cont._msgs || [];
+  cont._msgs = previos.concat([provisorio]);
+  pintarChat(cont, cont._msgs);
+  cont.scrollTop = cont.scrollHeight;
+
   try{
-    const json = await api('/mensajes', {
-      method:'POST', body: JSON.stringify({agenda_id: FICHA.id, texto: txt})
-    });
-    if (!json.success){ showToast(json.error || 'No se pudo enviar', 'err'); ta.value = txt; return; }
-    cargarChat(FICHA.id);
-  }catch(e){ showToast('Sin conexión', 'err'); ta.value = txt; }
+    const json = await api('/mensajes', {method:'POST', body: JSON.stringify(cuerpo(txt))});
+    if (!json.success){
+      showToast(json.error || 'No se pudo enviar', 'err');
+      cont._msgs = previos;
+      pintarChat(cont, previos);
+      ta.value = txt;
+      return;
+    }
+    await recargar();
+  }catch(e){
+    showToast('Sin conexión, no se envió', 'err');
+    cont._msgs = previos;
+    pintarChat(cont, previos);
+    ta.value = txt;
+  }
+}
+
+async function enviarMensaje(){
+  if (!FICHA) return;
+  const id = FICHA.id;
+  await enviarGenerico(
+    document.getElementById('f-chat-txt'),
+    document.getElementById('f-chat'),
+    (txt) => ({agenda_id: id, texto: txt}),
+    () => cargarChat(id));
+}
+
+async function refrescarChatGeneral(){
+  try{
+    const json = await api('/mensajes');
+    if (json.success) pintarChat(document.getElementById('g-chat'), json.data);
+  }catch(e){}
 }
 
 async function abrirChatGeneral(){
   document.getElementById('modal-general').classList.add('abierto');
+  arrancarRelojChat('general');
   try{
     const json = await api('/mensajes');
     if (json.success) pintarChat(document.getElementById('g-chat'), json.data);
+    document.getElementById('g-chat').scrollTop = 9e9;
     await api('/mensajes', {method:'PATCH'});
     delete NO_LEIDOS['general'];
     document.getElementById('badge-general').style.display = 'none';
@@ -1253,19 +1397,16 @@ async function abrirChatGeneral(){
 }
 
 function cerrarChatGeneral(){
+  pararRelojChat();
   document.getElementById('modal-general').classList.remove('abierto');
 }
 
 async function enviarMensajeGeneral(){
-  const ta = document.getElementById('g-chat-txt');
-  const txt = ta.value.trim();
-  if (!txt) return;
-  ta.value = '';
-  try{
-    const json = await api('/mensajes', {method:'POST', body: JSON.stringify({texto: txt})});
-    if (!json.success){ showToast(json.error || 'No se pudo enviar', 'err'); ta.value = txt; return; }
-    abrirChatGeneral();
-  }catch(e){ showToast('Sin conexión', 'err'); ta.value = txt; }
+  await enviarGenerico(
+    document.getElementById('g-chat-txt'),
+    document.getElementById('g-chat'),
+    (txt) => ({texto: txt}),
+    () => refrescarChatGeneral());
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1456,12 +1597,15 @@ navigator.serviceWorker?.addEventListener?.('message', (e) => {
 document.getElementById('inp-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('inp-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 ['f-chat-txt','g-chat-txt'].forEach(id => {
-  document.getElementById(id).addEventListener('keydown', e => {
+  const ta = document.getElementById(id);
+  ta.addEventListener('keydown', e => {
+    // Enter envía; Shift+Enter hace salto de línea, igual que en WhatsApp Web
     if (e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       id === 'f-chat-txt' ? enviarMensaje() : enviarMensajeGeneral();
     }
   });
+  ta.addEventListener('input', () => ajustarAltura(ta));
 });
 
 // Con la página oculta se corta el reloj; al volver, refresco inmediato y sigue.

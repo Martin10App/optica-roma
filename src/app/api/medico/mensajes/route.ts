@@ -47,8 +47,11 @@ export async function GET(request: NextRequest) {
     const where = agendaId ? 'agenda_id = $1' : 'agenda_id IS NULL';
     const params = agendaId ? [agendaId] : [];
 
+    // leido_* viaja al front para pintar los tildes: uno gris al enviar, dos
+    // azules cuando el otro lado lo abrió.
     const res = await medicoPool.query(
-      `SELECT id, agenda_id, autor, autor_nombre, texto, creado_en
+      `SELECT id, agenda_id, autor, autor_nombre, texto, creado_en,
+              leido_optica, leido_consultorio
          FROM medico_mensajes
         WHERE ${where}
         ORDER BY creado_en ASC, id ASC
@@ -83,7 +86,8 @@ export async function POST(request: NextRequest) {
       `INSERT INTO medico_mensajes
          (agenda_id, autor, autor_nombre, texto, leido_optica, leido_consultorio)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, agenda_id, autor, autor_nombre, texto, creado_en`,
+       RETURNING id, agenda_id, autor, autor_nombre, texto, creado_en,
+                 leido_optica, leido_consultorio`,
       [
         agenda_id || null,
         quien.autor,
