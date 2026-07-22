@@ -1295,9 +1295,12 @@ function b64aBytes(base64){
   return Uint8Array.from([...bin].map(c => c.charCodeAt(0)));
 }
 
+/** El cartel se esconde solo por esta vez: al volver a abrir la agenda
+ *  vuelve a aparecer. Deja de mostrarse cuando está instalada Y con los
+ *  avisos activados, que es lo que queremos que pase. */
 function ocultarAvisoNotif(){
   document.getElementById('aviso-notif').classList.remove('ver');
-  try{ localStorage.setItem('notif_ocultar', Date.now()); }catch(e){}
+  try{ sessionStorage.setItem('notif_ocultar', '1'); }catch(e){}
 }
 
 function mostrarAviso(titulo, detalle, botones, icono){
@@ -1308,49 +1311,91 @@ function mostrarAviso(titulo, detalle, botones, icono){
   document.getElementById('aviso-notif').classList.add('ver');
 }
 
-/** Decide qué mostrar según el navegador y si ya está instalada. */
+/* Chrome guarda el pedido de instalación para dispararlo cuando queramos:
+   así el botón abre el diálogo real del sistema en vez de explicar dónde
+   está el menú del navegador. */
+let PEDIDO_INSTALAR = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  PEDIDO_INSTALAR = e;
+  if (SESION) revisarNotificaciones();
+});
+window.addEventListener('appinstalled', () => {
+  PEDIDO_INSTALAR = null;
+  showToast('Agenda instalada. Abrila desde el icono y activá los avisos.', 'ok');
+  revisarNotificaciones();
+});
+
+async function instalarApp(){
+  if (!PEDIDO_INSTALAR){
+    showToast('Instalala desde el menú del navegador', 'err');
+    return;
+  }
+  PEDIDO_INSTALAR.prompt();
+  try{ await PEDIDO_INSTALAR.userChoice; }catch(e){}
+  PEDIDO_INSTALAR = null;
+}
+
+/** ¿Están los avisos realmente andando en este dispositivo? */
+async function avisosActivos(){
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  if (Notification.permission !== 'granted') return false;
+  if (!SW) await registrarSW();
+  if (!SW) return false;
+  return !!(await SW.pushManager.getSubscription());
+}
+
+/**
+ * Decide qué cartel mostrar. Insiste en cada visita hasta que la agenda quede
+ * instalada y con los avisos andando: recién ahí desaparece para siempre.
+ */
 async function revisarNotificaciones(){
   const aviso = document.getElementById('aviso-notif');
   aviso.classList.remove('ver');
 
-  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)){
-    // iPhone en pestaña de Safari: el permiso no existe hasta instalarla
-    if (esIOS && !esApp()){
-      mostrarAviso('Instalá la agenda para recibir avisos',
-        'En iPhone los avisos solo llegan con la agenda agregada a la pantalla de inicio.' +
+  const instalada = esApp();
+  const avisos = await avisosActivos();
+
+  // Meta cumplida: instalada y avisando. No molestamos más.
+  if (instalada && avisos) return;
+
+  // Si la cerró en esta visita, esperar a la próxima vez que abra
+  try{ if (sessionStorage.getItem('notif_ocultar')) return; }catch(e){}
+
+  // ── Paso 1: que la instale ──
+  if (!instalada){
+    if (esIOS){
+      mostrarAviso('Instalá la agenda en tu teléfono',
+        'Así la abrís de un toque y podés recibir los avisos. En iPhone es el único ' +
+        'modo de que lleguen las notificaciones.' +
         '<ol class="pasos"><li>Tocá <b>Compartir</b> ⬆️ abajo en Safari</li>' +
         '<li>Elegí <b>Agregar a inicio</b></li>' +
-        '<li>Abrila desde el icono nuevo y activá los avisos</li></ol>', '', '📲');
+        '<li>Abrila desde el icono nuevo del ojo azul</li></ol>', '', '📲');
+      return;
     }
+    mostrarAviso('Instalá la agenda como aplicación',
+      'Queda con su icono en el teléfono, se abre de un toque y te avisa cuando llega ' +
+      'un paciente nuevo.',
+      PEDIDO_INSTALAR
+        ? '<button class="btn" onclick="instalarApp()">📲 Instalar</button>' +
+          (avisos ? '' : '<button class="btn btn-sec" onclick="activarNotificaciones()">🔔 Solo avisos</button>')
+        : '<button class="btn btn-sec" onclick="activarNotificaciones()">🔔 Activar avisos</button>',
+      '📲');
     return;
   }
 
+  // ── Paso 2: ya instalada, falta el permiso ──
   if (Notification.permission === 'denied'){
     mostrarAviso('Los avisos están bloqueados',
-      'Este teléfono tiene las notificaciones de la agenda bloqueadas. Se activan desde ' +
-      'los ajustes del navegador, en los permisos de este sitio.', '', '🔕');
+      'Este teléfono tiene las notificaciones de la agenda bloqueadas. Se vuelven a ' +
+      'habilitar desde los ajustes del teléfono, en los permisos de esta aplicación.', '', '🔕');
     return;
   }
 
-  await registrarSW();
-  const sub = SW && await SW.pushManager.getSubscription();
-  if (sub && Notification.permission === 'granted') return;   // ya está andando
-
-  // Si lo cerraron hace poco, no insistir por 3 días
-  try{
-    const t = Number(localStorage.getItem('notif_ocultar') || 0);
-    if (t && Date.now() - t < 3 * 86400000) return;
-  }catch(e){}
-
-  const extra = (esIOS && !esApp())
-    ? '<ol class="pasos"><li>Tocá <b>Compartir</b> ⬆️ en Safari</li><li><b>Agregar a inicio</b></li>' +
-      '<li>Abrila desde el icono y volvé a tocar Activar</li></ol>'
-    : (!esApp() ? '<div class="pasos" style="padding-left:0">Consejo: instalala como app desde el menú ' +
-                  'del navegador (<b>Instalar</b> o <b>Agregar a pantalla de inicio</b>) y la tenés a un toque.</div>' : '');
-
-  mostrarAviso('Activá las notificaciones',
-    'Te avisamos apenas llega un paciente nuevo o un mensaje, sin tener que entrar a mirar.' + extra,
-    '<button class="btn" onclick="activarNotificaciones()">🔔 Activar</button>');
+  mostrarAviso('Ya casi: activá los avisos',
+    'Último paso. Te avisamos apenas llega un paciente nuevo o un mensaje, sin que ' +
+    'tengas que entrar a mirar.',
+    '<button class="btn" onclick="activarNotificaciones()">🔔 Activar avisos</button>');
 }
 
 async function activarNotificaciones(){
@@ -1391,8 +1436,10 @@ async function activarNotificaciones(){
     });
     if (!r.success){ showToast(r.error || 'No se pudo activar', 'err'); return; }
 
-    document.getElementById('aviso-notif').classList.remove('ver');
     showToast('Listo, ya vas a recibir los avisos', 'ok');
+    // Si todavía no está instalada, el cartel sigue insistiendo con ese paso
+    try{ sessionStorage.removeItem('notif_ocultar'); }catch(e){}
+    revisarNotificaciones();
   }catch(e){
     showToast('No se pudieron activar: ' + (e.message || e), 'err');
   }
