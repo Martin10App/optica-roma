@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { medicoPool, nuevoToken } from '@/lib/medicoAuth';
+import { medicoPool, nuevoToken, DIAS_SESION } from '@/lib/medicoAuth';
 
 export async function POST(request: Request) {
   try {
@@ -22,10 +22,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Token de sesión válido por 12 horas: la página lo manda en X-Medico-Token
+    // Sesión larga (se renueva sola mientras la usen): la agenda se abre desde
+    // el celular varias veces al día y tener que escribir la contraseña cada
+    // vez haría que dejen de usarla. Se corta cambiando la contraseña, que
+    // borra el token y echa a todos los dispositivos.
     const token = nuevoToken();
     await medicoPool.query(
-      "UPDATE medico_usuarios SET token = $1, token_exp = NOW() + INTERVAL '12 hours' WHERE id = $2",
+      `UPDATE medico_usuarios
+          SET token = $1::text, token_exp = NOW() + INTERVAL '${DIAS_SESION} days'
+        WHERE id = $2::int`,
       [token, res.rows[0].id]
     );
 

@@ -658,7 +658,7 @@ async function doLogin(){
       return;
     }
     SESION = json.data;
-    try{ sessionStorage.setItem('medico_sesion', JSON.stringify(SESION)); }catch(e){}
+    guardarSesion();
     arrancar();
   }catch(e){
     err.textContent = 'No se pudo conectar. Revisá internet.';
@@ -669,9 +669,22 @@ async function doLogin(){
   }
 }
 
+/* La sesión queda guardada en el teléfono y se renueva sola mientras se use,
+   así no hay que escribir la contraseña cada vez. Se corta desde el botón
+   Salir, o cambiando la contraseña con crear_usuarios_medico.py, que echa a
+   todos los dispositivos de esa persona. */
+function guardarSesion(){
+  try{ localStorage.setItem('medico_sesion', JSON.stringify(SESION)); }catch(e){}
+}
+
+function olvidarSesion(){
+  try{ localStorage.removeItem('medico_sesion'); }catch(e){}
+  try{ sessionStorage.removeItem('medico_sesion'); }catch(e){}   // sesiones viejas
+}
+
 function cerrarSesion(){
   SESION = null;
-  try{ sessionStorage.removeItem('medico_sesion'); }catch(e){}
+  olvidarSesion();
   pararReloj();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
@@ -1614,10 +1627,15 @@ document.addEventListener('visibilitychange', () => {
   if (SESION){ refrescar(); arrancarReloj(); }
 });
 
-// Sesión guardada del mismo día (se pierde al cerrar el navegador, a propósito)
+// Entrar directo si ya había iniciado sesión en este teléfono
 try{
-  const guardada = sessionStorage.getItem('medico_sesion');
-  if (guardada){ SESION = JSON.parse(guardada); arrancar(); }
+  const guardada = localStorage.getItem('medico_sesion') ||
+                   sessionStorage.getItem('medico_sesion');
+  if (guardada){
+    SESION = JSON.parse(guardada);
+    guardarSesion();          // migra las sesiones viejas a localStorage
+    arrancar();
+  }
 }catch(e){}
 </script>
 </body>
