@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#080C12">
+<title>Agenda · Óptica Roma</title>
+<style>
+:root{
+  --bg:#080C12; --surface:#0E1420; --card:#131A27; --border:#1E2A3E; --border2:#2D3F5E;
+  --accent:#3B82F6; --accent2:#60A5FA; --green:#10B981; --green-bg:#071F16;
+  --amber:#F59E0B; --amber-bg:#1C1507; --red:#EF4444; --red-bg:#1C0707;
+  --text:#F1F5F9; --text2:#94A3B8; --text3:#4A5568;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+button,input,select,textarea{font-family:inherit;font-size:inherit;}
+button{cursor:pointer;border:none;}
+
+/* ---------- Login ---------- */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-box{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:32px 24px;}
+.login-box h1{font-size:20px;margin-bottom:4px;}
+.login-box p{color:var(--text2);font-size:13px;margin-bottom:24px;}
+.campo{margin-bottom:14px;}
+.campo label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.campo input,.campo select,.campo textarea{width:100%;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);padding:12px;border-radius:10px;outline:none;}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--accent);}
+.btn{background:var(--accent);color:#fff;padding:12px 18px;border-radius:10px;font-weight:600;width:100%;}
+.btn:active{opacity:.8;}
+.btn-sec{background:var(--surface);border:1px solid var(--border2);color:var(--text);}
+.btn-wa{background:#25D366;color:#04241a;}
+.btn-verde{background:var(--green);color:#04241a;}
+.btn-rojo{background:transparent;border:1px solid var(--red);color:var(--red);}
+.error{background:var(--red-bg);border:1px solid var(--red);color:#FCA5A5;padding:10px;
+  border-radius:8px;font-size:13px;margin-bottom:14px;display:none;}
+
+/* ---------- App ---------- */
+#app{display:none;padding-bottom:40px;}
+header{position:sticky;top:0;z-index:30;background:rgba(8,12,18,.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);padding:12px 16px;}
+.hdr-top{display:flex;align-items:center;gap:10px;}
+.hdr-top h1{font-size:16px;flex:1;}
+.hdr-top .quien{font-size:11px;color:var(--text2);}
+.icon-btn{position:relative;background:var(--card);border:1px solid var(--border2);color:var(--text);
+  width:38px;height:38px;border-radius:10px;font-size:17px;display:flex;align-items:center;justify-content:center;}
+.badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:10px;
+  min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;font-weight:700;}
+.hdr-tools{display:flex;gap:8px;margin-top:10px;}
+.hdr-tools input,.hdr-tools select{flex:1;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);padding:9px 10px;border-radius:9px;outline:none;font-size:14px;min-width:0;}
+
+main{padding:16px;max-width:760px;margin:0 auto;}
+.seccion{margin-bottom:26px;}
+.seccion-tit{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--text2);margin-bottom:10px;font-weight:700;}
+.seccion-tit .cuenta{background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:1px 8px;font-size:11px;color:var(--text2);letter-spacing:0;}
+.dia-tit{font-size:13px;color:var(--accent2);font-weight:700;margin:14px 0 8px;}
+
+.fila{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);
+  border-left:3px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.fila:active{background:var(--surface);}
+.fila.atendido{border-left-color:var(--green);background:var(--green-bg);}
+.fila.nuevo{border-left-color:var(--amber);background:var(--amber-bg);}
+.fila.cancelado{opacity:.45;}
+.fila .hora{font-weight:800;font-size:15px;min-width:52px;text-align:center;
+  color:var(--accent2);font-variant-numeric:tabular-nums;}
+.fila .hora.vacia{color:var(--text3);font-weight:500;font-size:11px;}
+.fila .info{flex:1;min-width:0;}
+.fila .nom{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fila .sub{font-size:12px;color:var(--text2);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fila .marca{font-size:16px;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;
+  letter-spacing:.4px;text-transform:uppercase;}
+.pill.sena{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.pill.sin{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber);}
+.vacio{text-align:center;color:var(--text3);padding:28px 12px;font-size:14px;}
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:none;
+  align-items:flex-end;justify-content:center;}
+.modal.abierto{display:flex;}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px 18px 0 0;
+  width:100%;max-width:620px;max-height:94vh;overflow-y:auto;padding:18px 18px 28px;}
+@media(min-width:640px){.modal{align-items:center;}.modal-box{border-radius:18px;}}
+.modal-hdr{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;}
+.modal-hdr h2{font-size:19px;flex:1;line-height:1.25;}
+.cerrar{background:none;color:var(--text2);font-size:26px;line-height:1;padding:0 4px;}
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.dato{background:var(--card);padding:10px 12px;}
+.dato .k{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.dato .v{font-size:15px;margin-top:2px;word-break:break-word;}
+.dato.ancho{grid-column:1/-1;}
+.acciones{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.acciones .btn{flex:1;min-width:130px;width:auto;}
+.bloque{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;background:var(--card);}
+.bloque h3{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);margin-bottom:10px;}
+.fila-campos{display:flex;gap:10px;}
+.fila-campos .campo{flex:1;margin-bottom:0;}
+.receta-prev{width:100%;border-radius:10px;border:1px solid var(--border2);margin-top:10px;display:none;}
+
+/* ---------- Chat ---------- */
+.chat-msgs{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.msg{max-width:82%;padding:8px 11px;border-radius:12px;font-size:14px;line-height:1.4;word-break:break-word;}
+.msg .meta{font-size:10px;opacity:.65;margin-top:3px;}
+.msg.mio{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px;}
+.msg.otro{align-self:flex-start;background:var(--card);border:1px solid var(--border2);border-bottom-left-radius:3px;}
+.chat-input{display:flex;gap:8px;}
+.chat-input textarea{flex:1;background:var(--surface);border:1px solid var(--border2);color:var(--text);
+  padding:10px;border-radius:10px;outline:none;resize:none;height:42px;}
+.chat-input button{background:var(--accent);color:#fff;border-radius:10px;padding:0 16px;font-weight:700;}
+.chat-vacio{color:var(--text3);font-size:13px;text-align:center;padding:16px 0;}
+
+/* ---------- Toast ---------- */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:90;
+  background:var(--card);border:1px solid var(--border2);color:var(--text);padding:12px 18px;
+  border-radius:12px;font-size:14px;display:none;max-width:90vw;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);}
+#toast.ok{border-color:var(--green);color:#6EE7B7;}
+#toast.err{border-color:var(--red);color:#FCA5A5;}
+#toast.nuevo{border-color:var(--amber);color:#FCD34D;}
+.cargando{text-align:center;color:var(--text3);padding:40px 0;}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login">
+  <div class="login-box">
+    <h1>Agenda de consulta</h1>
+    <p>Óptica Roma · acceso privado</p>
+    <div class="error" id="login-error">Usuario o contraseña incorrectos</div>
+    <div class="campo">
+      <label>Usuario</label>
+      <input id="inp-user" autocomplete="username" autocapitalize="none">
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input id="inp-pass" type="password" autocomplete="current-password">
+    </div>
+    <button class="btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <header>
+    <div class="hdr-top">
+      <div style="flex:1">
+        <h1>Agenda de consulta</h1>
+        <div class="quien" id="quien"></div>
+      </div>
+      <button class="icon-btn" onclick="abrirAlta()" title="Agregar paciente de Óptica Roma">＋</button>
+      <button class="icon-btn" onclick="abrirChatGeneral()" title="Mensajes con la óptica">
+        💬<span class="badge" id="badge-general"></span>
+      </button>
+      <button class="icon-btn" onclick="cerrarSesion()" title="Salir">⎋</button>
+    </div>
+    <div class="hdr-tools">
+      <input id="buscador" placeholder="Buscar por nombre o cédula" oninput="render()">
+      <select id="sel-mes" onchange="cargarAgenda()"></select>
+    </div>
+  </header>
+
+  <main id="contenido"><div class="cargando">Cargando…</div></main>
+</div>
+
+<!-- ══════════ FICHA DEL CLIENTE ══════════ -->
+<div class="modal" id="modal-ficha" onclick="if(event.target===this)cerrarFicha()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2 id="f-nombre"></h2>
+      <button class="cerrar" onclick="cerrarFicha()">×</button>
+    </div>
+
+    <div class="datos" id="f-datos"></div>
+
+    <div class="acciones">
+      <button class="btn btn-wa" id="f-wa" onclick="abrirWhatsApp()">💬 WhatsApp</button>
+      <button class="btn btn-verde" onclick="document.getElementById('f-file').click()">📷 Subir receta</button>
+    </div>
+    <input type="file" id="f-file" accept="image/*" capture="environment" style="display:none" onchange="subirReceta(this)">
+    <img class="receta-prev" id="f-receta-img">
+
+    <div class="bloque">
+      <h3>Día y hora de la consulta</h3>
+      <div class="fila-campos">
+        <div class="campo">
+          <label>Día</label>
+          <input type="date" id="f-fecha">
+        </div>
+        <div class="campo">
+          <label>Hora</label>
+          <input type="time" id="f-hora">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn" onclick="guardarAgenda()">Guardar</button>
+        <button class="btn btn-rojo" onclick="marcarCancelado()">No vino / canceló</button>
+      </div>
+    </div>
+
+    <div class="bloque">
+      <h3>Mensajes sobre este paciente</h3>
+      <div class="chat-msgs" id="f-chat"></div>
+      <div class="chat-input">
+        <textarea id="f-chat-txt" placeholder="Escribir a la óptica…"></textarea>
+        <button onclick="enviarMensaje()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ALTA DE PACIENTE (la carga el consultorio) ══════════ -->
+<div class="modal" id="modal-alta" onclick="if(event.target===this)cerrarAlta()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2>Agregar paciente</h2>
+      <button class="cerrar" onclick="cerrarAlta()">×</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px;line-height:1.5">
+      Para cuando alguien llama a la clínica y dice que viene de Óptica Roma sin
+      haber pasado a dejar la seña. Le va a llegar el aviso a la óptica.
+    </p>
+    <div class="campo"><label>Nombre y apellido *</label><input id="a-nombre" autocapitalize="words"></div>
+    <div class="campo"><label>Cédula</label><input id="a-cedula" inputmode="numeric"></div>
+    <div class="campo"><label>Teléfono</label><input id="a-telefono" inputmode="tel"></div>
+    <div class="fila-campos" style="margin-bottom:14px">
+      <div class="campo"><label>Día</label><input type="date" id="a-fecha"></div>
+      <div class="campo"><label>Hora</label><input type="time" id="a-hora"></div>
+    </div>
+    <div class="campo"><label>Nota para la óptica</label><textarea id="a-nota" rows="2"></textarea></div>
+    <button class="btn" onclick="guardarAlta()">Agregar</button>
+  </div>
+</div>
+
+<!-- ══════════ CHAT GENERAL ══════════ -->
+<div class="modal" id="modal-general" onclick="if(event.target===this)cerrarChatGeneral()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2>Mensajes con la óptica</h2>
+      <button class="cerrar" onclick="cerrarChatGeneral()">×</button>
+    </div>
+    <div class="chat-msgs" id="g-chat" style="max-height:56vh"></div>
+    <div class="chat-input">
+      <textarea id="g-chat-txt" placeholder="Escribir…"></textarea>
+      <button onclick="enviarMensajeGeneral()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Estado
+   ═══════════════════════════════════════════════════════════ */
+let SESION = null;
+let AGENDA = [];
+let FICHA = null;            // registro abierto en el modal
+let NO_LEIDOS = {};          // { agenda_id|'general': cantidad }
+let VISTOS = new Set();      // ids ya vistos, para avisar solo de los nuevos
+let TIMER = null;
+
+const API = '/api/medico';
+
+/* ═══════════════════════════════════════════════════════════
+   Utilidades
+   ═══════════════════════════════════════════════════════════ */
+async function sha256(txt){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function esc(s){
+  return String(s??'').replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showToast(msg, tipo){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = tipo || '';
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>{ t.style.display='none'; }, 4500);
+}
+
+async function api(ruta, opciones){
+  const o = opciones || {};
+  o.headers = Object.assign({'Content-Type':'application/json'}, o.headers||{});
+  if (SESION && SESION.token) o.headers['X-Medico-Token'] = SESION.token;
+  const res = await fetch(API + ruta, o);
+  if (res.status === 401 && SESION){
+    cerrarSesion();
+    showToast('La sesión venció, entrá de nuevo', 'err');
+    throw new Error('sesion');
+  }
+  return res.json();
+}
+
+/** Fecha local en formato YYYY-MM-DD (sin correrse de día por la zona horaria). */
+function hoyISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function soloFecha(valor){
+  if (!valor) return '';
+  return String(valor).slice(0,10);
+}
+
+function fechaLarga(iso){
+  if (!iso) return '';
+  const [a,m,d] = iso.split('-').map(Number);
+  const f = new Date(a, m-1, d);
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre'];
+  return dias[f.getDay()] + ' ' + d + ' de ' + meses[m-1];
+}
+
+function horaCorta(ts){
+  if (!ts) return '';
+  const f = new Date(ts);
+  return String(f.getHours()).padStart(2,'0') + ':' + String(f.getMinutes()).padStart(2,'0');
+}
+
+function haceCuanto(ts){
+  if (!ts) return '';
+  const min = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
+  if (min < 1) return 'recién';
+  if (min < 60) return 'hace ' + min + ' min';
+  const hs = Math.floor(min/60);
+  if (hs < 24) return 'hace ' + hs + (hs===1?' hora':' horas');
+  const d = Math.floor(hs/24);
+  return 'hace ' + d + (d===1?' día':' días');
+}
+
+/** Uruguay: 09X XXX XXX -> 5989XXXXXXX. Devuelve '' si no parece celular. */
+function telWhatsApp(tel){
+  const d = String(tel||'').replace(/\D/g,'');
+  if (!d) return '';
+  if (d.startsWith('598')) return d;
+  if (d.startsWith('0')) return '598' + d.slice(1);
+  if (d.length === 8 && d.startsWith('9')) return '598' + d;
+  return '598' + d;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Login
+   ═══════════════════════════════════════════════════════════ */
+async function doLogin(){
+  const u = document.getElementById('inp-user').value.trim();
+  const p = document.getElementById('inp-pass').value;
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  if (!u || !p){ err.textContent='Completá usuario y contraseña'; err.style.display='block'; return; }
+
+  try{
+    const hash = await sha256(p);
+    const res = await fetch(API + '/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({usuario:u, password_hash:hash})
+    });
+    const json = await res.json();
+    if (!json.success){
+      err.textContent = json.error || 'Usuario o contraseña incorrectos';
+      err.style.display = 'block';
+      return;
+    }
+    SESION = json.data;
+    try{ sessionStorage.setItem('medico_sesion', JSON.stringify(SESION)); }catch(e){}
+    arrancar();
+  }catch(e){
+    err.textContent = 'No se pudo conectar. Revisá internet.';
+    err.style.display = 'block';
+  }
+}
+
+function cerrarSesion(){
+  SESION = null;
+  try{ sessionStorage.removeItem('medico_sesion'); }catch(e){}
+  clearInterval(TIMER);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('inp-pass').value = '';
+}
+
+function arrancar(){
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('quien').textContent = SESION.nombre || SESION.usuario;
+  llenarMeses();
+  cargarAgenda(true);
+  clearInterval(TIMER);
+  TIMER = setInterval(refrescar, 30000);
+}
+
+function llenarMeses(){
+  const sel = document.getElementById('sel-mes');
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','setiembre','octubre','noviembre','diciembre'];
+  const hoy = new Date();
+  let html = '';
+  for (let i = 0; i < 12; i++){
+    const f = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    const val = f.getFullYear() + '-' + String(f.getMonth()+1).padStart(2,'0');
+    html += '<option value="'+val+'">' + meses[f.getMonth()] + ' ' + f.getFullYear() + '</option>';
+  }
+  sel.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Carga de datos
+   ═══════════════════════════════════════════════════════════ */
+async function cargarAgenda(primera){
+  try{
+    const mes = document.getElementById('sel-mes').value;
+    const json = await api('/agenda?mes=' + encodeURIComponent(mes));
+    if (!json.success){ showToast(json.error || 'No se pudo cargar', 'err'); return; }
+
+    const antes = AGENDA.length;
+    AGENDA = json.data;
+
+    // Avisar de los que llegaron desde la última vuelta (no en la primera carga)
+    if (!primera){
+      const nuevos = AGENDA.filter(r => !VISTOS.has(r.id));
+      if (nuevos.length === 1){
+        showToast('Llegó ' + (nuevos[0].nombre || 'un paciente nuevo'), 'nuevo');
+      } else if (nuevos.length > 1){
+        showToast('Llegaron ' + nuevos.length + ' pacientes nuevos', 'nuevo');
+      }
+    }
+    AGENDA.forEach(r => VISTOS.add(r.id));
+    render();
+  }catch(e){
+    if (String(e.message) !== 'sesion') showToast('Sin conexión', 'err');
+  }
+}
+
+async function cargarNoLeidos(){
+  try{
+    const json = await api('/mensajes?no_leidos=1');
+    if (!json.success) return;
+    NO_LEIDOS = {};
+    json.data.forEach(r => { NO_LEIDOS[r.agenda_id === null ? 'general' : r.agenda_id] = r.cantidad; });
+    const b = document.getElementById('badge-general');
+    const g = NO_LEIDOS['general'] || 0;
+    b.textContent = g;
+    b.style.display = g ? 'flex' : 'none';
+  }catch(e){}
+}
+
+async function refrescar(){
+  await cargarAgenda();
+  await cargarNoLeidos();
+  if (FICHA) cargarChat(FICHA.id);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Render de la lista
+   ═══════════════════════════════════════════════════════════ */
+function render(){
+  const cont = document.getElementById('contenido');
+  const filtro = document.getElementById('buscador').value.trim().toLowerCase();
+
+  let datos = AGENDA;
+  if (filtro){
+    datos = datos.filter(r =>
+      String(r.nombre||'').toLowerCase().includes(filtro) ||
+      String(r.cedula||'').toLowerCase().includes(filtro));
+  }
+
+  const hoy = hoyISO();
+  const deHoy      = datos.filter(r => soloFecha(r.fecha_agendada) === hoy && r.estado !== 'cancelado');
+  const pendientes = datos.filter(r => r.estado === 'pendiente');
+  const resto      = datos.filter(r => !deHoy.includes(r) && !pendientes.includes(r));
+
+  let html = '';
+
+  if (deHoy.length){
+    deHoy.sort((a,b) => String(a.hora_agendada||'99').localeCompare(String(b.hora_agendada||'99')));
+    html += seccion('Hoy', deHoy.length, deHoy.map(fila).join(''));
+  }
+
+  if (pendientes.length){
+    // Los que acaban de señar van arriba de todo: pueden estar yendo al
+    // consultorio ahora mismo. El resto, por orden de llegada (el que hace
+    // más que espera, primero).
+    pendientes.sort((a,b) => {
+      const ra = esReciente(a), rb = esReciente(b);
+      if (ra !== rb) return ra ? -1 : 1;
+      return new Date(a.creado_en) - new Date(b.creado_en);
+    });
+    html += seccion('Falta darles hora', pendientes.length, pendientes.map(fila).join(''));
+  }
+
+  if (resto.length){
+    // Agrupados por día: primero los que tienen día asignado, después por fecha de seña
+    const grupos = {};
+    resto.forEach(r => {
+      const dia = soloFecha(r.fecha_agendada) || soloFecha(r.fecha_sena) || 'Sin fecha';
+      (grupos[dia] = grupos[dia] || []).push(r);
+    });
+    const dias = Object.keys(grupos).sort().reverse();
+    let cuerpo = '';
+    dias.forEach(d => {
+      grupos[d].sort((a,b) => String(a.hora_agendada||'99').localeCompare(String(b.hora_agendada||'99')));
+      cuerpo += '<div class="dia-tit">' + esc(d === 'Sin fecha' ? d : fechaLarga(d)) + '</div>';
+      cuerpo += grupos[d].map(fila).join('');
+    });
+    html += seccion('Del mes', resto.length, cuerpo);
+  }
+
+  if (!html){
+    html = '<div class="vacio">' + (filtro ? 'Ningún paciente coincide con la búsqueda.'
+                                            : 'Todavía no hay pacientes este mes.') + '</div>';
+  }
+  cont.innerHTML = html;
+}
+
+function seccion(titulo, cuenta, cuerpo){
+  return '<div class="seccion"><div class="seccion-tit">' + esc(titulo) +
+         '<span class="cuenta">' + cuenta + '</span></div>' + cuerpo + '</div>';
+}
+
+function fila(r){
+  let clase = 'fila';
+  if (r.estado === 'atendido') clase += ' atendido';
+  else if (r.estado === 'cancelado') clase += ' cancelado';
+  else if (esReciente(r)) clase += ' nuevo';
+
+  const hora = r.hora_agendada
+    ? '<div class="hora">' + esc(String(r.hora_agendada).slice(0,5)) + '</div>'
+    : '<div class="hora vacia">sin<br>hora</div>';
+
+  const sena = Number(String(r.sena||'').replace(/[^\d]/g,'')) || 0;
+  const pill = sena
+    ? '<span class="pill sena">seña $' + sena.toLocaleString('es-UY') + '</span>'
+    : r.origen === 'consultorio'
+      ? '<span class="pill sin">lo cargamos acá</span>'
+      : '<span class="pill sin">sin seña</span>';
+
+  const sinLeer = NO_LEIDOS[r.id] ? ' 💬' + NO_LEIDOS[r.id] : '';
+  const marca = r.estado === 'atendido' ? '✓'
+              : r.estado === 'cancelado' ? '✕'
+              : esReciente(r) ? '●' : '›';
+
+  const sub = pill + ' · ' + esc(r.cedula || 'sin cédula') +
+              (esReciente(r) ? ' · llegó ' + haceCuanto(r.fecha_sena) : '') + sinLeer;
+
+  return '<div class="' + clase + '" onclick="abrirFicha(' + r.id + ')">' + hora +
+         '<div class="info"><div class="nom">' + esc(r.nombre || 'Sin nombre') + '</div>' +
+         '<div class="sub">' + sub + '</div></div>' +
+         '<div class="marca">' + marca + '</div></div>';
+}
+
+/** "Recién llegó": dejó la seña en la última hora y todavía no lo atendieron. */
+function esReciente(r){
+  if (r.estado === 'atendido' || r.estado === 'cancelado') return false;
+  if (!r.fecha_sena) return false;
+  return (Date.now() - new Date(r.fecha_sena).getTime()) < 3600000;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Ficha del paciente
+   ═══════════════════════════════════════════════════════════ */
+function abrirFicha(id){
+  const r = AGENDA.find(x => x.id === id);
+  if (!r) return;
+  FICHA = r;
+
+  document.getElementById('f-nombre').textContent = r.nombre || 'Sin nombre';
+
+  const sena = Number(String(r.sena||'').replace(/[^\d]/g,'')) || 0;
+  const d = [
+    ['Cédula',            r.cedula || '—'],
+    ['Teléfono',          r.telefono || '—'],
+    ['Nacimiento',        r.fnac || '—'],
+    ['Edad',              r.edad ? r.edad + ' años' : '—'],
+    ['Seña',              sena ? '$' + sena.toLocaleString('es-UY') : 'No dejó seña'],
+    ['Código del vale',   r.codigo || '—'],
+    ['Dejó la seña',      r.fecha_sena ? soloFecha(r.fecha_sena).split('-').reverse().join('/') +
+                                          ' ' + horaCorta(r.fecha_sena) : '—'],
+    ['Estado',            {pendiente:'Falta darle hora', agendado:'Agendado',
+                           atendido:'Receta subida', cancelado:'Canceló',
+                           archivado:'Archivado'}[r.estado] || r.estado],
+  ];
+  document.getElementById('f-datos').innerHTML = d.map(([k,v]) =>
+    '<div class="dato"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>').join('');
+
+  document.getElementById('f-fecha').value = soloFecha(r.fecha_agendada);
+  document.getElementById('f-hora').value  = r.hora_agendada ? String(r.hora_agendada).slice(0,5) : '';
+  document.getElementById('f-wa').style.display = r.telefono ? '' : 'none';
+
+  const img = document.getElementById('f-receta-img');
+  img.style.display = 'none';
+  img.src = '';
+  if (r.tiene_receta) verReceta(r.id);
+
+  document.getElementById('f-chat-txt').value = '';
+  cargarChat(r.id);
+  document.getElementById('modal-ficha').classList.add('abierto');
+}
+
+function cerrarFicha(){
+  FICHA = null;
+  document.getElementById('modal-ficha').classList.remove('abierto');
+}
+
+async function verReceta(id){
+  try{
+    const json = await api('/receta?id=' + id);
+    if (!json.success) return;
+    const img = document.getElementById('f-receta-img');
+    img.src = json.data.receta_foto;
+    img.style.display = 'block';
+  }catch(e){}
+}
+
+function abrirWhatsApp(){
+  if (!FICHA || !FICHA.telefono) return;
+  const num = telWhatsApp(FICHA.telefono);
+  const nombre = (FICHA.nombre || '').split(' ')[0];
+  const txt = 'Hola ' + nombre + ', te escribimos del consultorio para coordinar el día y la hora de tu consulta.';
+  window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(txt), '_blank');
+}
+
+async function guardarAgenda(){
+  if (!FICHA) return;
+  const fecha = document.getElementById('f-fecha').value;
+  const hora  = document.getElementById('f-hora').value;
+  try{
+    const json = await api('/agenda?id=' + FICHA.id, {
+      method:'PATCH',
+      body: JSON.stringify({fecha_agendada: fecha || null, hora_agendada: hora || null})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo guardar', 'err'); return; }
+    aplicar(json.data);
+    showToast('Guardado', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
+}
+
+async function marcarCancelado(){
+  if (!FICHA) return;
+  if (!confirm('¿Marcar a ' + (FICHA.nombre||'este paciente') + ' como que no vino o canceló?')) return;
+  try{
+    const json = await api('/agenda?id=' + FICHA.id, {
+      method:'PATCH', body: JSON.stringify({estado:'cancelado'})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo guardar', 'err'); return; }
+    aplicar(json.data);
+    cerrarFicha();
+    showToast('Marcado como cancelado', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
+}
+
+/** Reemplaza el registro en la lista y vuelve a dibujar sin recargar todo. */
+function aplicar(reg){
+  const i = AGENDA.findIndex(x => x.id === reg.id);
+  if (i >= 0) AGENDA[i] = Object.assign({}, AGENDA[i], reg);
+  if (FICHA && FICHA.id === reg.id) FICHA = AGENDA[i];
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Subida de la receta
+   ═══════════════════════════════════════════════════════════ */
+/** Comprime la foto en el celular: la cámara saca 4-8 MB y no hace falta tanto. */
+function comprimir(file){
+  return new Promise((resolve, reject) => {
+    const lector = new FileReader();
+    lector.onerror = () => reject(new Error('No se pudo leer la foto'));
+    lector.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('La foto no se pudo abrir'));
+      img.onload = () => {
+        const MAX = 1500;
+        let {width:w, height:h} = img;
+        if (w > MAX || h > MAX){
+          const f = MAX / Math.max(w, h);
+          w = Math.round(w * f); h = Math.round(h * f);
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        // Bajar calidad hasta que entre cómoda en el envío
+        let q = 0.75, out = c.toDataURL('image/jpeg', q);
+        while (out.length > 700000 && q > 0.4){
+          q -= 0.1;
+          out = c.toDataURL('image/jpeg', q);
+        }
+        resolve(out);
+      };
+      img.src = lector.result;
+    };
+    lector.readAsDataURL(file);
+  });
+}
+
+async function subirReceta(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file || !FICHA) return;
+
+  showToast('Subiendo la receta…');
+  try{
+    const foto = await comprimir(file);
+    const nombreArch = 'receta_' + (FICHA.codigo || FICHA.id) + '.jpg';
+    const json = await api('/receta?id=' + FICHA.id, {
+      method:'POST', body: JSON.stringify({foto, nombre: nombreArch})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo subir', 'err'); return; }
+
+    const img = document.getElementById('f-receta-img');
+    img.src = foto;
+    img.style.display = 'block';
+    aplicar({id: FICHA.id, estado:'atendido', tiene_receta:true, receta_subida: new Date().toISOString()});
+    showToast('Receta subida. La óptica ya la tiene.', 'ok');
+  }catch(e){
+    showToast(e.message || 'No se pudo subir la receta', 'err');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Alta de paciente desde el consultorio
+   ═══════════════════════════════════════════════════════════ */
+function abrirAlta(){
+  ['a-nombre','a-cedula','a-telefono','a-fecha','a-hora','a-nota'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('modal-alta').classList.add('abierto');
+}
+
+function cerrarAlta(){
+  document.getElementById('modal-alta').classList.remove('abierto');
+}
+
+async function guardarAlta(){
+  const nombre = document.getElementById('a-nombre').value.trim();
+  if (!nombre){ showToast('Poné al menos el nombre', 'err'); return; }
+
+  const cuerpo = {
+    nombre: nombre.toUpperCase(),
+    cedula: document.getElementById('a-cedula').value.trim(),
+    telefono: document.getElementById('a-telefono').value.trim(),
+    nota: document.getElementById('a-nota').value.trim(),
+  };
+
+  try{
+    const json = await api('/agenda', {method:'POST', body: JSON.stringify(cuerpo)});
+    if (!json.success){ showToast(json.error || 'No se pudo agregar', 'err'); return; }
+
+    // Si ya le dieron día y hora, se los cargamos en el mismo movimiento
+    const fecha = document.getElementById('a-fecha').value;
+    const hora  = document.getElementById('a-hora').value;
+    let reg = json.data;
+    if (fecha || hora){
+      const j2 = await api('/agenda?id=' + reg.id, {
+        method:'PATCH',
+        body: JSON.stringify({fecha_agendada: fecha || null, hora_agendada: hora || null})
+      });
+      if (j2.success) reg = j2.data;
+    }
+
+    AGENDA.unshift(reg);
+    VISTOS.add(reg.id);
+    cerrarAlta();
+    render();
+    showToast('Agregado. La óptica ya lo ve.', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Chat
+   ═══════════════════════════════════════════════════════════ */
+function pintarChat(cont, msgs){
+  if (!msgs.length){
+    cont.innerHTML = '<div class="chat-vacio">Todavía no hay mensajes.</div>';
+    return;
+  }
+  cont.innerHTML = msgs.map(m => {
+    const mio = (m.autor === 'consultorio') === (SESION.rol !== 'optica');
+    return '<div class="msg ' + (mio ? 'mio' : 'otro') + '">' + esc(m.texto) +
+           '<div class="meta">' + esc(m.autor_nombre || (m.autor === 'optica' ? 'Óptica' : 'Consultorio')) +
+           ' · ' + horaCorta(m.creado_en) + '</div></div>';
+  }).join('');
+  cont.scrollTop = cont.scrollHeight;
+}
+
+async function cargarChat(agendaId){
+  try{
+    const json = await api('/mensajes?agenda_id=' + agendaId);
+    if (!json.success) return;
+    pintarChat(document.getElementById('f-chat'), json.data);
+    if (NO_LEIDOS[agendaId]){
+      await api('/mensajes?agenda_id=' + agendaId, {method:'PATCH'});
+      delete NO_LEIDOS[agendaId];
+      render();
+    }
+  }catch(e){}
+}
+
+async function enviarMensaje(){
+  if (!FICHA) return;
+  const ta = document.getElementById('f-chat-txt');
+  const txt = ta.value.trim();
+  if (!txt) return;
+  ta.value = '';
+  try{
+    const json = await api('/mensajes', {
+      method:'POST', body: JSON.stringify({agenda_id: FICHA.id, texto: txt})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo enviar', 'err'); ta.value = txt; return; }
+    cargarChat(FICHA.id);
+  }catch(e){ showToast('Sin conexión', 'err'); ta.value = txt; }
+}
+
+async function abrirChatGeneral(){
+  document.getElementById('modal-general').classList.add('abierto');
+  try{
+    const json = await api('/mensajes');
+    if (json.success) pintarChat(document.getElementById('g-chat'), json.data);
+    await api('/mensajes', {method:'PATCH'});
+    delete NO_LEIDOS['general'];
+    document.getElementById('badge-general').style.display = 'none';
+  }catch(e){}
+}
+
+function cerrarChatGeneral(){
+  document.getElementById('modal-general').classList.remove('abierto');
+}
+
+async function enviarMensajeGeneral(){
+  const ta = document.getElementById('g-chat-txt');
+  const txt = ta.value.trim();
+  if (!txt) return;
+  ta.value = '';
+  try{
+    const json = await api('/mensajes', {method:'POST', body: JSON.stringify({texto: txt})});
+    if (!json.success){ showToast(json.error || 'No se pudo enviar', 'err'); ta.value = txt; return; }
+    abrirChatGeneral();
+  }catch(e){ showToast('Sin conexión', 'err'); ta.value = txt; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Arranque
+   ═══════════════════════════════════════════════════════════ */
+document.getElementById('inp-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('inp-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+['f-chat-txt','g-chat-txt'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      id === 'f-chat-txt' ? enviarMensaje() : enviarMensajeGeneral();
+    }
+  });
+});
+
+// Al volver a la pestaña, refrescar en el acto (el médico deja el celular y vuelve)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && SESION) refrescar();
+});
+
+// Sesión guardada del mismo día (se pierde al cerrar el navegador, a propósito)
+try{
+  const guardada = sessionStorage.getItem('medico_sesion');
+  if (guardada){ SESION = JSON.parse(guardada); arrancar(); }
+}catch(e){}
+</script>
+</body>
+</html>

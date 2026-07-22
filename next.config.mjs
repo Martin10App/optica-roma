@@ -4,12 +4,31 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        // Agenda del consultorio (página privada del médico)
+        source: '/consultorio',
+        destination: '/consultorio.html',
+      },
+      {
         source: '/pedidos',
         destination: 'https://martin10app.github.io/pedidosrabaquino/',
       },
       {
         source: '/pedidos/:path*',
         destination: 'https://martin10app.github.io/pedidosrabaquino/:path*',
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        // Permite que el portal Rabaquino (GitHub Pages) llame a esta API
+        // sin importar si se accede via opticaroma.store/pedidos o el link directo de GitHub Pages.
+        source: '/api/rabaquino/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PATCH,DELETE,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
       },
     ];
   },
