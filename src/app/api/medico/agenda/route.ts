@@ -17,13 +17,29 @@ const CAMPOS_PROGRAMA = [...CAMPOS_CONSULTORIO, 'receta_bajada', 'telefono', 'se
 
 const ESTADOS = ['pendiente', 'agendado', 'atendido', 'cancelado', 'archivado'];
 
-/** Archiva solos los pendientes que quedaron colgados más de 30 días. */
-async function archivarViejos() {
+/**
+ * Mantenimiento barato que corre al cargar la lista.
+ *  - Archiva los pendientes que quedaron colgados más de 30 días.
+ *  - Borra de Neon las fotos de receta que el programa de la óptica ya se bajó
+ *    hace más de 90 días. La foto sigue existiendo en el servidor de la óptica
+ *    (carpeta imagenes_recetas) y en la ficha del cliente: lo único que se
+ *    pierde es poder verla desde esta página. Sin esto la base crecería para
+ *    siempre y el plan gratuito de Neon tiene tope de espacio.
+ */
+async function mantenimiento() {
   await medicoPool.query(`
     UPDATE medico_agenda
        SET estado = 'archivado', actualizado_en = NOW()
      WHERE estado = 'pendiente'
        AND creado_en < NOW() - INTERVAL '30 days'
+  `);
+
+  await medicoPool.query(`
+    UPDATE medico_agenda
+       SET receta_foto = NULL
+     WHERE receta_foto IS NOT NULL
+       AND receta_bajada IS NOT NULL
+       AND receta_bajada < NOW() - INTERVAL '90 days'
   `);
 }
 
@@ -35,7 +51,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
 
-    await archivarViejos();
+    await mantenimiento();
 
     const { searchParams } = new URL(request.url);
     const mes = searchParams.get('mes'); // YYYY-MM

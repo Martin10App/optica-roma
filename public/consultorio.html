@@ -388,7 +388,7 @@ async function doLogin(){
 function cerrarSesion(){
   SESION = null;
   try{ sessionStorage.removeItem('medico_sesion'); }catch(e){}
-  clearInterval(TIMER);
+  pararReloj();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
   document.getElementById('inp-pass').value = '';
@@ -400,8 +400,22 @@ function arrancar(){
   document.getElementById('quien').textContent = SESION.nombre || SESION.usuario;
   llenarMeses();
   cargarAgenda(true);
+  arrancarReloj();
+}
+
+/** Consultar cada minuto, pero SOLO con la página a la vista.
+ *  Cada consulta despierta la base, que se paga por tiempo despierta: con el
+ *  celular en el bolsillo no tiene sentido seguir preguntando. Al volver a la
+ *  pantalla se refresca en el acto, así que no se pierde nada. */
+function arrancarReloj(){
   clearInterval(TIMER);
-  TIMER = setInterval(refrescar, 30000);
+  if (!SESION || document.hidden) return;
+  TIMER = setInterval(refrescar, 60000);
+}
+
+function pararReloj(){
+  clearInterval(TIMER);
+  TIMER = null;
 }
 
 function llenarMeses(){
@@ -864,9 +878,10 @@ document.getElementById('inp-user').addEventListener('keydown', e => { if (e.key
   });
 });
 
-// Al volver a la pestaña, refrescar en el acto (el médico deja el celular y vuelve)
+// Con la página oculta se corta el reloj; al volver, refresco inmediato y sigue.
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && SESION) refrescar();
+  if (document.hidden){ pararReloj(); return; }
+  if (SESION){ refrescar(); arrancarReloj(); }
 });
 
 // Sesión guardada del mismo día (se pierde al cerrar el navegador, a propósito)
