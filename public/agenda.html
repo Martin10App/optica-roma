@@ -207,6 +207,11 @@ main{padding:16px;max-width:760px;margin:0 auto;}
       </div>
     </div>
 
+    <div class="bloque" id="f-hist-bloque" style="display:none">
+      <h3>Consultas anteriores</h3>
+      <div id="f-hist"></div>
+    </div>
+
     <div class="bloque">
       <h3>Mensajes sobre este paciente</h3>
       <div class="chat-msgs" id="f-chat"></div>
@@ -621,12 +626,58 @@ function abrirFicha(id){
 
   document.getElementById('f-chat-txt').value = '';
   cargarChat(r.id);
+  cargarHistorial(r);
   document.getElementById('modal-ficha').classList.add('abierto');
 }
 
 function cerrarFicha(){
   FICHA = null;
   document.getElementById('modal-ficha').classList.remove('abierto');
+}
+
+/** Consultas anteriores del mismo paciente, canceladas incluidas: si alguien
+ *  se vuelve a agendar, conviene saber si ya había faltado antes. */
+async function cargarHistorial(r){
+  const bloque = document.getElementById('f-hist-bloque');
+  const cont = document.getElementById('f-hist');
+  bloque.style.display = 'none';
+  cont.innerHTML = '';
+  if (!r.cedula) return;
+
+  try{
+    const json = await api('/agenda?historial_cedula=' + encodeURIComponent(r.cedula) +
+                           '&excluir_id=' + r.id);
+    if (!json.success || !json.data.length) return;
+
+    const etiqueta = {
+      atendido:  ['Se atendió',      'var(--green)'],
+      cancelado: ['No vino / canceló','var(--red)'],
+      archivado: ['Quedó sin agendar','var(--text3)'],
+      pendiente: ['Sin hora',        'var(--amber)'],
+      agendado:  ['Agendado',        'var(--accent2)'],
+    };
+
+    cont.innerHTML = json.data.map(h => {
+      const [txt, color] = etiqueta[h.estado] || [h.estado, 'var(--text2)'];
+      const dia = soloFecha(h.fecha_agendada) || soloFecha(h.fecha_sena) || soloFecha(h.creado_en);
+      const fecha = dia ? dia.split('-').reverse().join('/') : '—';
+      const hora = h.hora_agendada ? ' ' + String(h.hora_agendada).slice(0,5) : '';
+      return '<div style="display:flex;gap:10px;align-items:baseline;padding:6px 0;' +
+             'border-top:1px solid var(--border)">' +
+             '<span style="color:var(--text2);font-size:13px;min-width:92px">' +
+             esc(fecha + hora) + '</span>' +
+             '<span style="color:' + color + ';font-size:13px;font-weight:600">' + esc(txt) + '</span>' +
+             '</div>';
+    }).join('');
+
+    const cancelados = json.data.filter(h => h.estado === 'cancelado').length;
+    if (cancelados){
+      cont.innerHTML = '<div style="color:var(--amber);font-size:13px;margin-bottom:6px">⚠ ' +
+        (cancelados === 1 ? 'Ya faltó una vez' : 'Ya faltó ' + cancelados + ' veces') +
+        '</div>' + cont.innerHTML;
+    }
+    bloque.style.display = 'block';
+  }catch(e){}
 }
 
 async function verReceta(id){

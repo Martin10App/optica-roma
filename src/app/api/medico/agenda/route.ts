@@ -51,9 +51,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+
+    // Historial del paciente: todas sus citas anteriores, incluidas las que
+    // canceló. Sirve para saber, cuando alguien se vuelve a agendar, si ya
+    // había faltado antes. No se borra ningún registro nunca, justamente para
+    // que esto tenga sentido.
+    const histCedula = searchParams.get('historial_cedula');
+    if (histCedula) {
+      const digitos = histCedula.replace(/\D/g, '');
+      if (!digitos) return NextResponse.json({ success: true, data: [] });
+
+      const excluir = searchParams.get('excluir_id') || '0';
+      const hist = await medicoPool.query(
+        `SELECT id, codigo, estado, sena, fecha_sena, fecha_agendada, hora_agendada,
+                origen, receta_subida, creado_en
+           FROM medico_agenda
+          WHERE regexp_replace(COALESCE(cedula,''), '[^0-9]', '', 'g') = $1::text
+            AND id <> $2::int
+          ORDER BY COALESCE(fecha_agendada, fecha_sena::date, creado_en::date) DESC
+          LIMIT 30`,
+        [digitos, excluir]
+      );
+      return NextResponse.json({ success: true, data: hist.rows });
+    }
+
     await mantenimiento();
 
-    const { searchParams } = new URL(request.url);
     const mes = searchParams.get('mes'); // YYYY-MM
     const soloPendientes = searchParams.get('pendientes') === '1';
 
