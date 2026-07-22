@@ -123,6 +123,11 @@ export async function POST(request: NextRequest) {
 
     const codigo = b.codigo || null;
     const ventaId = b.venta_id ?? null;
+    const origen = b.origen || 'venta';
+    // Un alta del consultorio no lleva fecha de seña (no pagó nada); una venta
+    // que no la trae es porque está pasando ahora mismo.
+    const fechaSena =
+      b.fecha_sena || (origen === 'consultorio' ? null : new Date().toISOString());
 
     // ¿Ya está? (reintento del programa, o el cliente señó después de pedir turno)
     let existente = null;
@@ -159,29 +164,29 @@ export async function POST(request: NextRequest) {
     if (existente) {
       const res = await medicoPool.query(
         `UPDATE medico_agenda
-            SET nombre = COALESCE($1, nombre),
-                telefono = COALESCE($2, telefono),
-                sena = COALESCE($3, sena),
-                fnac = COALESCE($4, fnac),
-                edad = COALESCE($5, edad),
-                codigo = COALESCE($6, codigo),
+            SET nombre = COALESCE($1::text, nombre),
+                telefono = COALESCE($2::text, telefono),
+                sena = COALESCE($3::text, sena),
+                fnac = COALESCE($4::text, fnac),
+                edad = COALESCE($5::text, edad),
+                codigo = COALESCE($6::text, codigo),
                 -- Si la cita se adopta al dejar la seña, la marca de "recién
                 -- llegó" es ahora: el médico tiene que verlo como reciente.
                 fecha_sena = COALESCE($7::timestamptz, fecha_sena,
                                       CASE WHEN $8::int IS NOT NULL THEN NOW() END),
-                venta_id = COALESCE($8, venta_id),
+                venta_id = COALESCE($8::int, venta_id),
                 -- Al adoptar una cita que estaba sin seña, pasa a ser una venta
-                origen = CASE WHEN $8 IS NOT NULL THEN 'venta' ELSE origen END,
+                origen = CASE WHEN $8::int IS NOT NULL THEN 'venta' ELSE origen END,
                 -- El día y la hora del consultorio mandan: solo se completan si
                 -- estaban vacíos, nunca se pisa lo que ya cargó la secretaria.
                 fecha_agendada = COALESCE(fecha_agendada, $9::date),
-                hora_agendada  = COALESCE(hora_agendada, $10),
+                hora_agendada  = COALESCE(hora_agendada, $10::text),
                 estado = CASE WHEN estado = 'pendiente'
                                AND (COALESCE(fecha_agendada, $9::date) IS NOT NULL
-                                 OR COALESCE(hora_agendada, $10) IS NOT NULL)
+                                 OR COALESCE(hora_agendada, $10::text) IS NOT NULL)
                               THEN 'agendado' ELSE estado END,
                 actualizado_en = NOW()
-          WHERE id = $11
+          WHERE id = $11::int
         RETURNING ${COLUMNAS_LISTA}`,
         [b.nombre, b.telefono, b.sena, b.fnac, b.edad, codigo,
          b.fecha_sena || null, ventaId,
@@ -191,15 +196,14 @@ export async function POST(request: NextRequest) {
     }
 
     const res = await medicoPool.query(
+      // El estado y la fecha de seña se resuelven acá y no dentro del SQL: al
+      // meterlos en un CASE, Postgres no podía inferir el tipo de los
+      // parámetros y toda alta fallaba con error 500.
       `INSERT INTO medico_agenda
         (codigo, cedula, nombre, fnac, edad, telefono, sena, fecha_sena, origen,
          estado, venta_id, nota, fecha_agendada, hora_agendada)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,
-               CASE WHEN $9 = 'consultorio' THEN $8::timestamptz ELSE COALESCE($8::timestamptz, NOW()) END,
-               $9,
-               -- Si ya viene con día u hora, nace agendado: no hay nada que coordinar
-               CASE WHEN $12::date IS NOT NULL OR $13 IS NOT NULL THEN 'agendado' ELSE 'pendiente' END,
-               $10,$11,$12::date,$13)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8::timestamptz,$9::text,$10::text,
+               $11::int,$12::text,$13::date,$14::text)
        RETURNING ${COLUMNAS_LISTA}`,
       [
         codigo,
@@ -209,8 +213,10 @@ export async function POST(request: NextRequest) {
         b.edad || null,
         b.telefono || null,
         b.sena || null,
-        b.fecha_sena || null,
-        b.origen || 'venta',
+        fechaSena,
+        origen,
+        // Si ya viene con día u hora, nace agendado: no hay nada que coordinar
+        b.fecha_agendada || b.hora_agendada ? 'agendado' : 'pendiente',
         ventaId,
         b.nota || null,
         b.fecha_agendada || null,
