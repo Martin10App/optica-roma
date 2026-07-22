@@ -326,23 +326,31 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
     </div>
     <h1>Agenda</h1>
     <p class="sub-login">Acceso privado</p>
-    <div class="error" id="login-error">Usuario o contraseña incorrectos</div>
-    <div class="campo">
-      <label>Usuario</label>
-      <div class="campo-icono">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#95A3BB" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
-        <input id="inp-user" autocomplete="username" autocapitalize="none" placeholder="usuario">
+    <!-- Formulario de verdad (con action y submit): es la única forma de que
+         Chrome, Safari y los gestores de contraseñas ofrezcan guardar los
+         datos y después autocompletarlos al tocar el campo. -->
+    <form id="form-login" action="#" method="post" onsubmit="doLogin(event)">
+      <div class="error" id="login-error">Usuario o contraseña incorrectos</div>
+      <div class="campo">
+        <label for="inp-user">Usuario</label>
+        <div class="campo-icono">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#95A3BB" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+          <input id="inp-user" name="username" type="text" autocomplete="username"
+                 autocapitalize="none" autocorrect="off" spellcheck="false"
+                 enterkeyhint="next" placeholder="usuario">
+        </div>
       </div>
-    </div>
-    <div class="campo">
-      <label>Contraseña</label>
-      <div class="campo-icono">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#95A3BB" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-        <input id="inp-pass" type="password" autocomplete="current-password" placeholder="••••••••">
-        <button type="button" class="ver-pass" onclick="verPass()" title="Ver contraseña">👁</button>
+      <div class="campo">
+        <label for="inp-pass">Contraseña</label>
+        <div class="campo-icono">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#95A3BB" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <input id="inp-pass" name="password" type="password" autocomplete="current-password"
+                 enterkeyhint="go" placeholder="••••••••">
+          <button type="button" class="ver-pass" onclick="verPass()" title="Ver contraseña">👁</button>
+        </div>
       </div>
-    </div>
-    <button class="btn" id="btn-login" onclick="doLogin()">Entrar →</button>
+      <button class="btn" id="btn-login" type="submit">Entrar →</button>
+    </form>
     <div class="pie-login">Uso interno · Conexión segura</div>
   </div>
 </div>
@@ -634,7 +642,8 @@ function telWhatsApp(tel){
 /* ═══════════════════════════════════════════════════════════
    Login
    ═══════════════════════════════════════════════════════════ */
-async function doLogin(){
+async function doLogin(evento){
+  if (evento) evento.preventDefault();   // el form no navega, lo manejamos acá
   const u = document.getElementById('inp-user').value.trim();
   const p = document.getElementById('inp-pass').value;
   const err = document.getElementById('login-error');
@@ -659,6 +668,15 @@ async function doLogin(){
     }
     SESION = json.data;
     guardarSesion();
+    // Pedirle al navegador que guarde el usuario y la contraseña, para que la
+    // próxima vez alcance con tocar el campo y elegirlos. En Chrome y Edge se
+    // pide explícito; Safari lo detecta solo por el envío del formulario.
+    try{
+      if (window.PasswordCredential){
+        await navigator.credentials.store(
+          new window.PasswordCredential({id: u, password: p, name: SESION.nombre || u}));
+      }
+    }catch(e){}
     arrancar();
   }catch(e){
     err.textContent = 'No se pudo conectar. Revisá internet.';
@@ -1607,8 +1625,8 @@ navigator.serviceWorker?.addEventListener?.('message', (e) => {
 /* ═══════════════════════════════════════════════════════════
    Arranque
    ═══════════════════════════════════════════════════════════ */
-document.getElementById('inp-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('inp-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+// El Enter en los campos ya lo maneja el submit del formulario, no hace falta
+// engancharlo a mano (si no, se dispararía el login dos veces).
 ['f-chat-txt','g-chat-txt'].forEach(id => {
   const ta = document.getElementById(id);
   ta.addEventListener('keydown', e => {
