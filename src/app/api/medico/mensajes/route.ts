@@ -15,7 +15,7 @@ async function quienEs(request: Request): Promise<Quien | null> {
     };
   }
   // El programa de escritorio escribe siempre como la óptica
-  if (esSyncDelPrograma(request)) return { autor: 'optica', nombre: 'Óptica Roma' };
+  if (esSyncDelPrograma(request)) return { autor: 'optica', nombre: 'Óptica' };
   return null;
 }
 

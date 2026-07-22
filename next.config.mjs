@@ -4,9 +4,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // Agenda del consultorio (página privada del médico)
-        source: '/consultorio',
-        destination: '/consultorio.html',
+        // Agenda privada. El nombre de la ruta es deliberadamente neutro: en
+        // Uruguay un médico no puede figurar vinculado a una óptica, así que
+        // la dirección no nombra ni al consultorio ni al médico.
+        source: '/agenda',
+        destination: '/agenda.html',
       },
       {
         source: '/pedidos',
