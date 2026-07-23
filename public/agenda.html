@@ -1613,7 +1613,26 @@ async function activarNotificaciones(){
     try{ sessionStorage.removeItem('notif_ocultar'); }catch(e){}
     revisarNotificaciones();
   }catch(e){
-    showToast('No se pudieron activar: ' + (e.message || e), 'err');
+    // Brave trae apagado el servicio de push de Google por privacidad, y
+    // pushManager.subscribe() falla con "push service error". Sin este aviso
+    // el mensaje no dice qué hacer y uno queda trabado sin entender por qué.
+    const msg = String(e && e.message || e);
+    let esBrave = false;
+    try{ esBrave = !!(navigator.brave && await navigator.brave.isBrave()); }catch(_){}
+
+    if (esBrave || /push service|registration failed/i.test(msg)){
+      mostrarAviso('Brave tiene los avisos apagados',
+        'Brave desactiva el servicio de notificaciones de Google por privacidad. Para usarlo:' +
+        '<ol class="pasos"><li>Abrí <b>brave://settings/privacy</b></li>' +
+        '<li>Activá <b>«Usar servicios de Google para la mensajería push»</b></li>' +
+        '<li><b>Cerrá y volvé a abrir Brave</b> (no alcanza con recargar)</li>' +
+        '<li>Volvé acá y tocá Activar</li></ol>' +
+        'Si preferís no tocar eso, la agenda funciona igual — pero tenés que entrar a mirar.',
+        '<button class="btn" onclick="activarNotificaciones()">🔔 Ya lo hice, activar</button>', '🦁');
+      showToast('Brave bloquea las notificaciones. Mirá el cartel de arriba.', 'err');
+      return;
+    }
+    showToast('No se pudieron activar: ' + msg, 'err');
   }
 }
 
