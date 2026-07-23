@@ -11,6 +11,14 @@ const nextConfig = {
         destination: '/agenda.html',
       },
       {
+        // Puente para agendar: el enlace que va en los mensajes de WhatsApp.
+        // Existe para que la vista previa del enlace sea neutra — apuntando
+        // directo a wa.me, WhatsApp mostraba el logo y el nombre del
+        // consultorio en el chat.
+        source: '/agendar',
+        destination: '/agendar.html',
+      },
+      {
         source: '/pedidos',
         destination: 'https://martin10app.github.io/pedidosrabaquino/',
       },

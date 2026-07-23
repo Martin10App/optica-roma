@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Agendar consulta</title>
+
+<!-- Esto es lo que WhatsApp muestra en la vista previa del enlace.
+     Deliberadamente NEUTRO: sin logo, sin nombre de la óptica y sin nombre
+     del consultorio. Antes el enlace apuntaba directo a wa.me y WhatsApp
+     mostraba el perfil de negocio del consultorio con su logo, que es
+     justamente lo que no queremos que quede registrado en el chat.
+     Sin og:image a propósito: la tarjeta sale sin imagen, más discreta. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Agendar consulta oftalmológica">
+<meta property="og:description" content="Tocá para coordinar el día y la hora de tu consulta.">
+<meta property="og:site_name" content="Agenda de consultas">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0F172A">
+
+<style>
+:root{--bg:#0F172A;--card:#1E293B;--borde:#334155;--texto:#F1F5F9;--suave:#94A3B8;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);
+  color:var(--texto);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.caja{width:100%;max-width:380px;text-align:center;}
+h1{font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:-.2px;}
+p.sub{color:var(--suave);font-size:14px;line-height:1.6;margin-bottom:30px;}
+a.btn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
+  padding:17px 20px;border-radius:14px;font-size:16px;font-weight:600;text-decoration:none;
+  margin-bottom:13px;transition:transform .15s,filter .15s;}
+a.btn:active{transform:scale(.98);}
+a.wa{background:#25D366;color:#04241A;}
+a.tel{background:var(--card);color:var(--texto);border:1px solid var(--borde);}
+a.btn svg{flex:none;}
+.pie{color:var(--suave);font-size:12.5px;margin-top:22px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="caja">
+  <h1>Agendar tu consulta</h1>
+  <p class="sub">Elegí cómo preferís comunicarte para coordinar el día y la hora.</p>
+
+  <a class="btn wa" id="btn-wa" href="#">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2m5.8 14.1c-.25.69-1.45 1.32-2 1.4-.51.08-1.16.11-1.87-.12-.43-.14-.99-.32-1.7-.63-2.99-1.29-4.94-4.3-5.09-4.5-.15-.2-1.22-1.62-1.22-3.09s.77-2.19 1.04-2.49c.27-.3.59-.37.79-.37.2 0 .39 0 .57.01.18.01.43-.7.82.63.4.96 1.35 3.31 1.47 3.55.12.24.2.52.04.83-.16.31-.24.5-.47.77-.24.27-.5.6-.71.81-.24.24-.48.5-.21.97.27.47 1.2 1.98 2.58 3.21 1.77 1.58 3.27 2.07 3.74 2.3.47.24.74.2 1.01-.12.27-.32 1.16-1.36 1.47-1.83.31-.47.62-.39 1.04-.24.42.16 2.68 1.27 3.14 1.5.46.24.77.35.88.55.11.19.11 1.1-.14 1.79"/></svg>
+    Escribir por WhatsApp
+  </a>
+
+  <a class="btn tel" id="btn-tel" href="#">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.26-1.26a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92"/></svg>
+    Llamar por teléfono
+  </a>
+
+  <p class="pie">Si nadie atiende, dejá tu mensaje por WhatsApp<br>y te responden apenas puedan.</p>
+</div>
+
+<script>
+/* El número va acá y no en el HTML de arriba para que no aparezca en la
+   vista previa del enlace ni en los buscadores. */
+var TEL = '59891901050';
+var TEXTO = 'Hola! Quisiera agendar una consulta oftalmológica';
+
+document.getElementById('btn-wa').href =
+  'https://wa.me/' + TEL + '?text=' + encodeURIComponent(TEXTO);
+document.getElementById('btn-tel').href = 'tel:+' + TEL;
+</script>
+</body>
+</html>
