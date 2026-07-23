@@ -29,6 +29,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const sucursal = searchParams.get('sucursal');
 
+    // Modo liviano para las tildes verdes del programa: consulta cada 5 minutos
+    // pero solo necesita saber qué archivo quedó procesado. Traer las ~60
+    // columnas de los 680 pedidos para leer dos campos eran ~400 KB por vuelta:
+    // eso, junto con el polling del portal, agotó la cuota de Neon el
+    // 22/07/2026. Así son ~5 KB.
+    const soloProcesados = searchParams.get('solo_procesados') === '1';
+    if (soloProcesados) {
+      const res = await pool.query(
+        `SELECT archivo_excel, estado FROM rabaquino_pedidos
+          WHERE estado = 'procesado' AND archivo_excel IS NOT NULL AND archivo_excel <> ''
+          ORDER BY fecha_subida DESC LIMIT 5000`
+      );
+      return NextResponse.json({ success: true, data: res.rows });
+    }
+
     let query = 'SELECT * FROM rabaquino_pedidos';
     const params: any[] = [];
     if (sucursal && sucursal !== 'todas') {
