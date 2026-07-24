@@ -6,7 +6,7 @@ import { avisar } from '@/lib/medicoPush';
 // cada carga de la lista se traería varios MB al pedo.
 const COLUMNAS_LISTA = `
   id, codigo, cedula, nombre, fnac, edad, telefono, sena, fecha_sena,
-  origen, estado, fecha_agendada, hora_agendada, nota,
+  origen, estado, fecha_agendada, hora_agendada, nota, es_recontrol, motivo,
   receta_nombre, receta_subida, receta_bajada, venta_id, creado_en, actualizado_en,
   (receta_foto IS NOT NULL) AS tiene_receta
 `;
@@ -15,10 +15,12 @@ const COLUMNAS_LISTA = `
 // Los datos del paciente (nombre, cédula, seña) son de la óptica, que es
 // quien los tomó en el mostrador — el consultorio es un invitado acá.
 const CAMPOS_CONSULTORIO = ['fecha_agendada', 'hora_agendada', 'estado', 'nota'];
-// La óptica, desde la página, edita además los datos del paciente
+// La óptica, desde la página, edita además los datos del paciente y puede
+// marcar/desmarcar el recontrol con su motivo
 const CAMPOS_OPTICA = [
   ...CAMPOS_CONSULTORIO,
   'nombre', 'cedula', 'telefono', 'fnac', 'edad', 'sena',
+  'es_recontrol', 'motivo',
 ];
 // El programa de escritorio, además, marca las recetas como bajadas
 const CAMPOS_PROGRAMA = [...CAMPOS_OPTICA, 'receta_bajada'];
@@ -233,9 +235,9 @@ export async function POST(request: NextRequest) {
       // parámetros y toda alta fallaba con error 500.
       `INSERT INTO medico_agenda
         (codigo, cedula, nombre, fnac, edad, telefono, sena, fecha_sena, origen,
-         estado, venta_id, nota, fecha_agendada, hora_agendada)
+         estado, venta_id, nota, fecha_agendada, hora_agendada, es_recontrol, motivo)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8::timestamptz,$9::text,$10::text,
-               $11::int,$12::text,$13::date,$14::text)
+               $11::int,$12::text,$13::date,$14::text,$15::boolean,$16::text)
        RETURNING ${COLUMNAS_LISTA}`,
       [
         codigo,
@@ -253,17 +255,27 @@ export async function POST(request: NextRequest) {
         b.nota || null,
         b.fecha_agendada || null,
         b.hora_agendada || null,
+        !!b.es_recontrol,
+        b.motivo || null,
       ]
     );
 
     // Avisar al otro lado. El caso urgente es el paciente que acaba de señar
     // en la óptica: puede estar yendo al consultorio en este momento.
     const nombre = res.rows[0].nombre || 'Un paciente';
+    const motivoTxt = b.motivo ? ' Motivo: ' + b.motivo + '.' : '';
     if (origen === 'consultorio') {
       await avisar('optica', {
         titulo: 'El consultorio agendó a alguien',
         cuerpo: nombre + ' dice que viene derivado. Todavía no dejó seña.',
         tag: 'alta-consultorio',
+      });
+    } else if (b.es_recontrol) {
+      await avisar('consultorio', {
+        titulo: '🔄 Re-control',
+        cuerpo: nombre + ' viene a recontrolarse.' + motivoTxt + ' Falta darle día y hora.',
+        tag: 'alta-optica',
+        importante: true,
       });
     } else {
       const monto = Number(String(b.sena || '').replace(/[^\d]/g, '')) || 0;

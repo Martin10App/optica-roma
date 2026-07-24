@@ -170,6 +170,12 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 .fila:active{transform:scale(.985);}
 .fila.atendido{border-color:rgba(16,185,129,.35);background:linear-gradient(180deg,rgba(16,185,129,.09),rgba(17,26,46,.75));}
 .fila.nuevo{border-color:rgba(245,158,11,.45);background:linear-gradient(180deg,rgba(245,158,11,.10),rgba(17,26,46,.75));}
+/* Recontrol: violeta, para que se distinga a simple vista de una consulta normal */
+.fila.recontrol{border-color:rgba(167,139,250,.55);background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(17,26,46,.75));}
+.fila.recontrol .avatar{box-shadow:inset 0 -8px 14px rgba(0,0,0,.28),0 0 0 2px rgba(167,139,250,.55);}
+.pill.recontrol{background:rgba(139,92,246,.16);color:#C4B5FD;border:1px solid rgba(167,139,250,.55);}
+.motivo-linea{font-size:11.5px;color:#C4B5FD;margin-top:4px;display:flex;align-items:center;gap:5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .fila.cancelado{opacity:.42;}
 .fila.cancelado .nom{text-decoration:line-through;}
 
@@ -462,6 +468,20 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
         <button class="btn" onclick="guardarDatos()">Guardar cambios</button>
         <button class="btn btn-rojo" onclick="eliminarRegistro()">🗑 Eliminar</button>
       </div>
+
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px">
+        <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="e-recontrol" onchange="toggleMotivoFicha()"
+                 style="width:18px;height:18px;accent-color:#8B5CF6;flex:none">
+          Marcar como <b style="font-weight:500;color:#C4B5FD">re-control</b> (garantía)
+        </label>
+        <div class="campo" id="e-motivo-campo" style="display:none;margin-top:10px">
+          <label>Motivo del re-control</label>
+          <input id="e-motivo" placeholder="Ej: graduación cambió, no ve de cerca…">
+        </div>
+        <button class="btn" id="btn-guardar-recontrol" style="display:none;margin-top:10px;background:var(--violet)"
+                onclick="guardarRecontrol()">Guardar re-control</button>
+      </div>
     </div>
 
     <div class="bloque" id="f-hist-bloque" style="display:none">
@@ -499,6 +519,15 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
       <div class="campo"><label>Hora</label><input type="time" id="a-hora"></div>
     </div>
     <div class="campo"><label>Nota para la óptica</label><textarea id="a-nota" rows="2"></textarea></div>
+    <label style="display:flex;align-items:center;gap:9px;margin-bottom:12px;cursor:pointer;font-size:14px">
+      <input type="checkbox" id="a-recontrol" onchange="toggleMotivoAlta()"
+             style="width:18px;height:18px;accent-color:#8B5CF6;flex:none">
+      Es un <b style="font-weight:500">re-control</b> (garantía, no ve bien…)
+    </label>
+    <div class="campo" id="a-motivo-campo" style="display:none">
+      <label>Motivo del re-control</label>
+      <input id="a-motivo" placeholder="Ej: graduación cambió, no ve de cerca…">
+    </div>
     <button class="btn" onclick="guardarAlta()">Agregar</button>
   </div>
 </div>
@@ -890,6 +919,7 @@ function fila(r){
   let clase = 'fila';
   if (r.estado === 'atendido') clase += ' atendido';
   else if (r.estado === 'cancelado') clase += ' cancelado';
+  else if (r.es_recontrol) clase += ' recontrol';   // el violeta manda sobre el ámbar
   else if (esReciente(r)) clase += ' nuevo';
 
   // Avatar con iniciales y color propio; la burbujita de estado va encima
@@ -904,11 +934,13 @@ function fila(r){
     : '<div class="hora vacia">sin hora</div>';
 
   const sena = Number(String(r.sena||'').replace(/[^\d]/g,'')) || 0;
-  const pill = sena
-    ? '<span class="pill sena">$' + sena.toLocaleString('es-UY') + '</span>'
-    : r.origen === 'consultorio'
-      ? '<span class="pill sin">lo cargamos acá</span>'
-      : '<span class="pill sin">sin seña</span>';
+  const pill = r.es_recontrol
+    ? '<span class="pill recontrol">🔄 re-control</span>'
+    : sena
+      ? '<span class="pill sena">$' + sena.toLocaleString('es-UY') + '</span>'
+      : r.origen === 'consultorio'
+        ? '<span class="pill sin">lo cargamos acá</span>'
+        : '<span class="pill sin">sin seña</span>';
 
   const sinLeer = NO_LEIDOS[r.id]
     ? '<span class="mini-chat">💬 ' + NO_LEIDOS[r.id] + '</span>' : '';
@@ -917,9 +949,13 @@ function fila(r){
               (esReciente(r) ? ' · llegó ' + haceCuanto(r.fecha_sena) : '') +
               '</span>' + sinLeer;
 
+  // Motivo del recontrol, en su propia línea para que Enzo lo lea de una
+  const motivo = (r.es_recontrol && r.motivo)
+    ? '<div class="motivo-linea">🔄 ' + esc(r.motivo) + '</div>' : '';
+
   return '<div class="' + clase + '" onclick="abrirFicha(' + r.id + ')">' + avatar +
          '<div class="info"><div class="nom">' + esc(r.nombre || 'Sin nombre') + '</div>' +
-         '<div class="sub">' + sub + '</div></div>' +
+         '<div class="sub">' + sub + '</div>' + motivo + '</div>' +
          '<div class="lado">' + hora + '</div></div>';
 }
 
@@ -957,8 +993,16 @@ function abrirFicha(id){
                            atendido:'Receta subida', cancelado:'Canceló',
                            archivado:'Archivado'}[r.estado] || r.estado],
   ];
-  document.getElementById('f-datos').innerHTML = d.map(([k,v]) =>
-    '<div class="dato"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>').join('');
+  // El recontrol se muestra arriba de todo y bien visible, con su motivo
+  if (r.es_recontrol){
+    d.unshift(['🔄 Re-control', r.motivo || 'Sin motivo anotado']);
+  }
+  document.getElementById('f-datos').innerHTML = d.map(([k,v], i) => {
+    const destacar = r.es_recontrol && i === 0
+      ? ' style="grid-column:1/-1;background:rgba(139,92,246,.14)"' : '';
+    return '<div class="dato"' + destacar + '><div class="k">' + esc(k) +
+           '</div><div class="v">' + esc(v) + '</div></div>';
+  }).join('');
 
   document.getElementById('f-fecha').value = soloFecha(r.fecha_agendada);
   document.getElementById('f-hora').value  = r.hora_agendada ? String(r.hora_agendada).slice(0,5) : '';
@@ -1076,7 +1120,36 @@ function prepararEdicion(r){
   document.getElementById('e-telefono').value = r.telefono || '';
   document.getElementById('e-fnac').value     = r.fnac || '';
   document.getElementById('e-sena').value     = r.sena || '';
+
+  document.getElementById('e-recontrol').checked = !!r.es_recontrol;
+  document.getElementById('e-motivo').value = r.motivo || '';
+  document.getElementById('e-motivo-campo').style.display = r.es_recontrol ? 'block' : 'none';
+  document.getElementById('btn-guardar-recontrol').style.display = 'none';
+
   bloque.style.display = 'block';
+}
+
+/** El botón de guardar el recontrol solo aparece si cambió algo respecto a la ficha. */
+function toggleMotivoFicha(){
+  const on = document.getElementById('e-recontrol').checked;
+  document.getElementById('e-motivo-campo').style.display = on ? 'block' : 'none';
+  document.getElementById('btn-guardar-recontrol').style.display = 'block';
+}
+
+async function guardarRecontrol(){
+  if (!FICHA) return;
+  const on = document.getElementById('e-recontrol').checked;
+  const motivo = on ? document.getElementById('e-motivo').value.trim() : '';
+  try{
+    const json = await api('/agenda?id=' + FICHA.id, {
+      method:'PATCH',
+      body: JSON.stringify({es_recontrol: on, motivo: motivo})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo guardar', 'err'); return; }
+    aplicar(json.data);
+    document.getElementById('btn-guardar-recontrol').style.display = 'none';
+    showToast(on ? 'Marcado como re-control' : 'Ya no es re-control', 'ok');
+  }catch(e){ showToast('Sin conexión', 'err'); }
 }
 
 async function guardarDatos(){
@@ -1203,10 +1276,17 @@ async function subirReceta(input){
    Alta de paciente desde el consultorio
    ═══════════════════════════════════════════════════════════ */
 function abrirAlta(){
-  ['a-nombre','a-cedula','a-telefono','a-fecha','a-hora','a-nota'].forEach(id => {
+  ['a-nombre','a-cedula','a-telefono','a-fecha','a-hora','a-nota','a-motivo'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('a-recontrol').checked = false;
+  document.getElementById('a-motivo-campo').style.display = 'none';
   document.getElementById('modal-alta').classList.add('abierto');
+}
+
+function toggleMotivoAlta(){
+  const on = document.getElementById('a-recontrol').checked;
+  document.getElementById('a-motivo-campo').style.display = on ? 'block' : 'none';
 }
 
 function cerrarAlta(){
@@ -1217,11 +1297,14 @@ async function guardarAlta(){
   const nombre = document.getElementById('a-nombre').value.trim();
   if (!nombre){ showToast('Poné al menos el nombre', 'err'); return; }
 
+  const esRecontrol = document.getElementById('a-recontrol').checked;
   const cuerpo = {
     nombre: nombre.toUpperCase(),
     cedula: document.getElementById('a-cedula').value.trim(),
     telefono: document.getElementById('a-telefono').value.trim(),
     nota: document.getElementById('a-nota').value.trim(),
+    es_recontrol: esRecontrol,
+    motivo: esRecontrol ? document.getElementById('a-motivo').value.trim() : '',
   };
 
   try{

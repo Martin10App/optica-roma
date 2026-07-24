@@ -90,6 +90,12 @@ export async function POST(request: NextRequest) {
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_push_rol ON medico_push(rol)');
 
     // Índices para las consultas que hace la página (por estado, por mes, por cédula)
+    // Recontrol: cuando un cliente vuelve a controlarse (garantía, no ve bien,
+    // etc.). No es una consulta normal, por eso va marcado y con el motivo a la
+    // vista. Se agregan por separado por si la tabla ya existía.
+    await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS es_recontrol BOOLEAN NOT NULL DEFAULT FALSE');
+    await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS motivo TEXT');
+
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_estado ON medico_agenda(estado)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_fecha ON medico_agenda(fecha_sena DESC)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_cedula ON medico_agenda(cedula)');
