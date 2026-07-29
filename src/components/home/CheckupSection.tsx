@@ -1,5 +1,7 @@
 'use client';
 
+import { Eye } from 'lucide-react';
+
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 export default function CheckupSection() {
@@ -14,7 +16,7 @@ export default function CheckupSection() {
 
       {/* Glow */}
       <div className="absolute left-1/4 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-700/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute right-1/4 top-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-700/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute right-1/4 top-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-brand-800/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-16 items-center">
@@ -67,8 +69,8 @@ export default function CheckupSection() {
                 100% Gratis
               </div>
               {/* Floating eye icon */}
-              <div className="absolute -bottom-5 -left-5 z-20 bg-white border border-blue-500/30 rounded-2xl p-4 shadow-xl animate-float-delayed">
-                <span className="text-3xl">👁️</span>
+              <div className="absolute -bottom-5 -left-5 z-20 bg-white border border-brand-500/30 rounded-2xl p-4 shadow-xl animate-float-delayed">
+                <Eye className="text-brand-600" size={30} strokeWidth={1.75} aria-hidden="true" />
               </div>
 
               {/* Main video box */}

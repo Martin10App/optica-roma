@@ -26,7 +26,7 @@ export default function AboutSection() {
             
             {/* Floating Card */}
             <div className="absolute -bottom-8 -right-8 md:bottom-8 md:-right-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xl animate-float-delayed z-10 max-w-[200px]">
-              <p className="text-4xl font-extrabold text-blue-700 mb-1">
+              <p className="text-4xl font-extrabold text-brand-800 mb-1">
                 +15
               </p>
               <p className="text-slate-600 text-sm font-medium leading-snug">
@@ -38,7 +38,7 @@ export default function AboutSection() {
           {/* Right: Content */}
           <div className="reveal-right mt-12 lg:mt-0">
             <div className="section-label mb-5 inline-flex">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-ping-slow" />
               Nuestra Historia
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
@@ -59,7 +59,7 @@ export default function AboutSection() {
                 'Garantía real sin letra chica'
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-slate-600 font-medium">
-                  <CheckCircle2 className="text-blue-700" size={20} />
+                  <CheckCircle2 className="text-brand-800" size={20} />
                   {item}
                 </li>
               ))}

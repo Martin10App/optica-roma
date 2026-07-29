@@ -21,8 +21,8 @@ export default function OreiroSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
         <div className="max-w-xl reveal">
-          <div className="mb-6 inline-block bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-full shadow-sm">
-            <span className="text-blue-700 text-xs font-bold uppercase tracking-widest">Nueva Colección 2026</span>
+          <div className="mb-6 inline-block bg-brand-50 border border-brand-200 px-4 py-1.5 rounded-full shadow-sm">
+            <span className="text-brand-800 text-xs font-bold uppercase tracking-widest">Nueva Colección 2026</span>
           </div>
           
           <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 mb-6 drop-shadow-sm tracking-tight">
@@ -36,7 +36,7 @@ export default function OreiroSection() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/projects/natalia-oreiro"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-blue-700 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-blue-800 hover:scale-105 transition-all shadow-xl"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-brand-800 text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-brand-900 hover:scale-105 transition-all shadow-xl"
             >
               Ver Colección
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

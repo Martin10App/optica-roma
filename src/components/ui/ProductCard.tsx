@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingCart, Eye, X } from 'lucide-react';
+import { ShoppingCart, Eye, X, Tag, Flame, PackageX } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
 
@@ -139,16 +139,19 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden flex-shrink-0">
           {/* Urgency Badge */}
           {product.precio_original ? (
-            <div className="absolute top-3 left-3 z-10 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-indigo-200 shadow-sm animate-pulse-slow">
-              🏷️ En Oferta
+            <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 bg-accent-soft text-accent-hover text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-amber-200 shadow-sm">
+              <Tag size={11} strokeWidth={2.5} aria-hidden="true" />
+              En Oferta
             </div>
           ) : product.stock_visible === false ? (
-            <div className="absolute top-3 left-3 z-10 bg-red-50 text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-red-200">
-              🔴 Agotado
+            <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 bg-red-50 text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-red-200">
+              <PackageX size={11} strokeWidth={2.5} aria-hidden="true" />
+              Agotado
             </div>
           ) : product.mas_vendido === true ? (
-            <div className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-amber-200">
-              🔥 Más vendido
+            <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-brand-200">
+              <Flame size={11} strokeWidth={2.5} aria-hidden="true" />
+              Más vendido
             </div>
           ) : null}
 
@@ -169,7 +172,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="absolute inset-0 bg-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
             <button
               onClick={toggleModal}
-              className="flex items-center justify-center w-10 h-10 rounded-full text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors shadow-sm"
+              className="flex items-center justify-center w-10 h-10 rounded-full text-brand-800 bg-brand-50 hover:bg-brand-100 transition-colors shadow-sm"
               title="Ver imagen"
             >
               <Eye size={18} />
@@ -178,7 +181,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock_visible === false}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-brand-800 hover:bg-brand-900'}`}
               >
                 <ShoppingCart size={16} />
                 Agregar
@@ -196,8 +199,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {/* Content */}
         <div className="p-4 flex flex-col flex-grow">
-          <p className="text-xs text-blue-700 font-semibold mb-1 uppercase tracking-wide">{product.categoria}</p>
-          <h3 className="text-sm font-semibold text-slate-900 mb-3 truncate group-hover:text-blue-700 transition-colors">
+          <p className="text-xs text-brand-800 font-semibold mb-1 uppercase tracking-wide">{product.categoria}</p>
+          <h3 className="text-sm font-semibold text-slate-900 mb-3 truncate group-hover:text-brand-800 transition-colors">
             {product.modelo}
           </h3>
 
@@ -219,7 +222,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
                     : added
                     ? 'bg-green-500 text-white scale-95'
-                    : 'bg-slate-100 text-slate-700 hover:bg-blue-700 hover:text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-brand-800 hover:text-white'
                 }`}
                 aria-label="Añadir al carrito"
               >
@@ -234,7 +237,7 @@ export default function ProductCard({ product }: { product: Product }) {
             ) : (
               <button
                 onClick={toggleModal}
-                className="text-xs font-bold text-blue-700 hover:underline"
+                className="text-xs font-bold text-brand-800 hover:underline"
               >
                 Elegir graduación
               </button>
@@ -264,7 +267,7 @@ export default function ProductCard({ product }: { product: Product }) {
               {/* Left Side: Image */}
               <div className={`flex flex-col ${isLenteContacto ? 'w-full md:w-1/2 border-r border-slate-100' : 'w-full'}`}>
                 <div className="p-6 border-b border-slate-100 bg-white">
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700">{product.marca}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand-800">{product.marca}</span>
                   <h2 className="text-2xl font-extrabold text-slate-900">{product.modelo}</h2>
                 </div>
                 <div 
@@ -299,7 +302,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     <button
                       onClick={handleAddToCart}
                       disabled={product.stock_visible === false}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
+                      className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-brand-800 hover:bg-brand-900'}`}
                     >
                       <ShoppingCart size={18} />
                       {product.stock_visible === false ? 'Agotado' : 'Agregar al Carrito'}
@@ -326,7 +329,7 @@ export default function ProductCard({ product }: { product: Product }) {
                           <select 
                             value={esferico} 
                             onChange={(e) => setEsferico(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
                           >
                             <option value="">Elegir</option>
                             {astigEsf.map(v => <option key={v} value={v}>{v}</option>)}
@@ -337,7 +340,7 @@ export default function ProductCard({ product }: { product: Product }) {
                           <select 
                             value={cilindrico} 
                             onChange={(e) => setCilindrico(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
                           >
                             <option value="">Elegir</option>
                             {astigCil.map(v => <option key={v} value={v}>{v}</option>)}
@@ -348,7 +351,7 @@ export default function ProductCard({ product }: { product: Product }) {
                           <select 
                             value={eje} 
                             onChange={(e) => setEje(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
                           >
                             <option value="">Elegir</option>
                             {ejes.map(v => <option key={v} value={v}>{v}</option>)}
@@ -363,7 +366,7 @@ export default function ProductCard({ product }: { product: Product }) {
                             onChange={(e) => setMensaje(e.target.value)}
                             maxLength={500}
                             rows={3}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
                             placeholder="Escribe tu mensaje aquí..."
                           />
                           <p className="text-right text-xs text-slate-400 mt-1">{mensaje.length}/500</p>
@@ -376,7 +379,7 @@ export default function ProductCard({ product }: { product: Product }) {
                           <select 
                             value={graduacion} 
                             onChange={(e) => setGraduacion(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
                           >
                             <option value="">Elegir</option>
                             {normalEsf.map(v => <option key={v} value={v}>{v}</option>)}
@@ -389,7 +392,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   <div className="mt-8 pt-6 border-t border-slate-100">
                     <button
                       onClick={handleAddToCart}
-                      className="w-full flex justify-center items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all"
+                      className="w-full flex justify-center items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all"
                     >
                       <ShoppingCart size={18} />
                       Agregar al carrito

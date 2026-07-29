@@ -1,40 +1,41 @@
 'use client';
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, Glasses, ShieldCheck, Sparkles, Gem, Microscope } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 
 
-const materials = [
+const materials: { name: string; index: string; desc: string; icon: LucideIcon }[] = [
   {
     name: 'Orgánico CR-39',
     index: 'Índice 1.50',
     desc: 'El material clásico y más utilizado. Ofrece una excelente calidad óptica, es muy liviano y es ideal para graduaciones bajas.',
-    icon: '👓',
+    icon: Glasses,
   },
   {
     name: 'Policarbonato',
     index: 'Índice 1.59',
     desc: 'Hasta 10 veces más resistente a los impactos que el vidrio o plástico común. Es ultra liviano, ofrece protección UV 100% y es ideal para niños, deportistas y seguridad.',
-    icon: '🛡️',
+    icon: ShieldCheck,
   },
   {
     name: 'Medio Índice',
     index: 'Índice 1.56',
     desc: 'Un cristal intermedio con excelente relación precio-calidad. Es un 15% más fino que el orgánico clásico, recomendado para graduaciones leves a moderadas.',
-    icon: '✨',
+    icon: Sparkles,
   },
   {
     name: 'Alto Índice',
     index: 'Índice 1.67',
     desc: 'Diseñado especialmente para graduaciones medianamente altas. Permite reducir el espesor del cristal hasta un 30%, mejorando notablemente la estética y comodidad.',
-    icon: '💎',
+    icon: Gem,
   },
   {
     name: 'Ultra Alto Índice',
     index: 'Índice 1.74',
     desc: 'La tecnología más avanzada para graduaciones muy altas (miopía o hipermetropía severa). Consigue lentes hasta un 50% más finos y planos, eliminando el efecto lupa.',
-    icon: '🔬',
+    icon: Microscope,
   },
 ];
 
@@ -53,7 +54,7 @@ export default function MaterialesPage() {
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto reveal">
           <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-ping-slow" />
             Nuestros Cristales
           </div>
           <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
@@ -82,13 +83,13 @@ export default function MaterialesPage() {
               href="https://wa.me/598098871673?text=Hola!%20Me%20gustar%C3%ADa%20asesoramiento%20sobre%20materiales%20de%20cristales."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-lg hover:shadow-xl transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-brand-800 hover:bg-brand-900 shadow-lg hover:shadow-xl transition-all"
             >
               Consultar con un Asesor
             </a>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
+          <div className="relative rounded-3xl overflow-hidden border border-brand-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
             <video preload="none" poster="/media/cristal sin ar-poster.jpg" autoPlay loop muted playsInline className="w-full aspect-video object-cover opacity-80">
               <source src="/media/cristal sin ar.mp4" type="video/mp4" />
             </video>
@@ -98,7 +99,7 @@ export default function MaterialesPage() {
       </div>
 
       {/* Materials grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-900/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-brand-950/20">
         <div className="mb-12 text-center reveal">
           <h3 className="text-2xl font-extrabold text-slate-900">Gama de Materiales</h3>
           <p className="text-slate-500 text-sm mt-1">Comparativa de los índices de refracción y usos recomendados</p>
@@ -108,9 +109,9 @@ export default function MaterialesPage() {
           {materials.map((m, i) => (
             <div key={m.name} className="gradient-border-card p-6 flex flex-col justify-between reveal" style={{ transitionDelay: `${i * 100}ms` }}>
               <div>
-                <div className="text-3xl mb-4">{m.icon}</div>
+                <m.icon className="mb-4 text-brand-500" size={30} strokeWidth={1.75} aria-hidden="true" />
                 <h4 className="text-xl font-bold text-slate-900 mb-1">{m.name}</h4>
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest block mb-4">{m.index}</span>
+                <span className="text-xs font-bold text-brand-400 uppercase tracking-widest block mb-4">{m.index}</span>
                 <p className="text-sm text-slate-500 leading-relaxed">{m.desc}</p>
               </div>
             </div>
@@ -120,7 +121,7 @@ export default function MaterialesPage() {
 
       {/* Back button */}
       <div className="text-center py-20">
-        <Link href="/#cristales" className="text-slate-500 hover:text-blue-400 font-medium inline-flex items-center gap-2 transition-colors">
+        <Link href="/#cristales" className="text-slate-500 hover:text-brand-600 font-medium inline-flex items-center gap-2 transition-colors">
           ← Volver a Cristales
         </Link>
       </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, ShieldCheck } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 
@@ -36,7 +36,7 @@ export default function MultifocalesPage() {
       {/* Main intro */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 gap-12 items-center reveal">
-          <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
+          <div className="relative rounded-3xl overflow-hidden border border-brand-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
             <video preload="metadata" poster="/media/ess_varilux_seenolimits_product_benefice_15s_arg-1080x1080-poster.jpg" autoPlay loop muted playsInline className="w-full aspect-video object-cover opacity-80">
               <source src="/media/ess_varilux_seenolimits_product_benefice_15s_arg-1080x1080.mp4" type="video/mp4" />
             </video>
@@ -57,7 +57,7 @@ export default function MultifocalesPage() {
               href="https://wa.me/598098871673?text=Hola!%20Me%20interesan%20los%20cristales%20multifocales."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 btn-glow btn-ripple"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-brand-600 to-cyan-500 btn-glow btn-ripple"
             >
               Consultar sobre Multifocales
             </a>
@@ -66,7 +66,7 @@ export default function MultifocalesPage() {
       </div>
 
       {/* Benefits grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-900/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-brand-950/20">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="reveal-left">
             <h3 className="text-2xl font-extrabold text-slate-900 mb-6">Ventajas de nuestros cristales multifocales</h3>
@@ -93,7 +93,7 @@ export default function MultifocalesPage() {
           {/* Adaptation box */}
           <div className="reveal-right">
             <div className="gradient-border-card p-8 bg-white/60 border border-slate-200">
-              <span className="text-4xl mb-4 block">🛡️</span>
+              <ShieldCheck className="mb-4 text-brand-500" size={34} strokeWidth={1.75} aria-hidden="true" />
               <h4 className="text-xl font-bold text-slate-900 mb-3">Garantía de Adaptación Roma</h4>
               <p className="text-slate-500 text-sm leading-relaxed mb-6">
                 Mucha gente tiene miedo a dar el salto a los multifocales por miedo a no acostumbrarse. Queremos que compres con total tranquilidad:
@@ -111,7 +111,7 @@ export default function MultifocalesPage() {
 
       {/* Back button */}
       <div className="text-center py-20">
-        <Link href="/#cristales" className="text-slate-500 hover:text-blue-400 font-medium inline-flex items-center gap-2 transition-colors">
+        <Link href="/#cristales" className="text-slate-500 hover:text-brand-600 font-medium inline-flex items-center gap-2 transition-colors">
           ← Volver a Cristales
         </Link>
       </div>

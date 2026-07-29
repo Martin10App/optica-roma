@@ -74,7 +74,7 @@ function SuccessContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="flex flex-col items-center text-gray-500">
-          <Loader2 className="w-10 h-10 animate-spin mb-4 text-blue-500" />
+          <Loader2 className="w-10 h-10 animate-spin mb-4 text-brand-500" />
           <p>Verificando estado del pago...</p>
         </div>
       </div>

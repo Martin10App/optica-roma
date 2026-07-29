@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import ProductCard from '@/components/ui/ProductCard';
-import { ChevronDown, ChevronUp, Check, Filter, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, Filter, X, SearchX } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 interface Product {
@@ -195,13 +195,13 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
   return (
     <section id="catalogo" className="py-20 md:py-28 bg-white relative">
       {/* Separator */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="section-label mb-5 inline-flex">
-            <span className={`w-1.5 h-1.5 rounded-full animate-ping-slow ${lockedBrand ? 'bg-[#c0203a]' : 'bg-blue-400'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full animate-ping-slow ${lockedBrand ? 'bg-[#c0203a]' : 'bg-brand-400'}`} />
             {lockedBrand ? 'Colección Exclusiva' : 'Catálogo'}
           </div>
           {title ? (
@@ -241,7 +241,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                         onClick={() => handleCategoryChange(cat)}
                         className={`w-full text-left py-2 px-3 rounded-xl text-sm transition-all duration-200 ${
                           activeCategory === cat 
-                            ? (lockedBrand ? 'bg-[#fdf2f2] text-[#c0203a] font-bold border border-[#c0203a]/40' : 'bg-blue-50 text-blue-700 font-bold border border-blue-300') 
+                            ? (lockedBrand ? 'bg-[#fdf2f2] text-[#c0203a] font-bold border border-[#c0203a]/40' : 'bg-brand-50 text-brand-800 font-bold border border-brand-300') 
                             : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                         }`}
                       >
@@ -260,7 +260,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                     className="w-full flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-widest mb-4"
                   >
                     Marcas
-                    {isBrandsOpen ? <ChevronUp size={16} className="text-blue-400" /> : <ChevronDown size={16} className="text-blue-400" />}
+                    {isBrandsOpen ? <ChevronUp size={16} className="text-brand-400" /> : <ChevronDown size={16} className="text-brand-400" />}
                   </button>
                   
                   {isBrandsOpen && (
@@ -274,8 +274,8 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                           <div
                             className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200 ${
                               activeBrands.includes(brand) 
-                                ? 'bg-blue-500 border-blue-500' 
-                                : 'border-slate-300 group-hover:border-blue-400'
+                                ? 'bg-brand-500 border-brand-500' 
+                                : 'border-slate-300 group-hover:border-brand-400'
                             }`}
                           >
                             {activeBrands.includes(brand) && <Check size={10} className="text-white" />}
@@ -310,7 +310,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
               <div className="mb-4 sm:mb-0 flex items-center gap-4">
                 <p className="text-sm text-slate-500">
                   Mostrando <span className="font-bold text-slate-900">{totalItems}</span> productos
-                  {activeCategory !== 'Todas' && <span> en <span className={`font-bold ${lockedBrand ? 'text-[#c0203a]' : 'text-blue-700'}`}>{activeCategory}</span></span>}
+                  {activeCategory !== 'Todas' && <span> en <span className={`font-bold ${lockedBrand ? 'text-[#c0203a]' : 'text-brand-800'}`}>{activeCategory}</span></span>}
                 </p>
                 {(activeBrands.length > 0 || activeCategory !== 'Todas') && (
                   <button
@@ -323,7 +323,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                         setTimeout(() => { btn.innerText = original; }, 2000);
                       }
                     }}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-800 bg-brand-50 px-3 py-1.5 rounded-full hover:bg-brand-100 transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
                     <span id="share-btn-text">Copiar Enlace</span>
@@ -336,7 +336,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                   id="sort"
                   value={sortOrder}
                   onChange={handleSortChange}
-                  className="bg-white border border-slate-300 text-slate-600 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-2.5"
+                  className="bg-white border border-slate-300 text-slate-600 text-sm rounded-xl focus:ring-brand-500 focus:border-brand-500 block p-2.5"
                 >
                   <option value="newest">Más recientes</option>
                   <option value="bestsellers">Más vendidos</option>
@@ -350,7 +350,7 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
               {isLoading && (
                 <div className="absolute inset-0 bg-white/70 z-10 flex flex-col items-center justify-start pt-32 backdrop-blur-[2px]">
                   <div className="relative">
-                    <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-700 animate-spin shadow-lg" />
+                    <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand-800 animate-spin shadow-lg" />
                     <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent animate-spin" style={{borderBottomColor:'#06b6d4', animationDirection:'reverse', animationDuration:'0.8s'}} />
                   </div>
                   <p className="text-slate-700 font-semibold text-sm mt-4 bg-white px-4 py-1 rounded-full shadow-sm">Cargando...</p>
@@ -364,19 +364,21 @@ function CatalogContent({ lockedBrand, title }: { lockedBrand?: string; title?: 
                 </div>
               ) : products.length === 0 && !isLoading ? (
                 <div className="text-center py-20 card p-8 relative z-0">
-                  <p className="text-2xl mb-3">🔍</p>
+                  <SearchX className="mx-auto mb-3 text-slate-400" size={30} strokeWidth={1.5} aria-hidden="true" />
                   <p className="text-slate-600 font-semibold text-lg mb-2">No encontramos productos</p>
                   <p className="text-slate-500 text-sm mb-6">No hay productos que coincidan con tu búsqueda.</p>
                   <button 
                     onClick={clearFilters}
-                    className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
+                    className="px-6 py-2.5 bg-brand-800 hover:bg-brand-900 rounded-full text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg"
                   >
                     Limpiar filtros
                   </button>
                 </div>
               ) : (
                 <div className={`transition-opacity duration-300 relative z-0 ${isLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* `stagger` hace que las tarjetas entren de a una, 45ms
+                      aparte, en vez de aparecer las doce de golpe. */}
+                  <div className="stagger grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -432,7 +434,7 @@ export default function CatalogSection({ lockedBrand, title }: { lockedBrand?: s
   return (
     <Suspense fallback={
       <div className="py-24 text-center bg-white">
-        <div className="inline-block w-12 h-12 rounded-full border-2 border-blue-900 animate-spin" style={{borderTopColor:'#4f8ef7'}} />
+        <div className="inline-block w-12 h-12 rounded-full border-2 border-brand-950 animate-spin" style={{borderTopColor:'#4f8ef7'}} />
         <p className="mt-4 text-slate-500">Cargando catálogo...</p>
       </div>
     }>

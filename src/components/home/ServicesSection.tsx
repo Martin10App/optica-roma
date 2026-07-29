@@ -13,7 +13,7 @@ const services = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
     ),
-    color: 'from-blue-500 to-cyan-400',
+    color: 'from-brand-500 to-cyan-400',
     glow: 'rgba(79,142,247,0.4)',
   },
   {
@@ -60,7 +60,7 @@ export default function ServicesSection() {
       </div>
 
       {/* Decorative glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-900/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-brand-950/15 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -101,7 +101,7 @@ export default function ServicesSection() {
               {/* Number label */}
               <div className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">{service.number}</div>
 
-              <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors duration-300">
+              <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-brand-800 transition-colors duration-300">
                 {service.title}
               </h3>
               <p className="text-slate-500 leading-relaxed text-sm">

@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Clock, Phone, ExternalLink } from 'lucide-react';
+import { MapPin, Clock, Phone, ExternalLink, MessageCircle } from 'lucide-react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const branches = [
@@ -15,7 +15,7 @@ const branches = [
     ],
     mapUrl: 'https://maps.google.com/maps?q=Rivera%20617,%20Las%20Piedras,%20Uruguay&t=&z=16&ie=UTF8&iwloc=&output=embed',
     mapLink: 'https://www.google.com/maps/search/?api=1&query=%C3%93ptica%20Roma%20Rivera%20617%20Las%20Piedras%20Uruguay',
-    accent: 'from-blue-500 to-cyan-400',
+    accent: 'from-brand-500 to-cyan-400',
   },
   {
     id: 'canelones',
@@ -37,16 +37,16 @@ export default function BranchesSection() {
   return (
     <section id="sucursales" className="py-28 bg-white relative overflow-hidden">
       {/* Separator */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/20 to-transparent" />
 
       {/* Ambient glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-blue-900/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-brand-950/10 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-20 reveal">
           <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-ping-slow" />
             Ubicaciones
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
@@ -97,9 +97,10 @@ export default function BranchesSection() {
                           href={phone.url}
                           target={phone.isWhatsapp ? '_blank' : undefined}
                           rel={phone.isWhatsapp ? 'noopener noreferrer' : undefined}
-                          className="text-sm text-blue-700 hover:text-blue-400 transition-colors font-medium flex items-center gap-1"
+                          className="text-sm text-brand-800 hover:text-brand-600 transition-colors font-medium flex items-center gap-1"
                         >
-                          {phone.isWhatsapp ? '📱' : '📞'} {phone.text}
+                          {phone.isWhatsapp ? <MessageCircle size={14} aria-hidden="true" /> : <Phone size={14} aria-hidden="true" />}
+                          {phone.text}
                         </a>
                       ))}
                     </div>

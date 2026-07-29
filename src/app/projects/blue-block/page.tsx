@@ -21,7 +21,7 @@ export default function BlueBlockPage() {
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto reveal">
           <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-ping-slow" />
             Protección Digital — Blue Cut
           </div>
           <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
@@ -50,13 +50,13 @@ export default function BlueBlockPage() {
               href="https://wa.me/598098871673?text=Hola!%20Quiero%20saber%20el%20precio%20de%20los%20lentes%20con%20Blue%20Block."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-500 btn-glow btn-ripple"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r from-brand-600 to-cyan-500 btn-glow btn-ripple"
             >
               Proteger mi Vista
             </a>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
+          <div className="relative rounded-3xl overflow-hidden border border-brand-500/20 shadow-[0_0_50px_rgba(79,142,247,0.1)]">
             <video preload="none" poster="/media/lentes-poster.jpg" autoPlay loop muted playsInline className="w-full h-full object-cover">
               <source src="/media/lentes.mp4" type="video/mp4" />
             </video>
@@ -66,7 +66,7 @@ export default function BlueBlockPage() {
       </div>
 
       {/* Stats and features */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-900/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-brand-950/20">
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           {[
             { value: '95%', label: 'De luz azul nociva filtrada', desc: 'Filtro selectivo de alta eficiencia' },
@@ -74,7 +74,7 @@ export default function BlueBlockPage() {
             { value: '100%', label: 'De compatibilidad', desc: 'Disponible con o sin aumento médico' }
           ].map((stat, i) => (
             <div key={stat.label} className="gradient-border-card p-6 text-center reveal" style={{ transitionDelay: `${i * 100}ms` }}>
-              <p className="text-4xl font-extrabold text-blue-400 mb-2">{stat.value}</p>
+              <p className="text-4xl font-extrabold text-brand-400 mb-2">{stat.value}</p>
               <p className="text-slate-900 font-bold text-sm mb-1">{stat.label}</p>
               <p className="text-slate-500 text-xs">{stat.desc}</p>
             </div>
@@ -92,7 +92,7 @@ export default function BlueBlockPage() {
             ].map((item, i) => (
               <div key={item.title} className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
                 <h4 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-400" />
+                  <span className="w-2 h-2 rounded-full bg-brand-400" />
                   {item.title}
                 </h4>
                 <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
@@ -104,7 +104,7 @@ export default function BlueBlockPage() {
 
       {/* Back button */}
       <div className="text-center py-20">
-        <Link href="/#cristales" className="text-slate-500 hover:text-blue-400 font-medium inline-flex items-center gap-2 transition-colors">
+        <Link href="/#cristales" className="text-slate-500 hover:text-brand-600 font-medium inline-flex items-center gap-2 transition-colors">
           ← Volver a Cristales
         </Link>
       </div>

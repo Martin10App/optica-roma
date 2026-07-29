@@ -55,8 +55,8 @@ export default function HeroSection() {
     >
       {/* Fondo Aurora Blobs */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="aurora-blob bg-blue-900 w-[500px] h-[500px] -top-32 -left-32" />
-        <div className="aurora-blob bg-blue-500 w-[400px] h-[400px] top-1/4 right-0" style={{ animationDelay: '-5s' }} />
+        <div className="aurora-blob bg-brand-950 w-[500px] h-[500px] -top-32 -left-32" />
+        <div className="aurora-blob bg-brand-500 w-[400px] h-[400px] top-1/4 right-0" style={{ animationDelay: '-5s' }} />
         <div className="aurora-blob bg-teal-500 w-[450px] h-[450px] -bottom-32 left-1/3" style={{ animationDelay: '-10s' }} />
         <div className="absolute inset-0 bg-white/70 backdrop-blur-[60px]" />
       </div>
@@ -78,8 +78,8 @@ export default function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Text */}
           <div className="reveal">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold uppercase tracking-wide mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-800 text-xs font-semibold uppercase tracking-wide mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-600" />
               Revisión visual gratuita
             </div>
 
@@ -91,7 +91,7 @@ export default function HeroSection() {
                 <span className="block reveal-text-line delay-text-1">Tu visión en las</span>
               </span>
               <span className="block overflow-hidden pb-[0.2em] -mb-[0.2em]">
-                <span className="block text-blue-700 reveal-text-line delay-text-2">mejores manos</span>
+                <span className="block text-brand-800 reveal-text-line delay-text-2">mejores manos</span>
               </span>
             </h1>
 
@@ -121,11 +121,11 @@ export default function HeroSection() {
             {/* Info pills */}
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 text-sm text-slate-500">
-                <MapPin size={16} className="text-blue-600" />
+                <MapPin size={16} className="text-brand-600" />
                 <span>Las Piedras & Canelones</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Clock size={16} className="text-blue-600" />
+                <Clock size={16} className="text-brand-600" />
                 <span>Lun–Vie 9:00–18:30 | Sáb 9:00–13:00</span>
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function HeroSection() {
             </div>
             {/* Floating badge */}
             <div className="absolute -bottom-4 -left-4 z-10 bg-white rounded-xl p-4 shadow-xl border border-slate-100 transition-transform hover:-translate-y-1">
-              <p className="text-2xl font-extrabold text-blue-700">+{stockCount}</p>
+              <p className="text-2xl font-extrabold text-brand-800">+{stockCount}</p>
               <p className="text-xs text-slate-500">armazones en stock</p>
             </div>
           </div>

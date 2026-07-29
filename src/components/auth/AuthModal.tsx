@@ -92,7 +92,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     required
                     value={nombre}
                     onChange={e => setNombre(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all"
                     placeholder="Juan Pérez"
                   />
                 </div>
@@ -108,7 +108,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all"
                   placeholder="tu@email.com"
                 />
               </div>
@@ -123,14 +123,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none transition-all"
                   placeholder="••••••••"
                 />
               </div>
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-100">
+              <p className="text-red-700 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-100">
                 {error}
               </p>
             )}
@@ -148,14 +148,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {isLogin ? (
               <p className="text-slate-600">
                 ¿No tienes cuenta?{' '}
-                <button onClick={() => { setIsLogin(false); setError(''); }} className="text-blue-600 hover:underline font-semibold">
+                <button onClick={() => { setIsLogin(false); setError(''); }} className="text-brand-600 hover:underline font-semibold">
                   Crear una cuenta
                 </button>
               </p>
             ) : (
               <p className="text-slate-600">
                 ¿Ya tienes cuenta?{' '}
-                <button onClick={() => { setIsLogin(true); setError(''); }} className="text-blue-600 hover:underline font-semibold">
+                <button onClick={() => { setIsLogin(true); setError(''); }} className="text-brand-600 hover:underline font-semibold">
                   Iniciar sesión
                 </button>
               </p>

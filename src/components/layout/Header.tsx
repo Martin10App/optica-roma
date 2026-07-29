@@ -103,7 +103,7 @@ export default function Header() {
                   className="relative px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors duration-200 group"
                 >
                   {item.name}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-blue-700 rounded-full group-hover:w-3/4 transition-all duration-200 ease-out" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-brand-800 rounded-full group-hover:w-3/4 transition-all duration-200 ease-out" />
                 </Link>
               ))}
             </nav>
@@ -148,7 +148,7 @@ export default function Header() {
               >
                 <ShoppingBag size={22} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-blue-700 rounded-full">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-brand-800 rounded-full">
                     {cartCount}
                   </span>
                 )}

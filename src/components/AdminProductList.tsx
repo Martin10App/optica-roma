@@ -161,7 +161,7 @@ export default function AdminProductList() {
         <div className="flex items-center space-x-4 ml-4">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center px-4 py-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700 font-medium"
+            className="flex items-center px-4 py-2 text-sm text-white bg-brand-600 rounded hover:bg-brand-800 font-medium"
           >
             <Plus className="w-4 h-4 mr-2" />
             Agregar Producto
@@ -224,7 +224,7 @@ export default function AdminProductList() {
                         ))}
                       </select>
                     ) : (
-                      <span className="text-sm px-2 py-1 bg-blue-50 text-blue-700 rounded-full">{product.categoria}</span>
+                      <span className="text-sm px-2 py-1 bg-brand-50 text-brand-800 rounded-full">{product.categoria}</span>
                     )}
                   </td>
                   <td className="p-4">
@@ -280,7 +280,7 @@ export default function AdminProductList() {
                     ) : (
                       <button
                         onClick={() => startEditing(product)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition inline-flex"
+                        className="p-1.5 text-brand-600 hover:bg-brand-100 rounded transition inline-flex"
                         title="Editar"
                       >
                         <Edit2 className="w-5 h-5" />
@@ -377,7 +377,7 @@ export default function AdminProductList() {
                 <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 border rounded-md text-sm text-gray-700 hover:bg-gray-50">
                   Cancelar
                 </button>
-                <button type="submit" disabled={adding} className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                <button type="submit" disabled={adding} className="px-4 py-2 bg-brand-600 text-white rounded-md text-sm font-medium hover:bg-brand-800 disabled:opacity-50">
                   {adding ? 'Guardando...' : 'Crear Producto'}
                 </button>
               </div>

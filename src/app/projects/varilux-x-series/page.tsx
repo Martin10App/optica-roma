@@ -35,7 +35,7 @@ export default function VariluxXSeriesPage() {
       {/* Intro section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center reveal">
-          <div className="relative rounded-3xl overflow-hidden border border-blue-500/20 shadow-[0_0_50px_rgba(79,142,247,0.15)] bg-white">
+          <div className="relative rounded-3xl overflow-hidden border border-brand-500/20 shadow-[0_0_50px_rgba(79,142,247,0.15)] bg-white">
             <video preload="metadata" poster="/media/ess_varilux_seenolimits_techno_15s_arg-1080x1080-poster.jpg" autoPlay loop muted playsInline className="w-full aspect-square object-cover opacity-80">
               <source src="/media/ess_varilux_seenolimits_techno_15s_arg-1080x1080.mp4" type="video/mp4" />
             </video>
@@ -65,7 +65,7 @@ export default function VariluxXSeriesPage() {
       </div>
 
       {/* Technologies grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-900/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-brand-950/20">
         <div className="mb-12 text-center reveal">
           <h3 className="text-2xl font-extrabold text-slate-900">Tres Tecnologías Exclusivas</h3>
           <p className="text-slate-500 text-sm mt-1">La ciencia aplicada a tus cristales progresivos más premium</p>
@@ -103,7 +103,7 @@ export default function VariluxXSeriesPage() {
       </div>
 
       {/* Extra Video Display */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-900/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-brand-950/20">
         <div className="gradient-border-card overflow-hidden p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center reveal">
           <div className="md:w-1/2">
             <h3 className="text-2xl font-extrabold text-slate-900 mb-4">Una experiencia visual inigualable</h3>
@@ -121,7 +121,7 @@ export default function VariluxXSeriesPage() {
 
       {/* Back button */}
       <div className="text-center py-20">
-        <Link href="/#cristales" className="text-slate-500 hover:text-blue-400 font-medium inline-flex items-center gap-2 transition-colors">
+        <Link href="/#cristales" className="text-slate-500 hover:text-brand-600 font-medium inline-flex items-center gap-2 transition-colors">
           ← Volver a Cristales
         </Link>
       </div>

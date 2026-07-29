@@ -13,7 +13,7 @@ const crystals = [
     description: 'Desde orgánicos hasta alto índice: te asesoramos para encontrar el material perfecto para tu graduación y estilo de vida.',
     mediaUrl: '/media/limpiando-cristales.mp4',
     mediaType: 'video',
-    accent: 'from-blue-500 to-cyan-400',
+    accent: 'from-brand-500 to-cyan-400',
   },
   {
     id: 2,
@@ -33,7 +33,7 @@ const crystals = [
     description: 'Lentes Blue Block de última generación para proteger tus ojos de la luz azul de pantallas. Todo lo que necesitás saber.',
     mediaUrl: '/media/mujer-usando-lentes-mirando-cel.mp4',
     mediaType: 'video',
-    accent: 'from-indigo-500 to-blue-400',
+    accent: 'from-indigo-500 to-brand-400',
   },
   {
     id: 4,
@@ -53,7 +53,7 @@ export default function CrystalsSection() {
   return (
     <section id="cristales" className="py-28 bg-white relative overflow-hidden">
       {/* Subtle top separator */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}

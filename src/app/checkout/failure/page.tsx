@@ -16,7 +16,7 @@ export default function CheckoutFailurePage() {
 
         <Link
           href="/"
-          className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-4 rounded-xl transition-colors"
+          className="w-full block bg-brand-600 hover:bg-brand-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-colors"
         >
           Volver a la tienda
         </Link>

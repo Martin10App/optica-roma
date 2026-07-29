@@ -21,7 +21,7 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="py-16 bg-blue-700">
+    <section className="py-16 bg-brand-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
           <Gift size={28} className="text-orange-400" />
@@ -30,7 +30,7 @@ export default function NewsletterSection() {
         <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">
           Suscribite y obtené un -10% en tu primera compra
         </h2>
-        <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+        <p className="text-brand-100 mb-8 max-w-xl mx-auto">
           Recibí las últimas promociones, novedades de armazones y consejos de salud visual directamente en tu email.
         </p>
 
@@ -45,7 +45,7 @@ export default function NewsletterSection() {
           />
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+            className="px-6 py-3 rounded-lg bg-accent hover:bg-accent-hover text-white font-semibold transition-colors flex items-center justify-center gap-2"
           >
             <Send size={16} />
             Suscribirme
@@ -53,7 +53,7 @@ export default function NewsletterSection() {
         </form>
 
         {status === 'success' && (
-          <p className="mt-4 text-sm text-blue-200">
+          <p className="mt-4 text-sm text-brand-200">
             ¡Gracias! Te contactaremos por WhatsApp con tu beneficio.
           </p>
         )}
@@ -63,7 +63,7 @@ export default function NewsletterSection() {
           </p>
         )}
 
-        <p className="mt-4 text-xs text-blue-300">
+        <p className="mt-4 text-xs text-brand-300">
           No compartimos tu email con terceros. Podés darte de baja en cualquier momento.
         </p>
       </div>

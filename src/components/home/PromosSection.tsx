@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { Check, Phone } from 'lucide-react';
+import { Check, Phone, ClipboardList } from 'lucide-react';
 
 export default function PromosSection() {
   useScrollReveal();
@@ -15,7 +15,7 @@ export default function PromosSection() {
         <div className="text-center mb-16 reveal">
           <div className="section-label mb-4 inline-flex">Promociones Exclusivas</div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Aprovechá nuestros <span className="text-blue-700">beneficios</span>
+            Aprovechá nuestros <span className="text-brand-800">beneficios</span>
           </h2>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto">
             Ofertas reales con todo incluido, sin letras chicas.
@@ -29,8 +29,8 @@ export default function PromosSection() {
               {/* Left: Info */}
               <div className="p-8 md:p-12 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700">
+                  <span className="w-2 h-2 rounded-full bg-brand-600" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand-800">
                     Promo Completa — Todo incluido
                   </span>
                 </div>
@@ -39,7 +39,7 @@ export default function PromosSection() {
                   Precio final
                 </p>
                 <p className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-none mb-6">
-                  $<span className="text-blue-700">4.900</span>
+                  $<span className="text-brand-800">4.900</span>
                 </p>
 
                 <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
@@ -60,8 +60,8 @@ export default function PromosSection() {
                     'Garantía de adaptación 30 días',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check size={11} className="text-blue-700" />
+                      <div className="w-5 h-5 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check size={11} className="text-brand-800" />
                       </div>
                       <span className="text-slate-600 text-sm">{item}</span>
                     </li>
@@ -69,7 +69,7 @@ export default function PromosSection() {
                 </ul>
 
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 mb-8">
-                  <span className="text-lg">📋</span>
+                  <ClipboardList className="text-amber-700 flex-shrink-0 mt-0.5" size={18} strokeWidth={2} aria-hidden="true" />
                   <div>
                     <p className="text-amber-700 font-semibold text-sm">Requiere receta médica</p>
                     <p className="text-amber-600/80 text-xs mt-0.5">
@@ -106,7 +106,7 @@ export default function PromosSection() {
                       const el = document.getElementById('catalogo');
                       if (el) el.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="px-4 py-2 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors shadow-lg inline-block"
+                    className="px-4 py-2 bg-brand-800 text-white text-sm font-semibold rounded-lg hover:bg-brand-900 transition-colors shadow-lg inline-block"
                   >
                     Ver Colección Ninety →
                   </Link>
@@ -126,7 +126,7 @@ export default function PromosSection() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute top-6 left-6 bg-orange-500 text-white px-4 py-2 rounded-lg font-extrabold text-sm shadow-lg">
+                <div className="absolute top-6 left-6 bg-accent text-white px-4 py-2 rounded-lg font-extrabold text-sm shadow-lg">
                   ¡2do par GRATIS!
                 </div>
               </div>
@@ -134,15 +134,15 @@ export default function PromosSection() {
               {/* Right: Info */}
               <div className="p-8 md:p-12 flex flex-col justify-center order-1 lg:order-2">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-orange-500" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+                  <span className="w-2 h-2 rounded-full bg-accent" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-accent">
                     Promo Varilux — Por tiempo limitado
                   </span>
                 </div>
 
                 <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3 leading-tight">
                   Cristales Varilux +{' '}
-                  <span className="text-orange-600">2do par de multifocales de regalo</span>
+                  <span className="text-accent">2do par de multifocales de regalo</span>
                 </h3>
 
                 <p className="text-slate-500 mb-6 leading-relaxed">
@@ -158,8 +158,8 @@ export default function PromosSection() {
                     'Armado en nuestro taller propio',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check size={11} className="text-orange-600" />
+                      <div className="w-5 h-5 rounded-full bg-accent-soft border border-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check size={11} className="text-accent" />
                       </div>
                       <span className="text-slate-600 text-sm">{item}</span>
                     </li>
@@ -167,7 +167,7 @@ export default function PromosSection() {
                 </ul>
 
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50 border border-green-200 mb-8">
-                  <span className="text-lg">✅</span>
+                  <Check className="text-brand-600 flex-shrink-0 mt-0.5" size={18} strokeWidth={2.5} aria-hidden="true" />
                   <div>
                     <p className="text-green-700 font-semibold text-sm">¡Sin receta previa necesaria!</p>
                     <p className="text-green-600/80 text-xs mt-0.5">
@@ -180,7 +180,7 @@ export default function PromosSection() {
                   href={`https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20la%20Promo%20Varilux%20segundo%20par%20de%20regalo`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary bg-orange-500 hover:bg-orange-600 self-start"
+                  className="btn-primary bg-accent hover:bg-accent-hover self-start"
                   style={{ background: 'linear-gradient(to right, #f97316, #ea580c)' }}
                 >
                   <Phone size={16} />

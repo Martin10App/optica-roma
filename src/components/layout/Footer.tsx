@@ -115,14 +115,14 @@ export default function Footer() {
             <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-5">Contacto</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-blue-400 flex-shrink-0 mt-0.5" />
+                <MapPin size={16} className="text-brand-400 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="text-white font-medium">Las Piedras</p>
                   <p>Rivera 617 (Frente a la plaza)</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-blue-400 flex-shrink-0 mt-0.5" />
+                <MapPin size={16} className="text-brand-400 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="text-white font-medium">Canelones</p>
                   <p>Enrique Rodó 319</p>
@@ -135,7 +135,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail size={16} className="text-blue-400 flex-shrink-0" />
+                <Mail size={16} className="text-brand-400 flex-shrink-0" />
                 <span className="text-sm">opticaromalaspiedras@hotmail.com</span>
               </li>
             </ul>
@@ -163,7 +163,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-slate-800 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-slate-400">
           <p>© {new Date().getFullYear()} Óptica Roma. Todos los derechos reservados.</p>
           <p>Las Piedras & Canelones, Uruguay</p>
         </div>

@@ -61,7 +61,7 @@ export default function CartDrawer() {
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <ShoppingBag className="text-blue-700" size={22} />
+            <ShoppingBag className="text-brand-800" size={22} />
             Tu Carrito
           </h2>
           <button 
@@ -79,7 +79,7 @@ export default function CartDrawer() {
               <p className="text-lg font-medium text-slate-500">Tu carrito está vacío</p>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                className="text-blue-700 hover:text-blue-800 font-medium hover:underline"
+                className="text-brand-800 hover:text-brand-900 font-medium hover:underline"
               >
                 Volver al catálogo
               </button>
@@ -107,7 +107,7 @@ export default function CartDrawer() {
                     {item.opciones && (
                       <p className="text-xs text-slate-400 mt-1 line-clamp-2">{item.opciones}</p>
                     )}
-                    <p className="font-semibold text-blue-700 mt-1">
+                    <p className="font-semibold text-brand-800 mt-1">
                       {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0 }).format(item.precio)}
                     </p>
                   </div>
@@ -123,14 +123,14 @@ export default function CartDrawer() {
                     <div className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 px-2 py-1">
                       <button 
                         onClick={() => updateQuantity(item.cartItemId, item.cantidad - 1)}
-                        className="text-slate-500 hover:text-blue-700 transition-colors p-1"
+                        className="text-slate-500 hover:text-brand-800 transition-colors p-1"
                       >
                         <Minus size={14} />
                       </button>
                       <span className="w-4 text-center font-medium text-sm text-slate-900">{item.cantidad}</span>
                       <button 
                         onClick={() => updateQuantity(item.cartItemId, item.cantidad + 1)}
-                        className="text-slate-500 hover:text-blue-700 transition-colors p-1"
+                        className="text-slate-500 hover:text-brand-800 transition-colors p-1"
                       >
                         <Plus size={14} />
                       </button>

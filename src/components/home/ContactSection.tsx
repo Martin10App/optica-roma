@@ -2,7 +2,7 @@
 
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useState } from 'react';
-import { Send, Phone, MapPin, Mail } from 'lucide-react';
+import { Send, Phone, MapPin, Mail, MessageCircle } from 'lucide-react';
 
 export default function ContactSection() {
   useScrollReveal();
@@ -44,13 +44,13 @@ export default function ContactSection() {
               <div className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-slate-500 mb-2">
-                    Tu Nombre <span className="text-red-500 ml-1">*</span>
+                    Tu Nombre <span className="text-red-600 ml-1"><span aria-hidden="true">*</span><span className="sr-only">(obligatorio)</span></span>
                   </label>
                   <input
                     type="text"
                     id="name"
                     required
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-800 focus:ring-1 focus:ring-brand-800 transition-colors"
                     placeholder="Ej. Juan Pérez"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -58,12 +58,12 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <label htmlFor="reason" className="block text-sm font-medium text-slate-500 mb-2">
-                    Motivo de consulta <span className="text-red-500 ml-1">*</span>
+                    Motivo de consulta <span className="text-red-600 ml-1"><span aria-hidden="true">*</span><span className="sr-only">(obligatorio)</span></span>
                   </label>
                   <select
                     id="reason"
                     required
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-800 focus:ring-1 focus:ring-brand-800 transition-colors"
                     value={formData.reason}
                     onChange={(e) => setFormData({...formData, reason: e.target.value})}
                   >
@@ -75,13 +75,13 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-slate-500 mb-2">
-                    Mensaje <span className="text-red-500 ml-1">*</span>
+                    Mensaje <span className="text-red-600 ml-1"><span aria-hidden="true">*</span><span className="sr-only">(obligatorio)</span></span>
                   </label>
                   <textarea
                     id="message"
                     required
                     rows={4}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-brand-800 focus:ring-1 focus:ring-brand-800 transition-colors resize-none"
                     placeholder="Escribí tu consulta acá..."
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
@@ -89,7 +89,7 @@ export default function ContactSection() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                  className="w-full flex items-center justify-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <Send size={18} />
                   Enviar mensaje por WhatsApp
@@ -104,24 +104,24 @@ export default function ContactSection() {
               <h3 className="text-xl font-bold text-slate-900 mb-6">Información directa</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
+                  <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0 text-brand-400">
                     <Phone size={20} />
                   </div>
                   <div>
                     <p className="text-slate-900 font-bold mb-1">Teléfonos</p>
-                    <a href="https://wa.me/598098871673" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm mb-1">
-                      📱 WhatsApp: +598 098 871 673
+                    <a href="https://wa.me/598098871673" className="block text-slate-500 hover:text-brand-600 transition-colors text-sm mb-1">
+                      <MessageCircle size={14} className="inline-block mr-1.5 -mt-0.5" aria-hidden="true" />WhatsApp: +598 098 871 673
                     </a>
-                    <a href="tel:23641800" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm mb-1">
-                      📞 Fijo Las Piedras: 2364 1800
+                    <a href="tel:23641800" className="block text-slate-500 hover:text-brand-600 transition-colors text-sm mb-1">
+                      <Phone size={14} className="inline-block mr-1.5 -mt-0.5" aria-hidden="true" />Fijo Las Piedras: 2364 1800
                     </a>
-                    <a href="tel:43339869" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm">
-                      📞 Fijo Canelones: 4333 9869
+                    <a href="tel:43339869" className="block text-slate-500 hover:text-brand-600 transition-colors text-sm">
+                      <Phone size={14} className="inline-block mr-1.5 -mt-0.5" aria-hidden="true" />Fijo Canelones: 4333 9869
                     </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
+                  <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0 text-brand-400">
                     <MapPin size={20} />
                   </div>
                   <div>
@@ -131,7 +131,7 @@ export default function ContactSection() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
+                  <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0 text-brand-400">
                     <Mail size={20} />
                   </div>
                   <div>

@@ -45,16 +45,16 @@ export default function MarcasSection() {
                   }
                 }
               }}
-              className="flex items-center justify-center h-24 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 px-6 group"
+              className="flex items-center justify-center h-24 bg-white rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition-all duration-200 px-6 group"
             >
               {brand.logo ? (
                 <img src={brand.logo} alt={brand.name} className="max-h-12 max-w-full object-contain filter grayscale group-hover:grayscale-0 opacity-80 group-hover:opacity-100 transition-all mix-blend-multiply" />
               ) : brand.name === 'Amadeus' ? (
-                <span className="text-2xl font-serif italic text-slate-700 group-hover:text-blue-700 transition-colors tracking-wide">
+                <span className="text-2xl font-serif italic text-slate-700 group-hover:text-brand-800 transition-colors tracking-wide">
                   Amadeus
                 </span>
               ) : (
-                <span className="text-lg font-bold text-slate-700 group-hover:text-blue-700 transition-colors tracking-widest uppercase">
+                <span className="text-lg font-bold text-slate-700 group-hover:text-brand-800 transition-colors tracking-widest uppercase">
                   {brand.fallback}
                 </span>
               )}
@@ -64,7 +64,7 @@ export default function MarcasSection() {
 
         <p className="text-center text-sm text-slate-500 mt-6">
           ¿Buscás una marca en particular?{' '}
-          <Link href="/#catalogo" className="text-blue-700 font-semibold hover:underline">
+          <Link href="/#catalogo" className="text-brand-800 font-semibold hover:underline">
             Consultá en nuestro catálogo
           </Link>
         </p>

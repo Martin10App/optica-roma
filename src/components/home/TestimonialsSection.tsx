@@ -28,7 +28,7 @@ const baseReviews: Review[] = [
   {
     name: 'Sofia Albanese',
     initial: 'S',
-    color: 'bg-blue-500',
+    color: 'bg-brand-500',
     opinions: '2 opiniones',
     date: 'Hace 3 meses',
     text: 'La compra resulta muy sencilla y la entrega super rápida, en todos los casos me lo han resuelto en el momento y en 20 minutos me voy con mis lentes nuevos. La atención es un 10.',
@@ -37,7 +37,7 @@ const baseReviews: Review[] = [
   {
     name: 'Yanira Moreira',
     initial: 'Y',
-    color: 'bg-orange-500',
+    color: 'bg-orange-700',
     opinions: '1 opinión · 1 foto',
     date: 'Hace 3 meses',
     text: 'Compré 5 pares de lentes para niña y adulto y son los mejores en la atención y buena calidad, me resolvieron rápido unos cristales y con eso para mí es gran ayuda gracias óptica',
@@ -72,7 +72,7 @@ const baseReviews: Review[] = [
   {
     name: 'Estrella Acuña',
     initial: 'E',
-    color: 'bg-emerald-600',
+    color: 'bg-emerald-700',
     opinions: 'Local Guide · 49 opiniones · 27 fotos',
     date: 'Hace 3 meses',
     text: 'Excelente optica. Muy cordiales y atentos. Los precios no me parecieron caros Gracias'
@@ -80,7 +80,7 @@ const baseReviews: Review[] = [
   {
     name: 'Sandra Gutierrez',
     initial: 'S',
-    color: 'bg-red-500',
+    color: 'bg-red-700',
     opinions: '9 opiniones · 5 fotos',
     date: 'Hace 3 meses',
     text: 'Muy buena atención. Y entrega ràpida. Siempre muy conforme. Gracias.',
@@ -89,7 +89,7 @@ const baseReviews: Review[] = [
   {
     name: 'RODRIGO almada gimenez',
     initial: 'R',
-    color: 'bg-blue-700',
+    color: 'bg-brand-800',
     opinions: '2 opiniones',
     date: 'Hace 3 meses',
     text: 'Excelente servicio, atención y variedad a la hora de elegir cualquier tipo de Lentes!'
@@ -106,7 +106,7 @@ const baseReviews: Review[] = [
   {
     name: 'Cintia Tejera',
     initial: 'C',
-    color: 'bg-orange-600',
+    color: 'bg-orange-700',
     opinions: '2 opiniones',
     date: 'Hace 3 meses',
     text: 'Hace años me hago los lentes alli exelente atencion !!!',
@@ -124,7 +124,7 @@ const baseReviews: Review[] = [
   {
     name: 'Karina Perez',
     initial: 'K',
-    color: 'bg-teal-600',
+    color: 'bg-teal-700',
     opinions: '2 opiniones',
     date: 'Hace 3 meses',
     text: 'Excelente en Todo... Recomiendo 100%'
@@ -138,13 +138,13 @@ export default function TestimonialsSection() {
   useScrollReveal();
 
   return (
-    <section className="py-24 bg-slate-50 relative overflow-hidden border-t border-blue-900/10">
-      <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+    <section className="py-24 bg-slate-50 relative overflow-hidden border-t border-brand-950/10">
+      <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16 reveal">
           <div className="section-label mb-5 inline-flex bg-white shadow-sm border border-slate-100">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping-slow" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-ping-slow" />
             Lo que dicen de nosotros
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
@@ -212,10 +212,10 @@ export default function TestimonialsSection() {
 
               {/* Interactions (mock) */}
               <div className="flex items-center gap-4 text-slate-500 text-xs mb-4 border-b border-slate-100 pb-4">
-                <button className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+                <button className="flex items-center gap-1.5 hover:text-brand-600 transition-colors">
                   <ThumbsUp size={14} /> Útil
                 </button>
-                <button className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+                <button className="flex items-center gap-1.5 hover:text-brand-600 transition-colors">
                   <Share2 size={14} /> Compartir
                 </button>
               </div>

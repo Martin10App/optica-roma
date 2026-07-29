@@ -22,17 +22,17 @@ export default function CoverageSection() {
 
   return (
     <section className="py-20 bg-white border-t border-slate-100 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Left: Info */}
           <div className="lg:w-1/3 text-center lg:text-left reveal-left">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-700 text-white mb-6 shadow-lg">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-800 text-white mb-6 shadow-lg">
               <ShieldPlus size={24} />
             </div>
             <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
-              Trabajamos con <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-blue-500">todas las mutualistas</span>
+              Trabajamos con <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-800 to-brand-500">todas las mutualistas</span>
             </h2>
             <p className="text-slate-500 mb-8">
               Consultá por tu receta de BPS, Asistencia Integral o cualquier prestador de salud. Gestionamos los trámites y te asesoramos para que aproveches al máximo tus beneficios.
@@ -41,7 +41,7 @@ export default function CoverageSection() {
               href="https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20mi%20cobertura%20por%20mutualista."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-brand-800 bg-white border border-brand-200 hover:bg-brand-50 transition-colors"
             >
               Consultá tu cobertura →
             </a>
@@ -56,7 +56,7 @@ export default function CoverageSection() {
                   if (item.name === 'BPS') setIsBpsModalOpen(true);
                   if (item.name === 'Asistencia Integral') setIsAsseModalOpen(true);
                 }}
-                className={`flex items-center justify-center h-24 rounded-2xl bg-white border border-slate-200 text-slate-500 font-bold text-center p-4 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ${(item.name === 'BPS' || item.name === 'Asistencia Integral') ? 'cursor-pointer' : ''}`}
+                className={`flex items-center justify-center h-24 rounded-2xl bg-white border border-slate-200 text-slate-500 font-bold text-center p-4 hover:border-brand-300 hover:text-brand-800 hover:bg-brand-50 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ${(item.name === 'BPS' || item.name === 'Asistencia Integral') ? 'cursor-pointer' : ''}`}
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
                 {item.img ? (
@@ -84,7 +84,7 @@ export default function CoverageSection() {
             </button>
 
             <div className="text-slate-600 leading-relaxed">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-blue-800 flex items-center gap-3 mb-6">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-brand-900 flex items-center gap-3 mb-6">
                 <img src="/media/logos/BPS-logo.png" alt="BPS" className="h-10 object-contain m-0" />
                 Subsidio en Óptica Roma
               </h2>
@@ -105,10 +105,10 @@ export default function CoverageSection() {
               <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Sabías que tus hijos menores de 14 años también pueden acceder a este beneficio?</h3>
               <p className="mb-4">Si sos trabajador dependiente de la actividad privada, percibís seguro de desempleo o sos jubilado con menores de 14 años a cargo, también podés solicitar el beneficio para los lentes recetados a tus hijos o menores bajo tu tutela.</p>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-5 mt-10 rounded-r-xl">
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Consultas</h3>
+              <div className="bg-brand-50 border-l-4 border-brand-500 p-5 mt-10 rounded-r-xl">
+                <h3 className="text-lg font-bold text-brand-900 mb-2">Consultas</h3>
                 <p className="mb-3">Si tenés dudas sobre el beneficio o la documentación necesaria, comunicate con nosotros y con gusto te asesoraremos.</p>
-                <p className="font-medium text-blue-900">¡En Óptica Roma nos encargamos del trámite para que vos solo tengas que elegir los lentes ideales para vos!</p>
+                <p className="font-medium text-brand-950">¡En Óptica Roma nos encargamos del trámite para que vos solo tengas que elegir los lentes ideales para vos!</p>
               </div>
 
               <div className="mt-10 text-center">
@@ -140,7 +140,7 @@ export default function CoverageSection() {
             </button>
 
             <div className="text-slate-600 leading-relaxed">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-blue-800 flex items-center gap-3 mb-6">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-brand-900 flex items-center gap-3 mb-6">
                 <img src="/media/logos/asistencia-integral-asse.svg" alt="Asistencia Integral ASSE" className="h-10 object-contain m-0" />
                 Asistencia Integral
               </h2>
@@ -163,10 +163,10 @@ export default function CoverageSection() {
               <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">Te asesoramos en todo el proceso</h3>
               <p className="mb-4">En Óptica Roma te ayudamos a gestionar la documentación necesaria y a encontrar la mejor opción para tus necesidades visuales, aprovechando al máximo los beneficios disponibles.</p>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-5 mt-10 rounded-r-xl">
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Consultas</h3>
+              <div className="bg-brand-50 border-l-4 border-brand-500 p-5 mt-10 rounded-r-xl">
+                <h3 className="text-lg font-bold text-brand-900 mb-2">Consultas</h3>
                 <p className="mb-3">Si tenés dudas sobre tu cobertura o la documentación requerida, comunicate con nosotros. Con gusto te brindaremos toda la información necesaria.</p>
-                <p className="font-medium text-blue-900">¡Acercate a Óptica Roma y aprovechá los beneficios de Asistencia Integral para cuidar tu salud visual!</p>
+                <p className="font-medium text-brand-950">¡Acercate a Óptica Roma y aprovechá los beneficios de Asistencia Integral para cuidar tu salud visual!</p>
               </div>
 
               <div className="mt-10 text-center">
