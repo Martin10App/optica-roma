@@ -93,6 +93,10 @@ export default function CartDrawer() {
                       src={item.imagen_url || '/promoxplus.png'}
                       alt={`${item.marca} ${item.modelo}`}
                       fill
+                      // Mismas fotos del catalogo: ya vienen optimizadas del
+                      // disco, no se transforman en Vercel. Ver ProductCard.
+                      unoptimized
+                      sizes="80px"
                       className="object-contain p-2"
                     />
                   </div>

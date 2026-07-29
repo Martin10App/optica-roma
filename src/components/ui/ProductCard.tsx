@@ -156,6 +156,12 @@ export default function ProductCard({ product }: { product: Product }) {
             src={product.imagen_url || '/promoxplus.png'}
             alt={`${product.marca} ${product.modelo}`}
             fill
+            // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
+            // ~64 KB) via scripts/optimizar_armazones.py, asi que no hace falta
+            // que Vercel las transforme. Son +1100 fotos distintas y cada una
+            // consumia varias transformaciones de la cuota mensual; el resto
+            // del sitio (portada, promos) si sigue optimizado por Vercel.
+            unoptimized
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={`object-contain p-6 transition-transform duration-500 group-hover:scale-105 ${product.stock_visible === false ? 'opacity-50 grayscale' : ''}`}
           />
@@ -271,6 +277,7 @@ export default function ProductCard({ product }: { product: Product }) {
                     src={product.imagen_url || '/promoxplus.png'}
                     alt={`${product.marca} ${product.modelo}`}
                     fill
+                    unoptimized
                     sizes="(max-width: 1024px) 100vw, 1024px"
                     className="object-contain p-4 transition-transform duration-100 ease-out"
                     style={{
