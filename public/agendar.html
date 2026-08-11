@@ -2,60 +2,347 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Agendar consulta</title>
+<meta name="theme-color" content="#071425">
+<title>Agendar consulta | Óptica Roma</title>
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Agendar consulta oftalmológica">
-<meta property="og:description" content="Tocá para coordinar el día y la hora de tu consulta.">
-<meta property="og:site_name" content="Agenda de consultas">
+<meta property="og:title" content="Agendá tu consulta oftalmológica">
+<meta property="og:description" content="Coordiná tu día y hora por WhatsApp o por teléfono.">
+<meta property="og:site_name" content="Óptica Roma">
 <meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#0F172A">
 
 <style>
-:root{--bg:#0F172A;--card:#1E293B;--borde:#334155;--texto:#F1F5F9;--suave:#94A3B8;}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);
-  color:var(--texto);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-.caja{width:100%;max-width:380px;text-align:center;}
-h1{font-size:22px;font-weight:600;margin-bottom:8px;letter-spacing:-.2px;}
-p.sub{color:var(--suave);font-size:14px;line-height:1.6;margin-bottom:30px;}
-a.btn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
-  padding:17px 20px;border-radius:14px;font-size:16px;font-weight:600;text-decoration:none;
-  margin-bottom:13px;transition:transform .15s,filter .15s;}
-a.btn:active{transform:scale(.98);}
-a.wa{background:#25D366;color:#04241A;}
-a.tel{background:var(--card);color:var(--texto);border:1px solid var(--borde);}
-a.btn svg{flex:none;}
-.pie{color:var(--suave);font-size:12.5px;margin-top:22px;line-height:1.6;}
+:root{
+  color-scheme:dark;
+  --fondo:#071425;
+  --fondo-2:#0b1c31;
+  --superficie:rgba(13,31,53,.84);
+  --superficie-2:#142944;
+  --borde:rgba(134,179,235,.18);
+  --borde-fuerte:rgba(134,179,235,.3);
+  --texto:#f7fbff;
+  --texto-suave:#adc0d8;
+  --azul:#4f8cff;
+  --azul-claro:#79adff;
+  --whatsapp:#25d366;
+  --whatsapp-oscuro:#0b4c2d;
+  --sombra:0 28px 80px rgba(0,0,0,.38);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--fondo)}
+body{
+  margin:0;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  color:var(--texto);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 50% -15%,rgba(79,140,255,.22),transparent 42%),
+    linear-gradient(145deg,var(--fondo) 0%,var(--fondo-2) 55%,#08182b 100%);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.32;
+  background-image:
+    linear-gradient(rgba(126,170,226,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(126,170,226,.045) 1px,transparent 1px);
+  background-size:42px 42px;
+  -webkit-mask-image:linear-gradient(to bottom,black,transparent 86%);
+  mask-image:linear-gradient(to bottom,black,transparent 86%);
+}
+
+.orb{
+  position:fixed;
+  width:280px;
+  aspect-ratio:1;
+  border-radius:50%;
+  pointer-events:none;
+  filter:blur(12px);
+  opacity:.17;
+  will-change:transform;
+}
+.orb-a{top:-110px;left:-90px;background:#377dff;animation:orbA 12s ease-in-out infinite alternate}
+.orb-b{right:-130px;bottom:-150px;background:#25d366;animation:orbB 15s ease-in-out infinite alternate}
+
+.pagina{
+  position:relative;
+  z-index:1;
+  width:100%;
+  min-height:100vh;
+  min-height:100dvh;
+  display:grid;
+  place-items:center;
+  padding:max(28px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));
+}
+
+.envoltorio{width:min(100%,480px)}
+
+.marca{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:18px;
+  opacity:0;
+  animation:entradaSuave .55s var(--ease) .05s forwards;
+}
+.marca-logo{
+  position:relative;
+  width:50px;
+  height:50px;
+  flex:0 0 50px;
+  border-radius:16px;
+  box-shadow:0 12px 30px rgba(26,94,211,.3);
+}
+.marca-logo::after{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  z-index:-1;
+  border:1px solid rgba(121,173,255,.38);
+  border-radius:20px;
+  animation:respirar 3.4s ease-in-out infinite;
+}
+.marca-logo img{display:block;width:100%;height:100%;border-radius:16px}
+.marca-texto{text-align:left}
+.marca-nombre{display:block;font-size:17px;font-weight:760;letter-spacing:-.02em}
+.marca-lema{display:block;margin-top:2px;color:var(--texto-suave);font-size:12px}
+
+.tarjeta{
+  position:relative;
+  overflow:hidden;
+  padding:34px;
+  border:1px solid var(--borde);
+  border-radius:30px;
+  background:linear-gradient(155deg,rgba(19,42,70,.92),var(--superficie));
+  box-shadow:var(--sombra),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  opacity:0;
+  transform:translateY(18px) scale(.985);
+  animation:entradaTarjeta .7s var(--ease) .12s forwards;
+}
+.tarjeta::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(121,173,255,.8),transparent);
+}
+
+.etiqueta{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:30px;
+  padding:6px 11px;
+  border:1px solid rgba(79,140,255,.25);
+  border-radius:999px;
+  color:#aecdff;
+  background:rgba(79,140,255,.1);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.etiqueta-punto{width:7px;height:7px;border-radius:50%;background:var(--azul-claro);box-shadow:0 0 14px var(--azul-claro)}
+
+h1{
+  margin:18px 0 10px;
+  font-size:clamp(29px,7.6vw,40px);
+  line-height:1.08;
+  letter-spacing:-.045em;
+}
+.subtitulo{
+  max-width:390px;
+  margin:0 0 28px;
+  color:var(--texto-suave);
+  font-size:16px;
+  line-height:1.58;
+}
+
+.acciones{display:grid;gap:12px}
+.accion{
+  position:relative;
+  display:grid;
+  grid-template-columns:48px 1fr 24px;
+  align-items:center;
+  gap:13px;
+  min-height:72px;
+  width:100%;
+  padding:11px 16px 11px 12px;
+  border:1px solid transparent;
+  border-radius:19px;
+  color:var(--texto);
+  text-decoration:none;
+  touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
+  opacity:0;
+  transform:translateY(12px);
+  transition:transform .22s var(--ease),border-color .22s,background-color .22s,box-shadow .22s,filter .22s;
+}
+.accion-wa{
+  color:#062d1c;
+  background:linear-gradient(135deg,#2de278,var(--whatsapp));
+  box-shadow:0 16px 34px rgba(37,211,102,.18);
+  animation:entradaAccion .52s var(--ease) .42s forwards;
+}
+.accion-tel{
+  border-color:var(--borde-fuerte);
+  background:rgba(20,41,68,.82);
+  animation:entradaAccion .52s var(--ease) .5s forwards;
+}
+.accion-icono{
+  display:grid;
+  place-items:center;
+  width:48px;
+  height:48px;
+  border-radius:15px;
+  background:rgba(255,255,255,.22);
+}
+.accion-tel .accion-icono{background:rgba(121,173,255,.1);color:#aecdff}
+.accion-icono svg{display:block;width:25px;height:25px}
+.accion-texto{text-align:left}
+.accion-titulo{display:block;font-size:16px;font-weight:760;letter-spacing:-.015em}
+.accion-ayuda{display:block;margin-top:3px;font-size:12px;font-weight:560;opacity:.72}
+.flecha{display:block;width:20px;height:20px;transition:transform .22s var(--ease)}
+
+.accion:hover{transform:translateY(-2px)}
+.accion-wa:hover{filter:saturate(1.08) brightness(1.03);box-shadow:0 19px 40px rgba(37,211,102,.24)}
+.accion-tel:hover{border-color:rgba(121,173,255,.5);background:#183353;box-shadow:0 15px 35px rgba(0,0,0,.2)}
+.accion:hover .flecha{transform:translateX(3px)}
+.accion:active{transform:scale(.975)}
+.accion:focus-visible{outline:3px solid rgba(121,173,255,.8);outline-offset:4px}
+
+.separador{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:17px 4px;
+  color:#7890ad;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.separador::before,.separador::after{content:"";height:1px;flex:1;background:var(--borde)}
+
+.confianza{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid var(--borde);
+}
+.dato{display:flex;align-items:center;gap:9px;color:var(--texto-suave);font-size:12px;line-height:1.35}
+.dato svg{width:17px;height:17px;flex:0 0 17px;color:var(--azul-claro)}
+
+.pie{
+  margin:17px auto 0;
+  color:#7188a4;
+  font-size:12px;
+  line-height:1.55;
+  text-align:center;
+  opacity:0;
+  animation:entradaSuave .5s var(--ease) .66s forwards;
+}
+
+@keyframes entradaTarjeta{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes entradaAccion{to{opacity:1;transform:translateY(0)}}
+@keyframes entradaSuave{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes respirar{0%,100%{opacity:.45;transform:scale(.96)}50%{opacity:.9;transform:scale(1.035)}}
+@keyframes orbA{to{transform:translate3d(55px,35px,0) scale(1.08)}}
+@keyframes orbB{to{transform:translate3d(-45px,-35px,0) scale(.92)}}
+
+@media(max-width:520px){
+  .pagina{place-items:center;padding-left:16px;padding-right:16px}
+  .tarjeta{padding:28px 20px 24px;border-radius:26px}
+  .marca{margin-bottom:15px}
+  .subtitulo{margin-bottom:24px}
+  .confianza{grid-template-columns:1fr;gap:12px}
+}
+
+@media(max-height:680px) and (orientation:landscape){
+  .pagina{padding-top:18px;padding-bottom:18px}
+  .marca{margin-bottom:10px}
+  .tarjeta{padding:24px 28px}
+  h1{margin-top:12px;font-size:30px}
+  .subtitulo{margin-bottom:18px}
+  .accion{min-height:64px}
+  .confianza{margin-top:17px;padding-top:16px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
 </style>
 </head>
 <body>
-<div class="caja">
-  <h1>Agendar tu consulta</h1>
-  <p class="sub">Elegí cómo preferís comunicarte para coordinar el día y la hora.</p>
+<div class="orb orb-a" aria-hidden="true"></div>
+<div class="orb orb-b" aria-hidden="true"></div>
 
-  <a class="btn wa" id="btn-wa" href="#">
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2m5.8 14.1c-.25.69-1.45 1.32-2 1.4-.51.08-1.16.11-1.87-.12-.43-.14-.99-.32-1.7-.63-2.99-1.29-4.94-4.3-5.09-4.5-.15-.2-1.22-1.62-1.22-3.09s.77-2.19 1.04-2.49c.27-.3.59-.37.79-.37.2 0 .39 0 .57.01.18.01.43-.7.82.63.4.96 1.35 3.31 1.47 3.55.12.24.2.52.04.83-.16.31-.24.5-.47.77-.24.27-.5.6-.71.81-.24.24-.48.5-.21.97.27.47 1.2 1.98 2.58 3.21 1.77 1.58 3.27 2.07 3.74 2.3.47.24.74.2 1.01-.12.27-.32 1.16-1.36 1.47-1.83.31-.47.62-.39 1.04-.24.42.16 2.68 1.27 3.14 1.5.46.24.77.35.88.55.11.19.11 1.1-.14 1.79"/></svg>
-    Escribir por WhatsApp
-  </a>
+<main class="pagina">
+  <div class="envoltorio">
+    <header class="marca" aria-label="Óptica Roma">
+      <div class="marca-logo"><img src="/icons/agenda-192.png" width="50" height="50" alt="Logo de Óptica Roma"></div>
+      <div class="marca-texto">
+        <span class="marca-nombre">Óptica Roma</span>
+        <span class="marca-lema">Lo mejor en visión</span>
+      </div>
+    </header>
 
-  <a class="btn tel" id="btn-tel" href="#">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.26-1.26a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92"/></svg>
-    Llamar por teléfono
-  </a>
+    <section class="tarjeta" aria-labelledby="titulo-principal">
+      <div class="etiqueta"><span class="etiqueta-punto"></span>Consulta oftalmológica</div>
+      <h1 id="titulo-principal">Agendá tu consulta en minutos</h1>
+      <p class="subtitulo">Elegí cómo preferís comunicarte para coordinar directamente tu día y hora.</p>
 
-  <p class="pie">Si nadie atiende, dejá tu mensaje por WhatsApp<br>y te responden apenas puedan.</p>
-</div>
+      <div class="acciones">
+        <a class="accion accion-wa" href="https://wa.me/59891901050?text=Hola!%20Quisiera%20agendar%20una%20consulta%20oftalmol%C3%B3gica" aria-label="Escribir por WhatsApp para agendar una consulta">
+          <span class="accion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.075-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.981.999-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.002-5.45 4.438-9.885 9.892-9.885a9.82 9.82 0 0 1 7.021 2.91 9.82 9.82 0 0 1 2.9 7.023c-.003 5.45-4.439 9.885-9.93 9.885M20.463 3.488A11.82 11.82 0 0 0 12.055 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.688 1.448h.005c6.558 0 11.893-5.335 11.896-11.893a11.82 11.82 0 0 0-3.488-8.413Z"/></svg>
+          </span>
+          <span class="accion-texto">
+            <span class="accion-titulo">Escribir por WhatsApp</span>
+            <span class="accion-ayuda">La forma más rápida de coordinar</span>
+          </span>
+          <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
 
-<script>
-var TEL = '59891901050';
-var TEXTO = 'Hola! Quisiera agendar una consulta oftalmológica';
+        <div class="separador">o si preferís</div>
 
-document.getElementById('btn-wa').href =
-  'https://wa.me/' + TEL + '?text=' + encodeURIComponent(TEXTO);
-document.getElementById('btn-tel').href = 'tel:+' + TEL;
-</script>
+        <a class="accion accion-tel" href="tel:+59891901050" aria-label="Llamar por teléfono para agendar una consulta">
+          <span class="accion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.26-1.26a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+          </span>
+          <span class="accion-texto">
+            <span class="accion-titulo">Llamar por teléfono</span>
+            <span class="accion-ayuda">Si preferís hablar directamente</span>
+          </span>
+          <svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+      <div class="confianza" aria-label="Información de la atención">
+        <div class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Atención personalizada</span></div>
+        <div class="dato"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Coordiná día y hora</span></div>
+      </div>
+    </section>
+
+    <p class="pie">Si no pueden atenderte en el momento, dejá tu mensaje por WhatsApp y te responderán apenas sea posible.</p>
+  </div>
+</main>
 </body>
 </html>
