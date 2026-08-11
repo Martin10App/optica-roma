@@ -6,6 +6,33 @@ const pool = new Pool({
   max: 2,
 });
 
+let columnasAditivasPromise: Promise<void> | null = null;
+
+async function asegurarColumnasAditivas() {
+  if (!columnasAditivasPromise) {
+    columnasAditivasPromise = (async () => {
+      const existentes = await pool.query(
+        `SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'rabaquino_pedidos'
+            AND column_name = ANY($1::text[])`,
+        [['notas', 'numero_boleta']]
+      );
+      const columnas = new Set(existentes.rows.map((row) => row.column_name));
+      if (!columnas.has('notas') || !columnas.has('numero_boleta')) {
+        await pool.query(
+          `ALTER TABLE rabaquino_pedidos
+             ADD COLUMN IF NOT EXISTS notas TEXT,
+             ADD COLUMN IF NOT EXISTS numero_boleta TEXT`
+        );
+      }
+    })().catch((error) => {
+      columnasAditivasPromise = null;
+      throw error;
+    });
+  }
+  await columnasAditivasPromise;
+}
+
 // Columnas permitidas para insertar/actualizar (evita inyección vía nombres de campo arbitrarios)
 const CAMPOS_PEDIDO = [
   'sucursal', 'cliente', 'cedula', 'telefono', 'fecha_venta',
@@ -22,6 +49,7 @@ const CAMPOS_PEDIDO = [
   'precio', 'sena', 'forma_pago', 'saldo', 'tarjeta', 'cuotas',
   'medico', 'archivo_excel', 'tipo_pedido', 'estado',
   'fecha_procesado', 'direccion', 'email', 'fecha_nacimiento',
+  'notas', 'numero_boleta',
 ];
 
 export async function GET(request: NextRequest) {
@@ -62,6 +90,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // La migración es aditiva e idempotente. Se ejecuta solo antes de una
+    // escritura; las lecturas del portal nunca dependen de permisos DDL.
+    await asegurarColumnasAditivas();
     const body = await request.json();
     const campos = Object.keys(body).filter((k) => CAMPOS_PEDIDO.includes(k));
 
@@ -86,6 +117,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    await asegurarColumnasAditivas();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) {
