@@ -95,6 +95,8 @@ export async function POST(request: NextRequest) {
     // vista. Se agregan por separado por si la tabla ya existía.
     await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS es_recontrol BOOLEAN NOT NULL DEFAULT FALSE');
     await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS motivo TEXT');
+    await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS total TEXT');
+    await client.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS saldo TEXT');
 
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_estado ON medico_agenda(estado)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_medico_agenda_fecha ON medico_agenda(fecha_sena DESC)');

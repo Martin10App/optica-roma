@@ -5,7 +5,7 @@ import { avisar } from '@/lib/medicoPush';
 // Todo menos receta_foto: la foto se pide aparte por /api/medico/receta, si no
 // cada carga de la lista se traería varios MB al pedo.
 const COLUMNAS_LISTA = `
-  id, codigo, cedula, nombre, fnac, edad, telefono, sena, fecha_sena,
+  id, codigo, cedula, nombre, fnac, edad, telefono, total, sena, saldo, fecha_sena,
   origen, estado, fecha_agendada, hora_agendada, nota, es_recontrol, motivo,
   receta_nombre, receta_subida, receta_bajada, venta_id, creado_en, actualizado_en,
   (receta_foto IS NOT NULL) AS tiene_receta
@@ -19,13 +19,31 @@ const CAMPOS_CONSULTORIO = ['fecha_agendada', 'hora_agendada', 'estado', 'nota']
 // marcar/desmarcar el recontrol con su motivo
 const CAMPOS_OPTICA = [
   ...CAMPOS_CONSULTORIO,
-  'nombre', 'cedula', 'telefono', 'fnac', 'edad', 'sena',
+  'nombre', 'cedula', 'telefono', 'fnac', 'edad', 'total', 'sena', 'saldo',
   'es_recontrol', 'motivo',
 ];
 // El programa de escritorio, además, marca las recetas como bajadas
 const CAMPOS_PROGRAMA = [...CAMPOS_OPTICA, 'receta_bajada'];
 
 const ESTADOS = ['pendiente', 'agendado', 'atendido', 'cancelado', 'archivado'];
+
+let columnasPagoListas = false;
+
+/** Mantiene compatible el despliegue aunque /setup todavía no se haya corrido. */
+async function asegurarColumnasPago() {
+  if (columnasPagoListas) return;
+  await medicoPool.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS total TEXT');
+  await medicoPool.query('ALTER TABLE medico_agenda ADD COLUMN IF NOT EXISTS saldo TEXT');
+  columnasPagoListas = true;
+}
+
+function importe(valor: unknown): number {
+  return Number(String(valor || '').replace(/[^\d]/g, '')) || 0;
+}
+
+function estaPago(datos: any): boolean {
+  return importe(datos?.total) > 0 && importe(datos?.saldo) <= 0;
+}
 
 /**
  * Mantenimiento barato que corre al cargar la lista.
@@ -60,6 +78,7 @@ export async function GET(request: NextRequest) {
     if (!sesion && !esPrograma) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
+    await asegurarColumnasPago();
 
     const { searchParams } = new URL(request.url);
 
@@ -126,9 +145,8 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Alta de un cliente en la agenda. Siempre viene del programa de escritorio:
- * automático al guardar una venta con médico VALE, o a mano desde el formulario
- * "Agendar con médico" cuando el cliente no dejó seña.
+ * Alta de un cliente en la agenda. Siempre viene del programa de escritorio
+ * después de registrar una seña, un pago completo o un re-control autorizado.
  * Reintenta sin duplicar: si ya existe esa venta_id o ese código, actualiza.
  */
 export async function POST(request: NextRequest) {
@@ -138,30 +156,30 @@ export async function POST(request: NextRequest) {
     if (!esPrograma && !sesion) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
+    await asegurarColumnasPago();
 
     const b = await request.json();
 
-    // El consultorio también puede dar de alta (alguien que llamó a la clínica
-    // sin haber señado). Pero no puede inventar código de vale, monto de seña
-    // ni id de venta: esos los pone la óptica cuando el cliente pasa a señar.
+    // La página del consultorio no crea pacientes: sólo coordina y atiende los
+    // que la óptica ya habilitó.
     if (sesion) {
-      if (!String(b.nombre || '').trim()) {
-        return NextResponse.json({ success: false, error: 'Falta el nombre' }, { status: 400 });
-      }
-      b.origen = 'consultorio';
-      b.codigo = null;
-      b.venta_id = null;
-      b.sena = null;
-      b.fecha_sena = null;
+      return NextResponse.json(
+        { success: false, error: 'Las altas se realizan desde la óptica' },
+        { status: 403 }
+      );
+    }
+
+    if (!b.es_recontrol && importe(b.sena) <= 0 && !estaPago(b)) {
+      return NextResponse.json(
+        { success: false, error: 'El paciente debe tener seña o pago registrado' },
+        { status: 400 }
+      );
     }
 
     const codigo = b.codigo || null;
     const ventaId = b.venta_id ?? null;
     const origen = b.origen || 'venta';
-    // Un alta del consultorio no lleva fecha de seña (no pagó nada); una venta
-    // que no la trae es porque está pasando ahora mismo.
-    const fechaSena =
-      b.fecha_sena || (origen === 'consultorio' ? null : new Date().toISOString());
+    const fechaSena = b.fecha_sena || new Date().toISOString();
 
     // ¿Ya está? (reintento del programa, o el cliente señó después de pedir turno)
     let existente = null;
@@ -200,29 +218,31 @@ export async function POST(request: NextRequest) {
         `UPDATE medico_agenda
             SET nombre = COALESCE($1::text, nombre),
                 telefono = COALESCE($2::text, telefono),
-                sena = COALESCE($3::text, sena),
-                fnac = COALESCE($4::text, fnac),
-                edad = COALESCE($5::text, edad),
-                codigo = COALESCE($6::text, codigo),
+                total = COALESCE($3::text, total),
+                sena = COALESCE($4::text, sena),
+                saldo = COALESCE($5::text, saldo),
+                fnac = COALESCE($6::text, fnac),
+                edad = COALESCE($7::text, edad),
+                codigo = COALESCE($8::text, codigo),
                 -- Si la cita se adopta al dejar la seña, la marca de "recién
                 -- llegó" es ahora: el médico tiene que verlo como reciente.
-                fecha_sena = COALESCE($7::timestamptz, fecha_sena,
-                                      CASE WHEN $8::int IS NOT NULL THEN NOW() END),
-                venta_id = COALESCE($8::int, venta_id),
+                fecha_sena = COALESCE($9::timestamptz, fecha_sena,
+                                      CASE WHEN $10::int IS NOT NULL THEN NOW() END),
+                venta_id = COALESCE($10::int, venta_id),
                 -- Al adoptar una cita que estaba sin seña, pasa a ser una venta
-                origen = CASE WHEN $8::int IS NOT NULL THEN 'venta' ELSE origen END,
+                origen = CASE WHEN $10::int IS NOT NULL THEN 'venta' ELSE origen END,
                 -- El día y la hora del consultorio mandan: solo se completan si
                 -- estaban vacíos, nunca se pisa lo que ya cargó la secretaria.
-                fecha_agendada = COALESCE(fecha_agendada, $9::date),
-                hora_agendada  = COALESCE(hora_agendada, $10::text),
+                fecha_agendada = COALESCE(fecha_agendada, $11::date),
+                hora_agendada  = COALESCE(hora_agendada, $12::text),
                 estado = CASE WHEN estado = 'pendiente'
-                               AND (COALESCE(fecha_agendada, $9::date) IS NOT NULL
-                                 OR COALESCE(hora_agendada, $10::text) IS NOT NULL)
+                               AND (COALESCE(fecha_agendada, $11::date) IS NOT NULL
+                                 OR COALESCE(hora_agendada, $12::text) IS NOT NULL)
                               THEN 'agendado' ELSE estado END,
                 actualizado_en = NOW()
-          WHERE id = $11::int
+          WHERE id = $13::int
         RETURNING ${COLUMNAS_LISTA}`,
-        [b.nombre, b.telefono, b.sena, b.fnac, b.edad, codigo,
+        [b.nombre, b.telefono, b.total, b.sena, b.saldo, b.fnac, b.edad, codigo,
          b.fecha_sena || null, ventaId,
          b.fecha_agendada || null, b.hora_agendada || null, existente.id]
       );
@@ -234,10 +254,10 @@ export async function POST(request: NextRequest) {
       // meterlos en un CASE, Postgres no podía inferir el tipo de los
       // parámetros y toda alta fallaba con error 500.
       `INSERT INTO medico_agenda
-        (codigo, cedula, nombre, fnac, edad, telefono, sena, fecha_sena, origen,
+        (codigo, cedula, nombre, fnac, edad, telefono, total, sena, saldo, fecha_sena, origen,
          estado, venta_id, nota, fecha_agendada, hora_agendada, es_recontrol, motivo)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8::timestamptz,$9::text,$10::text,
-               $11::int,$12::text,$13::date,$14::text,$15::boolean,$16::text)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::timestamptz,$11::text,$12::text,
+               $13::int,$14::text,$15::date,$16::text,$17::boolean,$18::text)
        RETURNING ${COLUMNAS_LISTA}`,
       [
         codigo,
@@ -246,7 +266,9 @@ export async function POST(request: NextRequest) {
         b.fnac || null,
         b.edad || null,
         b.telefono || null,
+        b.total || null,
         b.sena || null,
+        b.saldo || null,
         fechaSena,
         origen,
         // Si ya viene con día u hora, nace agendado: no hay nada que coordinar
@@ -264,13 +286,7 @@ export async function POST(request: NextRequest) {
     // en la óptica: puede estar yendo al consultorio en este momento.
     const nombre = res.rows[0].nombre || 'Un paciente';
     const motivoTxt = b.motivo ? ' Motivo: ' + b.motivo + '.' : '';
-    if (origen === 'consultorio') {
-      await avisar('optica', {
-        titulo: 'El consultorio agendó a alguien',
-        cuerpo: nombre + ' dice que viene derivado. Todavía no dejó seña.',
-        tag: 'alta-consultorio',
-      });
-    } else if (b.es_recontrol) {
+    if (b.es_recontrol) {
       await avisar('consultorio', {
         titulo: '🔄 Re-control',
         cuerpo: nombre + ' viene a recontrolarse.' + motivoTxt + ' Falta darle día y hora.',
@@ -278,10 +294,13 @@ export async function POST(request: NextRequest) {
         importante: true,
       });
     } else {
-      const monto = Number(String(b.sena || '').replace(/[^\d]/g, '')) || 0;
+      const monto = importe(b.sena);
+      const pagoCompleto = estaPago(b);
       await avisar('consultorio', {
         titulo: 'Paciente nuevo',
-        cuerpo: nombre + (monto ? ' dejó seña de $' + monto.toLocaleString('es-UY') : ' fue anotado') +
+        cuerpo: nombre + (pagoCompleto
+                  ? ' ya pagó y puede atenderse'
+                  : ' dejó seña de $' + monto.toLocaleString('es-UY') + ' y puede atenderse') +
                 '. Falta darle día y hora.',
         tag: 'alta-optica',
         importante: true,
@@ -333,6 +352,7 @@ export async function PATCH(request: NextRequest) {
     if (!sesion && !esPrograma) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
+    await asegurarColumnasPago();
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
