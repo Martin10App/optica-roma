@@ -11,6 +11,16 @@
 
 const RUTA = '/agenda';
 
+function esVentanaDeAgenda(url) {
+  try {
+    const pagina = new URL(url);
+    return pagina.origin === self.location.origin &&
+           (pagina.pathname === RUTA || pagina.pathname.startsWith(RUTA + '/'));
+  } catch (e) {
+    return false;
+  }
+}
+
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
@@ -47,7 +57,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((lista) => {
       for (const cliente of lista) {
-        if (cliente.url.includes(RUTA) && 'focus' in cliente) {
+        if (esVentanaDeAgenda(cliente.url) && 'focus' in cliente) {
           cliente.postMessage({ tipo: 'refrescar' });
           return cliente.focus();
         }

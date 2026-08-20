@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         titulo: 'Notificaciones activadas',
         cuerpo: 'Vas a recibir un aviso cuando llegue un paciente nuevo.',
         tag: 'bienvenida',
-      });
+      }, endpoint);
     }
 
     return NextResponse.json({ success: true });

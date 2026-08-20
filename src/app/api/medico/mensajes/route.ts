@@ -52,10 +52,15 @@ export async function GET(request: NextRequest) {
     const res = await medicoPool.query(
       `SELECT id, agenda_id, autor, autor_nombre, texto, creado_en,
               leido_optica, leido_consultorio
-         FROM medico_mensajes
-        WHERE ${where}
-        ORDER BY creado_en ASC, id ASC
-        LIMIT 500`,
+         FROM (
+           SELECT id, agenda_id, autor, autor_nombre, texto, creado_en,
+                  leido_optica, leido_consultorio
+             FROM medico_mensajes
+            WHERE ${where}
+            ORDER BY creado_en DESC, id DESC
+            LIMIT 500
+         ) AS recientes
+        ORDER BY creado_en ASC, id ASC`,
       params
     );
     return NextResponse.json({ success: true, data: res.rows });

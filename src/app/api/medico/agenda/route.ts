@@ -145,9 +145,10 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Alta de un cliente en la agenda. Siempre viene del programa de escritorio
- * después de registrar una seña, un pago completo o un re-control autorizado.
- * Reintenta sin duplicar: si ya existe esa venta_id o ese código, actualiza.
+ * Alta de un cliente en la agenda. Puede venir del programa de escritorio
+ * después de una seña/pago, o del consultorio para reservarle un turno antes
+ * de que pase por la óptica. Reintenta sin duplicar y la venta posterior adopta
+ * el registro manual por cédula.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -160,16 +161,62 @@ export async function POST(request: NextRequest) {
 
     const b = await request.json();
 
-    // La página del consultorio no crea pacientes: sólo coordina y atiende los
-    // que la óptica ya habilitó.
-    if (sesion) {
+    const esAltaConsultorio = sesion?.rol === 'consultorio';
+
+    // El alta manual queda limitada al consultorio. El usuario de la óptica
+    // sigue usando el programa de escritorio, que incluye los datos de pago.
+    if (sesion && !esAltaConsultorio) {
       return NextResponse.json(
         { success: false, error: 'Las altas se realizan desde la óptica' },
         { status: 403 }
       );
     }
 
-    if (!b.es_recontrol && importe(b.sena) <= 0 && !estaPago(b)) {
+    if (esAltaConsultorio) {
+      const nombre = String(b.nombre || '').trim().replace(/\s+/g, ' ').toUpperCase();
+      const cedula = String(b.cedula || '').replace(/\D/g, '');
+      const telefono = String(b.telefono || '').trim();
+      const fecha = String(b.fecha_agendada || '').trim();
+      const hora = String(b.hora_agendada || '').trim();
+
+      if (!nombre) {
+        return NextResponse.json({ success: false, error: 'Falta el nombre del paciente' }, { status: 400 });
+      }
+      if (cedula.length < 6) {
+        return NextResponse.json(
+          { success: false, error: 'Ingresá una cédula válida para evitar duplicados' },
+          { status: 400 }
+        );
+      }
+      if (fecha && !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        return NextResponse.json({ success: false, error: 'La fecha no es válida' }, { status: 400 });
+      }
+      if (hora && !/^\d{2}:\d{2}$/.test(hora)) {
+        return NextResponse.json({ success: false, error: 'La hora no es válida' }, { status: 400 });
+      }
+
+      // No se aceptan importes ni datos de venta desde esta pantalla. Esos
+      // campos los completa después el programa cuando el paciente deja seña.
+      Object.assign(b, {
+        nombre,
+        cedula,
+        telefono: telefono || null,
+        total: null,
+        sena: null,
+        saldo: null,
+        fecha_sena: null,
+        origen: 'consultorio',
+        venta_id: null,
+        codigo: null,
+        es_recontrol: false,
+        motivo: null,
+        fecha_agendada: fecha || null,
+        hora_agendada: hora || null,
+        nota: String(b.nota || '').trim().slice(0, 500) || null,
+      });
+    }
+
+    if (!esAltaConsultorio && !b.es_recontrol && importe(b.sena) <= 0 && !estaPago(b)) {
       return NextResponse.json(
         { success: false, error: 'El paciente debe tener seña o pago registrado' },
         { status: 400 }
@@ -179,7 +226,7 @@ export async function POST(request: NextRequest) {
     const codigo = b.codigo || null;
     const ventaId = b.venta_id ?? null;
     const origen = b.origen || 'venta';
-    const fechaSena = b.fecha_sena || new Date().toISOString();
+    const fechaSena = esAltaConsultorio ? null : (b.fecha_sena || new Date().toISOString());
 
     // ¿Ya está? (reintento del programa, o el cliente señó después de pedir turno)
     let existente = null;
@@ -201,11 +248,21 @@ export async function POST(request: NextRequest) {
     if (!existente && b.cedula) {
       const soloDigitos = String(b.cedula).replace(/\D/g, '');
       if (soloDigitos) {
+        // Una nueva alta manual sólo reutiliza una cita todavía abierta. En
+        // cambio, cuando llega la venta desde la óptica también puede adoptar
+        // la consulta manual recién atendida: muchas personas dejan la seña al
+        // salir del consultorio. El límite evita unir una venta nueva con una
+        // consulta antigua de la misma persona.
+        const condicionEstado = esAltaConsultorio
+          ? "estado IN ('pendiente','agendado')"
+          : `(estado IN ('pendiente','agendado') OR
+              (origen = 'consultorio' AND estado = 'atendido'
+               AND actualizado_en > NOW() - INTERVAL '90 days'))`;
         const r = await medicoPool.query(
           `SELECT id FROM medico_agenda
             WHERE regexp_replace(COALESCE(cedula,''), '[^0-9]', '', 'g') = $1
               AND venta_id IS NULL
-              AND estado IN ('pendiente','agendado')
+              AND ${condicionEstado}
             ORDER BY id DESC LIMIT 1`,
           [soloDigitos]
         );
@@ -282,11 +339,20 @@ export async function POST(request: NextRequest) {
       ]
     );
 
-    // Avisar al otro lado. El caso urgente es el paciente que acaba de señar
-    // en la óptica: puede estar yendo al consultorio en este momento.
+    // Avisar al otro lado. El alta manual avisa a la óptica; las altas con
+    // seña/pago y los recontroles del programa avisan al consultorio.
     const nombre = res.rows[0].nombre || 'Un paciente';
     const motivoTxt = b.motivo ? ' Motivo: ' + b.motivo + '.' : '';
-    if (b.es_recontrol) {
+    if (esAltaConsultorio) {
+      await avisar('optica', {
+        titulo: 'Paciente agregado por consultorio',
+        cuerpo: nombre + ' fue anotado por la secretaria' +
+                (b.fecha_agendada ? ' para el ' + b.fecha_agendada : '') +
+                (b.hora_agendada ? ' a las ' + b.hora_agendada : '') + '.',
+        tag: 'alta-consultorio',
+        importante: true,
+      });
+    } else if (b.es_recontrol) {
       await avisar('consultorio', {
         titulo: '🔄 Re-control',
         cuerpo: nombre + ' viene a recontrolarse.' + motivoTxt + ' Falta darle día y hora.',
