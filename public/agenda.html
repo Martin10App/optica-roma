@@ -129,6 +129,10 @@ header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px
   transition:border-color .18s, box-shadow .18s;}
 .hdr-tools input:focus,.hdr-tools select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.16);}
 .hdr-tools select{flex:0 0 auto;max-width:44%;}
+.hdr-tools .btn-alta{display:none;flex:0 0 auto;width:auto;padding:10px 14px;border-radius:11px;
+  background:linear-gradient(135deg,#0891B2,#22D3EE);box-shadow:0 7px 18px -9px rgba(34,211,238,.75);
+  white-space:nowrap;font-size:13px;}
+@media(max-width:560px){.hdr-tools{flex-wrap:wrap}.hdr-tools .btn-alta{order:-1;width:100%}}
 
 main{padding:18px 16px;max-width:880px;margin:0 auto;}
 
@@ -170,6 +174,8 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 .fila:active{transform:scale(.985);}
 .fila.atendido{border-color:rgba(16,185,129,.35);background:linear-gradient(180deg,rgba(16,185,129,.09),rgba(17,26,46,.75));}
 .fila.nuevo{border-color:rgba(245,158,11,.45);background:linear-gradient(180deg,rgba(245,158,11,.10),rgba(17,26,46,.75));}
+.fila.consultorio{border-color:rgba(34,211,238,.55);background:linear-gradient(180deg,rgba(8,145,178,.15),rgba(17,26,46,.75));}
+.fila.consultorio .avatar{box-shadow:inset 0 -8px 14px rgba(0,0,0,.28),0 0 0 2px rgba(34,211,238,.52);}
 /* Recontrol: violeta, para que se distinga a simple vista de una consulta normal */
 .fila.recontrol{border-color:rgba(167,139,250,.55);background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(17,26,46,.75));}
 .fila.recontrol .avatar{box-shadow:inset 0 -8px 14px rgba(0,0,0,.28),0 0 0 2px rgba(167,139,250,.55);}
@@ -209,6 +215,7 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 .pill.sena{background:var(--green-bg);color:var(--green2);border:1px solid rgba(16,185,129,.45);}
 .pill.pagado{background:rgba(37,99,235,.15);color:#BFDBFE;border:1px solid rgba(96,165,250,.55);}
 .pill.sin{background:var(--amber-bg);color:var(--amber2);border:1px solid rgba(245,158,11,.45);}
+.pill.consultorio{background:rgba(8,145,178,.18);color:#67E8F9;border:1px solid rgba(34,211,238,.5);}
 .mini-chat{display:inline-flex;align-items:center;gap:3px;background:rgba(59,130,246,.15);color:var(--accent3);
   border-radius:20px;padding:2px 7px;font-size:10px;font-weight:700;flex:none;}
 
@@ -256,6 +263,8 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 .pago-banner.sena{border-color:rgba(52,211,153,.48);background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(17,26,46,.9));}
 .pago-banner.recontrol{border-color:rgba(167,139,250,.5);background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(17,26,46,.9));}
 .pago-banner.recontrol .pago-icono{background:rgba(139,92,246,.18);color:#C4B5FD;}
+.pago-banner.consultorio{border-color:rgba(34,211,238,.5);background:linear-gradient(135deg,rgba(8,145,178,.16),rgba(17,26,46,.9));}
+.pago-banner.consultorio .pago-icono{background:rgba(8,145,178,.2);color:#67E8F9;}
 .acciones-consulta{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px;}
 .btn-atendido{min-height:52px;background:var(--grad-verde);font-size:15px;box-shadow:0 8px 22px -8px rgba(16,185,129,.5);}
 .acciones-secundarias{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
@@ -416,6 +425,7 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
       </button>
     </div>
     <div class="hdr-tools">
+      <button class="btn btn-alta" id="btn-alta-consultorio" type="button" onclick="abrirAlta()">＋ Agregar paciente</button>
       <input id="buscador" placeholder="🔎 Buscar por nombre o cédula" oninput="render()">
       <select id="sel-mes" onchange="cargarAgenda()"></select>
     </div>
@@ -433,6 +443,40 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
     </div>
     <div id="contenido"><div class="cargando"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
   </main>
+</div>
+
+<!-- ══════════ ALTA MANUAL DEL CONSULTORIO ══════════ -->
+<div class="modal" id="modal-alta" onclick="if(event.target===this)cerrarAlta()">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-hdr">
+      <div class="avatar grande av2">＋</div>
+      <div style="flex:1">
+        <h2>Agregar paciente</h2>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">Quedará identificado como agregado por consultorio</div>
+      </div>
+      <button class="cerrar" onclick="cerrarAlta()">×</button>
+    </div>
+    <div class="campo">
+      <label>Nombre y apellido</label>
+      <input id="a-nombre" autocomplete="name" autocapitalize="characters" placeholder="Nombre completo">
+    </div>
+    <div class="fila-campos">
+      <div class="campo"><label>Cédula</label><input id="a-cedula" inputmode="numeric" placeholder="Sin puntos ni guiones"></div>
+      <div class="campo"><label>Teléfono</label><input id="a-telefono" inputmode="tel" autocomplete="tel" placeholder="09…"></div>
+    </div>
+    <div class="fila-campos">
+      <div class="campo"><label>Día</label><input type="date" id="a-fecha"></div>
+      <div class="campo"><label>Hora</label><input type="time" id="a-hora"></div>
+    </div>
+    <div class="campo">
+      <label>Nota opcional</label>
+      <textarea id="a-nota" rows="2" maxlength="500" placeholder="Dato útil para la consulta…"></textarea>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:18px">
+      <button class="btn btn-sec" type="button" onclick="cerrarAlta()">Cancelar</button>
+      <button class="btn btn-verde" id="btn-guardar-alta" type="button" onclick="guardarAlta()">Agregar a la agenda</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ FICHA DEL CLIENTE ══════════ -->
@@ -670,6 +714,12 @@ function pagoPaciente(r){
       detalle:'Consulta sin costo autorizada por la óptica'
     };
   }
+  if (esAgregadoConsultorio(r)){
+    return {
+      tipo:'consultorio', titulo:'AGREGADO POR CONSULTORIO',
+      detalle:'Todavía no tiene seña registrada en la óptica'
+    };
+  }
   const total = montoNum(r.total);
   const sena = montoNum(r.sena);
   const saldo = montoNum(r.saldo);
@@ -695,6 +745,8 @@ function pagoBannerHTML(r){
   const p = pagoPaciente(r);
   const icono = p.tipo === 'recontrol'
     ? '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-5V2"/><path d="M4 17h5v5"/><path d="M5.6 9A7 7 0 0 1 17 5l3 2M4 17l3 2a7 7 0 0 0 11.4-4"/></svg>'
+    : p.tipo === 'consultorio'
+      ? '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>'
     : '<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>';
   return '<div class="pago-icono" aria-hidden="true">' + icono + '</div>' +
          '<div><div class="pago-titulo">' + esc(p.titulo) + '</div>' +
@@ -779,6 +831,8 @@ function arrancar(){
   // consultorio la página queda sin marca, a propósito.
   document.getElementById('brand-optica').style.display =
     (SESION.rol === 'optica') ? 'block' : 'none';
+  document.getElementById('btn-alta-consultorio').style.display =
+    (SESION.rol === 'consultorio') ? 'block' : 'none';
   llenarMeses();
   cargarAgenda(true);
   arrancarReloj();
@@ -858,6 +912,62 @@ async function refrescar(){
   await cargarAgenda();
   await cargarNoLeidos();
   if (FICHA) cargarChat(FICHA.id);
+}
+
+function esAgregadoConsultorio(r){
+  return !!r && r.origen === 'consultorio' && !r.venta_id;
+}
+
+function abrirAlta(){
+  if (!SESION || SESION.rol !== 'consultorio') return;
+  document.getElementById('a-nombre').value = '';
+  document.getElementById('a-cedula').value = '';
+  document.getElementById('a-telefono').value = '';
+  document.getElementById('a-fecha').value = hoyISO();
+  document.getElementById('a-hora').value = '';
+  document.getElementById('a-nota').value = '';
+  document.getElementById('modal-alta').classList.add('abierto');
+  setTimeout(()=>document.getElementById('a-nombre').focus(), 80);
+}
+
+function cerrarAlta(){
+  document.getElementById('modal-alta').classList.remove('abierto');
+}
+
+async function guardarAlta(){
+  const nombre = document.getElementById('a-nombre').value.trim().replace(/\s+/g,' ').toUpperCase();
+  const cedula = document.getElementById('a-cedula').value.replace(/\D/g,'');
+  const telefono = document.getElementById('a-telefono').value.trim();
+  const fecha = document.getElementById('a-fecha').value;
+  const hora = document.getElementById('a-hora').value;
+  const nota = document.getElementById('a-nota').value.trim();
+  if (!nombre){ showToast('Ingresá el nombre del paciente', 'err'); return; }
+  if (cedula.length < 6){ showToast('Ingresá una cédula válida para evitar duplicados', 'err'); return; }
+
+  const btn = document.getElementById('btn-guardar-alta');
+  btn.disabled = true;
+  btn.textContent = 'Agregando…';
+  try{
+    const json = await api('/agenda', {
+      method:'POST',
+      body:JSON.stringify({nombre, cedula, telefono, fecha_agendada:fecha||null,
+                           hora_agendada:hora||null, nota:nota||null})
+    });
+    if (!json.success){ showToast(json.error || 'No se pudo agregar', 'err'); return; }
+    const i = AGENDA.findIndex(x => x.id === json.data.id);
+    if (i >= 0) AGENDA[i] = Object.assign({}, AGENDA[i], json.data);
+    else AGENDA.push(json.data);
+    cerrarAlta();
+    render();
+    showToast(json.nuevo === false
+      ? 'Ese paciente ya estaba en la agenda; no se duplicó'
+      : 'Paciente agregado por consultorio', 'ok');
+  }catch(e){
+    if (String(e.message) !== 'sesion') showToast('Sin conexión. Probá nuevamente.', 'err');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Agregar a la agenda';
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -953,6 +1063,7 @@ function fila(r){
   if (r.estado === 'atendido') clase += ' atendido';
   else if (r.estado === 'cancelado') clase += ' cancelado';
   else if (r.es_recontrol) clase += ' recontrol';   // el violeta manda sobre el ámbar
+  else if (esAgregadoConsultorio(r)) clase += ' consultorio';
   else if (esReciente(r)) clase += ' nuevo';
 
   // Avatar con iniciales y color propio; la burbujita de estado va encima
@@ -970,6 +1081,8 @@ function fila(r){
   const sena = montoNum(r.sena);
   const pill = r.es_recontrol
     ? '<span class="pill recontrol">re-control</span>'
+    : esAgregadoConsultorio(r)
+      ? '<span class="pill consultorio">consultorio</span>'
     : pago.tipo === 'pagado'
       ? '<span class="pill pagado">pagado</span>'
       : pago.tipo === 'sena'
@@ -1372,12 +1485,18 @@ async function cargarChat(agendaId){
     const json = await api('/mensajes?agenda_id=' + agendaId);
     if (!json.success) return;
     pintarChat(document.getElementById('f-chat'), json.data);
-    if (NO_LEIDOS[agendaId]){
+    if (hayMensajesSinLeer(json.data, agendaId)){
       await api('/mensajes?agenda_id=' + agendaId, {method:'PATCH'});
       delete NO_LEIDOS[agendaId];
       render();
     }
   }catch(e){}
+}
+
+function hayMensajesSinLeer(mensajes, clave){
+  if (NO_LEIDOS[clave]) return true;
+  const campo = miAutor() === 'optica' ? 'leido_optica' : 'leido_consultorio';
+  return mensajes.some(m => m.autor !== miAutor() && !m[campo]);
 }
 
 /**
@@ -1435,7 +1554,13 @@ async function enviarMensaje(){
 async function refrescarChatGeneral(){
   try{
     const json = await api('/mensajes');
-    if (json.success) pintarChat(document.getElementById('g-chat'), json.data);
+    if (!json.success) return;
+    pintarChat(document.getElementById('g-chat'), json.data);
+    if (hayMensajesSinLeer(json.data, 'general')){
+      await api('/mensajes', {method:'PATCH'});
+      delete NO_LEIDOS['general'];
+      document.getElementById('badge-general').style.display = 'none';
+    }
   }catch(e){}
 }
 
@@ -1443,12 +1568,8 @@ async function abrirChatGeneral(){
   document.getElementById('modal-general').classList.add('abierto');
   arrancarRelojChat('general');
   try{
-    const json = await api('/mensajes');
-    if (json.success) pintarChat(document.getElementById('g-chat'), json.data);
+    await refrescarChatGeneral();
     document.getElementById('g-chat').scrollTop = 9e9;
-    await api('/mensajes', {method:'PATCH'});
-    delete NO_LEIDOS['general'];
-    document.getElementById('badge-general').style.display = 'none';
   }catch(e){}
 }
 
@@ -1539,7 +1660,13 @@ async function avisosActivos(){
   if (Notification.permission !== 'granted') return false;
   if (!SW) await registrarSW();
   if (!SW) return false;
-  return !!(await SW.pushManager.getSubscription());
+  const sub = await SW.pushManager.getSubscription();
+  if (!sub) return false;
+
+  // Una suscripción puede seguir en el navegador aunque el servidor la haya
+  // descartado. Se verifica una sola vez al abrir, nunca en el reloj periódico.
+  const estado = await api('/push?endpoint=' + encodeURIComponent(sub.endpoint));
+  return !!(estado.success && estado.suscripto);
 }
 
 /**
