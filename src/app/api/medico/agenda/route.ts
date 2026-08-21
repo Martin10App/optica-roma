@@ -129,7 +129,17 @@ export async function GET(request: NextRequest) {
     }
 
     const res = await medicoPool.query(
-      `SELECT ${COLUMNAS_LISTA} FROM medico_agenda
+      `SELECT ${COLUMNAS_LISTA},
+              ultimo_chat.ultimo_mensaje,
+              ultimo_chat.ultimo_mensaje_en
+         FROM medico_agenda
+         LEFT JOIN LATERAL (
+           SELECT texto AS ultimo_mensaje, creado_en AS ultimo_mensaje_en
+             FROM medico_mensajes
+            WHERE agenda_id = medico_agenda.id
+            ORDER BY creado_en DESC, id DESC
+            LIMIT 1
+         ) AS ultimo_chat ON TRUE
         WHERE ${where}
         ORDER BY COALESCE(fecha_agendada, fecha_sena::date) DESC NULLS LAST,
                  hora_agendada NULLS LAST, id DESC

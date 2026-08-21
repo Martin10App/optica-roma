@@ -36,8 +36,15 @@ assert.ok(!html.includes('Subir receta'));
 assert.ok(html.includes('onclick="abrirAlta()"'));
 assert.ok(html.includes('AGREGADO POR CONSULTORIO'));
 assert.ok(html.includes("r.origen === 'consultorio' && !r.venta_id"));
+assert.ok(html.includes('function avisoPaciente(r)'));
+assert.ok(html.includes("r.ultimo_mensaje || ''"));
+assert.ok(html.includes("r.nota || ''"));
+assert.ok(html.includes("r.ultimo_mensaje = mensaje.texto"));
 
 assert.match(api, /telefono, total, sena, saldo, fecha_sena/);
+assert.ok(api.includes('LEFT JOIN LATERAL'));
+assert.ok(api.includes('texto AS ultimo_mensaje'));
+assert.ok(api.includes('ORDER BY creado_en DESC, id DESC'));
 assert.ok(api.includes('El paciente debe tener seña o pago registrado'));
 assert.ok(api.includes("origen: 'consultorio'"));
 assert.ok(api.includes("sesion?.rol === 'consultorio'"));

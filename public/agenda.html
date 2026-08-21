@@ -169,7 +169,7 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 
 .fila{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--card),rgba(17,26,46,.7));
   border:1px solid var(--border);border-radius:16px;padding:12px 14px;cursor:pointer;position:relative;
-  transition:transform .16s, border-color .16s, box-shadow .16s;}
+  min-width:0;transition:transform .16s, border-color .16s, box-shadow .16s;}
 .fila:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:var(--sombra);}
 .fila:active{transform:scale(.985);}
 .fila.atendido{border-color:rgba(16,185,129,.35);background:linear-gradient(180deg,rgba(16,185,129,.09),rgba(17,26,46,.75));}
@@ -218,6 +218,18 @@ main{padding:18px 16px;max-width:880px;margin:0 auto;}
 .pill.consultorio{background:rgba(8,145,178,.18);color:#67E8F9;border:1px solid rgba(34,211,238,.5);}
 .mini-chat{display:inline-flex;align-items:center;gap:3px;background:rgba(59,130,246,.15);color:var(--accent3);
   border-radius:20px;padding:2px 7px;font-size:10px;font-weight:700;flex:none;}
+.aviso-paciente{display:flex;align-items:center;gap:7px;min-width:0;margin-top:7px;padding:5px 8px;
+  border:1px solid rgba(96,165,250,.32);border-radius:9px;background:rgba(37,99,235,.09);}
+.aviso-paciente svg{width:13px;height:13px;stroke:var(--accent3);flex:none;}
+.aviso-paciente .aviso-tipo{font-size:9px;line-height:1;font-weight:800;letter-spacing:.65px;
+  color:var(--accent3);flex:none;}
+.aviso-paciente .aviso-texto{font-size:11px;line-height:1.25;color:var(--text2);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.aviso-paciente.nuevo{border-color:rgba(34,211,238,.68);background:rgba(6,182,212,.14);
+  box-shadow:inset 3px 0 0 #22D3EE;}
+.aviso-paciente.nuevo svg,.aviso-paciente.nuevo .aviso-tipo{stroke:#67E8F9;color:#67E8F9;}
+.aviso-paciente.nota{border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.08);}
+.aviso-paciente.nota svg,.aviso-paciente.nota .aviso-tipo{stroke:var(--amber2);color:var(--amber2);}
 
 .vacio{text-align:center;color:var(--text2);padding:44px 16px;font-size:14px;animation:subir .4s ease both;}
 .vacio svg{display:block;margin:0 auto 14px;opacity:.55;}
@@ -835,6 +847,7 @@ function arrancar(){
     (SESION.rol === 'consultorio') ? 'block' : 'none';
   llenarMeses();
   cargarAgenda(true);
+  cargarNoLeidos();
   arrancarReloj();
   revisarNotificaciones();
 }
@@ -905,6 +918,7 @@ async function cargarNoLeidos(){
     const g = NO_LEIDOS['general'] || 0;
     b.textContent = g;
     b.style.display = g ? 'flex' : 'none';
+    if (AGENDA.length) render();
   }catch(e){}
 }
 
@@ -1089,12 +1103,11 @@ function fila(r){
         ? '<span class="pill sena">seña $' + sena.toLocaleString('es-UY') + '</span>'
         : '<span class="pill sin">pago sin detalle</span>';
 
-  const sinLeer = NO_LEIDOS[r.id]
-    ? '<span class="mini-chat">💬 ' + NO_LEIDOS[r.id] + '</span>' : '';
-
   const sub = pill + '<span>' + esc(r.cedula || 'sin cédula') +
               (esReciente(r) ? ' · llegó ' + haceCuanto(r.fecha_sena) : '') +
-              '</span>' + sinLeer;
+              '</span>';
+
+  const aviso = avisoPaciente(r);
 
   // Motivo del recontrol, en su propia línea para que Enzo lo lea de una
   const motivo = (r.es_recontrol && r.motivo)
@@ -1102,8 +1115,34 @@ function fila(r){
 
   return '<div class="' + clase + '" onclick="abrirFicha(' + r.id + ')">' + avatar +
          '<div class="info"><div class="nom">' + esc(r.nombre || 'Sin nombre') + '</div>' +
-         '<div class="sub">' + sub + '</div>' + motivo + '</div>' +
+         '<div class="sub">' + sub + '</div>' + aviso + motivo + '</div>' +
          '<div class="lado">' + hora + '</div></div>';
+}
+
+/**
+ * Hace visible la conversación desde la lista aunque ya haya sido leída.
+ * Si no existe chat, aprovecha la misma franja para mostrar la nota de agenda.
+ */
+function avisoPaciente(r){
+  const mensaje = String(r.ultimo_mensaje || '').trim();
+  const nota = String(r.nota || '').trim();
+  const nuevos = Number(NO_LEIDOS[r.id] || 0);
+  const iconoMensaje = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const iconoNota = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  let html = '';
+
+  if (mensaje){
+    const etiqueta = nuevos ? (nuevos === 1 ? 'NUEVO' : nuevos + ' NUEVOS') : 'MENSAJE';
+    html += '<div class="aviso-paciente' + (nuevos ? ' nuevo' : '') + '">' + iconoMensaje +
+            '<span class="aviso-tipo">' + etiqueta + '</span>' +
+            '<span class="aviso-texto">' + esc(mensaje) + '</span></div>';
+  }
+  if (nota){
+    html += '<div class="aviso-paciente nota">' + iconoNota +
+            '<span class="aviso-tipo">NOTA</span>' +
+            '<span class="aviso-texto">' + esc(nota) + '</span></div>';
+  }
+  return html;
 }
 
 /** "Recién llegó": dejó la seña en la última hora y todavía no lo atendieron. */
@@ -1532,7 +1571,7 @@ async function enviarGenerico(ta, cont, cuerpo, recargar){
       ta.value = txt;
       return;
     }
-    await recargar();
+    await recargar(json.data);
   }catch(e){
     showToast('Sin conexión, no se envió', 'err');
     cont._msgs = previos;
@@ -1548,7 +1587,15 @@ async function enviarMensaje(){
     document.getElementById('f-chat-txt'),
     document.getElementById('f-chat'),
     (txt) => ({agenda_id: id, texto: txt}),
-    () => cargarChat(id));
+    (mensaje) => {
+      const r = AGENDA.find(x => x.id === id);
+      if (r && mensaje){
+        r.ultimo_mensaje = mensaje.texto;
+        r.ultimo_mensaje_en = mensaje.creado_en;
+        render();
+      }
+      return cargarChat(id);
+    });
 }
 
 async function refrescarChatGeneral(){
