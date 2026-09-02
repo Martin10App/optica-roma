@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { autorizado } from '@/lib/rabaquinoAuth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -26,6 +27,12 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Antes cualquiera con la URL podia cambiar el stock. Pasa el portal con
+    // sesion iniciada o el programa con su X-Sync-Secret.
+    if (!(await autorizado(request))) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) {

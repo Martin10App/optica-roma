@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { autorizado } from '@/lib/rabaquinoAuth';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -90,6 +91,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Hasta ahora esta ruta aceptaba escrituras de cualquiera con la URL.
+    // `autorizado` deja pasar al portal con sesion iniciada o al programa de
+    // escritorio con su X-Sync-Secret; los dos la usan.
+    if (!(await autorizado(request))) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     // La migración es aditiva e idempotente. Se ejecuta solo antes de una
     // escritura; las lecturas del portal nunca dependen de permisos DDL.
     await asegurarColumnasAditivas();
@@ -117,6 +125,13 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Hasta ahora esta ruta aceptaba escrituras de cualquiera con la URL.
+    // `autorizado` deja pasar al portal con sesion iniciada o al programa de
+    // escritorio con su X-Sync-Secret; los dos la usan.
+    if (!(await autorizado(request))) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     await asegurarColumnasAditivas();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -150,6 +165,13 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Hasta ahora esta ruta aceptaba escrituras de cualquiera con la URL.
+    // `autorizado` deja pasar al portal con sesion iniciada o al programa de
+    // escritorio con su X-Sync-Secret; los dos la usan.
+    if (!(await autorizado(request))) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const usuarioActual = searchParams.get('usuario_actual');
