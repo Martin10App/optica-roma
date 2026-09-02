@@ -31,8 +31,17 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Sube el PDF de licencias del año. Lo llama SOLO el programa de escritorio
+// (exportar_licencias_pdf), que ya venía mandando el header; el portal de esta
+// ruta solo hace GET, así que exigir el secreto no le cambia nada a Rabaquino.
+// Sin esto, cualquiera con la URL podía reemplazar el PDF de todo el año.
 export async function POST(request: NextRequest) {
   try {
+    const secret = request.headers.get('x-sync-secret');
+    if (!secret || secret !== process.env.RABAQUINO_SYNC_SECRET) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { anio, archivo_nombre, pdf_base64, empleado_nombre, fecha_dia_txt, accion } = await request.json();
 
     if (!anio || !archivo_nombre || !pdf_base64) {
