@@ -605,6 +605,14 @@ let FICHA = null;            // registro abierto en el modal
 let NO_LEIDOS = {};          // { agenda_id|'general': cantidad }
 let VISTOS = new Set();      // ids ya vistos, para avisar solo de los nuevos
 let TIMER = null;
+// Neon cobra por tiempo despierta y no se duerme hasta 5 minutos después de la
+// última consulta (en el plan Launch ese retardo es fijo). Una agenda abierta
+// y olvidada preguntando cada 3 minutos la deja prendida toda la tarde sin que
+// nadie la esté mirando. Por eso, además de parar con la pestaña oculta,
+// paramos tras 10 minutos sin que nadie toque nada: recién ahí se abre un
+// silencio más largo que esos 5 minutos y la base puede dormir.
+const INACTIVIDAD_MS = 600000;   // 10 min
+let ULTIMA_ACTIVIDAD = Date.now();
 
 const API = '/api/medico';
 
@@ -852,15 +860,40 @@ function arrancar(){
   revisarNotificaciones();
 }
 
-/** Consultar cada minuto, pero SOLO con la página a la vista.
+/** Consultar cada 3 minutos, y SOLO con la página a la vista.
  *  Cada consulta despierta la base, que se paga por tiempo despierta: con el
  *  celular en el bolsillo no tiene sentido seguir preguntando. Al volver a la
- *  pantalla se refresca en el acto, así que no se pierde nada. */
+ *  pantalla se refresca en el acto, así que no se pierde nada.
+ *
+ *  Esto NO retrasa lo que importa: cuando la óptica agenda a alguien, el
+ *  consultorio confirma una llegada o alguien escribe un mensaje, sale un
+ *  aviso push (`avisar()` en la API) y el service worker le dice a esta
+ *  página que se refresque en ese mismo momento (`sw-agenda.js`, evento
+ *  push -> mensaje 'refrescar'). El sondeo es solo la red de seguridad para
+ *  el caso de que las notificaciones estén apagadas en ese equipo. */
 function arrancarReloj(){
   clearInterval(TIMER);
   if (!SESION || document.hidden) return;
-  TIMER = setInterval(refrescar, 60000);
+  ULTIMA_ACTIVIDAD = Date.now();
+  TIMER = setInterval(() => {
+    if (document.hidden) return;
+    if (Date.now() - ULTIMA_ACTIVIDAD > INACTIVIDAD_MS){ pararReloj(); return; }
+    refrescar();
+  }, 180000);
 }
+
+/* Cualquier señal de que hay alguien del otro lado vuelve a arrancar el reloj.
+   Si estaba cortado por inactividad, además refresca en el momento para que no
+   se quede mirando datos viejos. */
+function marcarActividad(){
+  const estabaCortado = !TIMER;
+  ULTIMA_ACTIVIDAD = Date.now();
+  if (!SESION || document.hidden) return;
+  if (estabaCortado){ refrescar(); arrancarReloj(); }
+}
+['click','keydown','mousemove','touchstart','wheel'].forEach(ev => {
+  document.addEventListener(ev, marcarActividad, { passive: true });
+});
 
 function pararReloj(){
   clearInterval(TIMER);
@@ -1508,9 +1541,16 @@ function arrancarRelojChat(cual){
   clearInterval(RELOJ_CHAT);
   RELOJ_CHAT = setInterval(() => {
     if (document.hidden || !SESION) return;
+    // Mismo corte por inactividad que el reloj principal: un chat abierto y
+    // abandonado no puede seguir despertando la base. Al volver a tocar la
+    // pantalla, `marcarActividad` lo levanta de nuevo.
+    if (Date.now() - ULTIMA_ACTIVIDAD > INACTIVIDAD_MS) return;
     if (CHAT_ABIERTO === 'general') refrescarChatGeneral();
     else if (CHAT_ABIERTO != null) cargarChat(CHAT_ABIERTO);
-  }, 12000);
+    // 30s en vez de 12s: cada vuelta despierta la base y se paga por tiempo
+    // despierta. Los mensajes nuevos igual llegan al toque por push, que
+    // refresca el chat abierto (ver el listener de 'refrescar' más abajo).
+  }, 30000);
 }
 
 function pararRelojChat(){
@@ -1835,9 +1875,15 @@ async function activarNotificaciones(){
   }
 }
 
-// El service worker pide refrescar cuando tocan una notificación
+// El service worker pide refrescar cuando llega un aviso push o cuando tocan
+// la notificación. Es lo que mantiene la agenda "al instante" sin preguntarle
+// a la base cada minuto.
 navigator.serviceWorker?.addEventListener?.('message', (e) => {
-  if (e.data?.tipo === 'refrescar' && SESION) refrescar();
+  if (e.data?.tipo !== 'refrescar' || !SESION) return;
+  refrescar();
+  // refrescar() ya actualiza el chat de una ficha abierta; el chat general
+  // tiene su propia función y hay que llamarla aparte.
+  if (CHAT_ABIERTO === 'general') refrescarChatGeneral();
 });
 
 /* ═══════════════════════════════════════════════════════════

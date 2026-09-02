@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
-export const revalidate = 0; // Disable cache for real-time updates
+// La lista de marcas solo cambia cuando el programa sincroniza los armazones,
+// y eso pasa cada 15 días. Sin caché, cada visita al catálogo de la web
+// despertaba Neon (que se paga por tiempo despierta) para leer lo mismo.
+// Con una hora de caché en el CDN, mil visitas en esa hora son una sola
+// consulta a la base.
+export const revalidate = 3600;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -29,10 +34,20 @@ export async function GET(request: Request) {
 
     const result = await pool.query(baseQuery, queryParams);
     
-    return NextResponse.json({
-      success: true,
-      data: result.rows.map(row => row.marca)
-    });
+    // El header es lo que de verdad hace que el CDN de Vercel guarde la
+    // respuesta: como la ruta lee `searchParams`, Next la trata como dinámica
+    // y `revalidate` por sí solo no alcanzaría.
+    return NextResponse.json(
+      {
+        success: true,
+        data: result.rows.map(row => row.marca)
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
+        }
+      }
+    );
   } catch (error) {
     console.error('Error fetching brands:', error);
     return NextResponse.json(

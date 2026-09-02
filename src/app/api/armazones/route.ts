@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 3600; // ver el Cache-Control del GET, más abajo
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -56,16 +56,28 @@ export async function GET(request: NextRequest) {
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `, [...queryParams, limit, offset]);
     
-    return NextResponse.json({
-      success: true,
-      data: result.rows,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
+    // Sin este header, cada visitante que abre el catálogo o toca un filtro
+    // despierta Neon (que se paga por tiempo despierta), incluso de noche o el
+    // domingo con la óptica cerrada. `revalidate` por sí solo no alcanza: como
+    // la ruta lee `searchParams`, Next la trata como dinámica y no la cachea.
+    // Una hora es de sobra: los armazones se sincronizan cada 15 días.
+    return NextResponse.json(
+      {
+        success: true,
+        data: result.rows,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
+        }
       }
-    });
+    );
   } catch (error) {
     console.error('Error fetching catalog:', error);
     return NextResponse.json(

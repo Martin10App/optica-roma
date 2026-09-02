@@ -47,7 +47,25 @@ self.addEventListener('push', (event) => {
     data: { url: d.url || RUTA },
   };
 
-  event.waitUntil(self.registration.showNotification(titulo, opciones));
+  // Además de la notificación, avisamos a la agenda que esté abierta para que
+  // se refresque en el acto. Así lo que pasa se ve al instante aunque el
+  // sondeo automático sea lento: la base solo se despierta cuando algo pasó
+  // de verdad, no cada minuto por las dudas.
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(titulo, opciones),
+      self.clients
+        .matchAll({ type: 'window', includeUncontrolled: true })
+        .then((lista) => {
+          for (const cliente of lista) {
+            if (esVentanaDeAgenda(cliente.url)) {
+              cliente.postMessage({ tipo: 'refrescar' });
+            }
+          }
+        })
+        .catch(() => {}),
+    ])
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
