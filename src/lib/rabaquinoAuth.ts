@@ -35,9 +35,15 @@ export async function sesionDesdeRequest(request: Request): Promise<RabaquinoSes
   const token = request.headers.get('x-rabaquino-token');
   if (!token) return null;
 
+  // Las sesiones viven en su propia tabla, una fila por dispositivo. Guardarlas
+  // en una columna del usuario daba UNA sola sesion por cuenta: como
+  // `rabaquino` la comparte todo el laboratorio, el segundo que entraba echaba
+  // al primero, el primero volvia a entrar y echaba al segundo.
   const res = await rabaquinoPool.query(
-    `SELECT id, usuario, rol, sucursales, token_exp FROM rabaquino_usuarios
-      WHERE token = $1::text AND token_exp > NOW()`,
+    `SELECT u.id, u.usuario, u.rol, u.sucursales, s.exp
+       FROM rabaquino_sesiones s
+       JOIN rabaquino_usuarios u ON u.id = s.usuario_id
+      WHERE s.token = $1::text AND s.exp > NOW()`,
     [token]
   );
   if (!res.rows.length) return null;
@@ -45,11 +51,11 @@ export async function sesionDesdeRequest(request: Request): Promise<RabaquinoSes
   // Sesión deslizante: mientras la usen se renueva sola y no los echa nunca.
   // Se renueva solo cuando falta poco, no en cada llamada: el portal consulta
   // cada 5 minutos y escribir siempre sería despertar Neon al pedo.
-  const venceEn = new Date(res.rows[0].token_exp).getTime() - Date.now();
+  const venceEn = new Date(res.rows[0].exp).getTime() - Date.now();
   if (venceEn < (DIAS_SESION - 5) * 86400000) {
     rabaquinoPool
       .query(
-        `UPDATE rabaquino_usuarios SET token_exp = NOW() + INTERVAL '${DIAS_SESION} days'
+        `UPDATE rabaquino_sesiones SET exp = NOW() + INTERVAL '${DIAS_SESION} days'
           WHERE token = $1::text`,
         [token]
       )

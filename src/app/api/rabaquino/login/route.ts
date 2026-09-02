@@ -25,13 +25,22 @@ export async function POST(request: Request) {
     // Lo nuevo: además de confirmar quién es, se emite un token de sesión. Sin
     // esto las rutas de escritura no tenían forma de saber si quien llama
     // había entrado alguna vez.
+    //
+    // Una fila por dispositivo, NO una columna en el usuario: `rabaquino` es
+    // una cuenta compartida por todo el laboratorio, así que entrar desde una
+    // segunda computadora no puede echar a la primera.
     const token = nuevoToken();
     await rabaquinoPool.query(
-      `UPDATE rabaquino_usuarios
-          SET token = $1, token_exp = NOW() + INTERVAL '${DIAS_SESION} days'
-        WHERE id = $2`,
+      `INSERT INTO rabaquino_sesiones (token, usuario_id, exp)
+       VALUES ($1, $2, NOW() + INTERVAL '${DIAS_SESION} days')`,
       [token, result.rows[0].id]
     );
+
+    // Barrido de las vencidas, aprovechando que ya estamos escribiendo acá: la
+    // tabla no crece para siempre y no hace falta una tarea aparte.
+    rabaquinoPool
+      .query('DELETE FROM rabaquino_sesiones WHERE exp < NOW()')
+      .catch(() => {});
 
     return NextResponse.json({ success: true, data: { ...result.rows[0], token } });
   } catch (error) {
