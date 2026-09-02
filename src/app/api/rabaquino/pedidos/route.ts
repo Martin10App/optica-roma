@@ -55,6 +55,13 @@ const CAMPOS_PEDIDO = [
 
 export async function GET(request: NextRequest) {
   try {
+    // Toda la ruta pide credencial: el portal manda su token de sesión y el
+    // programa de escritorio su X-Sync-Secret. Ni la variante liviana queda
+    // abierta — el nombre del archivo Excel lleva el nombre del cliente.
+    if (!(await autorizado(request))) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const sucursal = searchParams.get('sucursal');
 
@@ -71,19 +78,6 @@ export async function GET(request: NextRequest) {
           ORDER BY fecha_subida DESC LIMIT 5000`
       );
       return NextResponse.json({ success: true, data: res.rows });
-    }
-
-    // De acá para abajo la respuesta trae TODO el pedido: nombre, cédula,
-    // teléfono, dirección, email y la graduación del cliente. Hasta ahora se lo
-    // devolvía a cualquiera que supiera la URL. La usa solo el portal, que
-    // manda el token de sesión, así que exigirlo no le cambia nada a nadie.
-    //
-    // La variante liviana de arriba (solo_procesados=1) sigue abierta a
-    // propósito: la consume el programa de escritorio, y hasta que la versión
-    // nueva no esté corriendo en las dos PCs, cerrarla dejaría sin tildes
-    // verdes a la que todavía tenga el programa abierto con el código viejo.
-    if (!(await autorizado(request))) {
-      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
     }
 
     let query = 'SELECT * FROM rabaquino_pedidos';
