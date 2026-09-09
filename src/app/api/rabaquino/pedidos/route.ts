@@ -16,14 +16,23 @@ async function asegurarColumnasAditivas() {
         `SELECT column_name FROM information_schema.columns
           WHERE table_schema = 'public' AND table_name = 'rabaquino_pedidos'
             AND column_name = ANY($1::text[])`,
-        [['notas', 'numero_boleta']]
+        [['notas', 'numero_boleta', 'aviso_error', 'aviso_error_fecha']]
       );
       const columnas = new Set(existentes.rows.map((row) => row.column_name));
-      if (!columnas.has('notas') || !columnas.has('numero_boleta')) {
+      // `aviso_error` es el reclamo que Optica Roma le manda a Rabaquino cuando
+      // algo del envio vino mal: se escribe desde Casinos al marcar un item en
+      // amarillo con nota, y se borra solo cuando le sacan el amarillo. Es TEXT
+      // a proposito (la fecha tambien): asi un valor vacio nunca puede romper un
+      // casteo a timestamp y tumbar el PATCH.
+      const faltantes = ['notas', 'numero_boleta', 'aviso_error', 'aviso_error_fecha']
+        .filter((c) => !columnas.has(c));
+      if (faltantes.length > 0) {
         await pool.query(
           `ALTER TABLE rabaquino_pedidos
              ADD COLUMN IF NOT EXISTS notas TEXT,
-             ADD COLUMN IF NOT EXISTS numero_boleta TEXT`
+             ADD COLUMN IF NOT EXISTS numero_boleta TEXT,
+             ADD COLUMN IF NOT EXISTS aviso_error TEXT,
+             ADD COLUMN IF NOT EXISTS aviso_error_fecha TEXT`
         );
       }
     })().catch((error) => {
@@ -51,6 +60,7 @@ const CAMPOS_PEDIDO = [
   'medico', 'archivo_excel', 'tipo_pedido', 'estado',
   'fecha_procesado', 'direccion', 'email', 'fecha_nacimiento',
   'notas', 'numero_boleta',
+  'aviso_error', 'aviso_error_fecha',
 ];
 
 export async function GET(request: NextRequest) {
