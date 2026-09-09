@@ -93,6 +93,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: res.rows });
     }
 
+    // Busqueda liviana por cliente, para el programa de escritorio. Cuando en
+    // Casinos se marca un item en amarillo hay que encontrar su pedido, y el
+    // portal_pedido_id guardado a veces no sirve: los cristales se cargan a
+    // mano (queda NULL) y un pedido borrado y vuelto a subir deja el id viejo
+    // apuntando a la nada. Traer los 850 pedidos con SELECT * para eso son
+    // ~1 MB; esto son unos pocos KB.
+    const buscarCliente = searchParams.get('buscar_cliente');
+    if (buscarCliente) {
+      const res = await pool.query(
+        `SELECT id, cliente, fecha_venta, fecha_subida, numero_boleta,
+                armazones, armazones2, armazones3, c1_tipo, c2_tipo, c3_tipo
+           FROM rabaquino_pedidos
+          WHERE UPPER(TRIM(cliente)) = UPPER(TRIM($1))
+          ORDER BY fecha_subida DESC LIMIT 20`,
+        [buscarCliente]
+      );
+      return NextResponse.json({ success: true, data: res.rows });
+    }
+
     let query = 'SELECT * FROM rabaquino_pedidos';
     const params: any[] = [];
     if (sucursal && sucursal !== 'todas') {
