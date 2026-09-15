@@ -10,8 +10,10 @@ const pool = new Pool({
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '12');
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1);
+  // Tope: el catálogo pide de a 12. Sin tope, cualquiera podía pedir los
+  // +1200 armazones de una vez y cada pedido así es transferencia de Neon.
+  const limit = Math.min(60, Math.max(1, parseInt(searchParams.get('limit') || '12') || 12));
   const offset = (page - 1) * limit;
 
   const category = searchParams.get('categoria') || '';
@@ -43,10 +45,15 @@ export async function GET(request: NextRequest) {
     `, queryParams);
     const total = parseInt(countResult.rows[0].count);
 
-    let orderClause = 'ORDER BY ventas_count DESC, id DESC';
-    if (sort === 'price_asc') orderClause = 'ORDER BY precio ASC, id DESC';
-    if (sort === 'price_desc') orderClause = 'ORDER BY precio DESC, id DESC';
-    if (sort === 'bestsellers') orderClause = 'ORDER BY mas_vendido DESC, id DESC';
+    // "Más recientes" es el orden por defecto del catálogo y antes no tenía
+    // rama propia: caía en ventas_count, así que los armazones recién cargados
+    // nunca aparecían primero. El id lo pone la sincronización al insertar,
+    // así que id DESC = lo último que entró. En todos los órdenes los agotados
+    // van al final, para que la primera página muestre lo que se puede comprar.
+    let orderClause = 'ORDER BY stock_visible DESC, id DESC';
+    if (sort === 'price_asc') orderClause = 'ORDER BY stock_visible DESC, precio ASC, id DESC';
+    if (sort === 'price_desc') orderClause = 'ORDER BY stock_visible DESC, precio DESC, id DESC';
+    if (sort === 'bestsellers') orderClause = 'ORDER BY stock_visible DESC, mas_vendido DESC, ventas_count DESC, id DESC';
 
     // Fetch paginated products
     const result = await pool.query(`

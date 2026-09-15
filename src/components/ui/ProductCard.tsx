@@ -1,9 +1,21 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingCart, Eye, X } from 'lucide-react';
+import { ShoppingCart, Eye, X, Glasses } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
+
+// Se muestra si la foto no carga (por ejemplo, un armazón recién cargado en
+// el programa cuya foto todavía no se publicó en la web), en lugar del ícono
+// de imagen rota del navegador.
+function FotoPendiente({ grande = false }: { grande?: boolean }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-300">
+      <Glasses size={grande ? 72 : 48} strokeWidth={1.25} />
+      <span className={`font-medium text-slate-400 ${grande ? 'text-sm' : 'text-xs'}`}>Foto próximamente</span>
+    </div>
+  );
+}
 
 interface Product {
   id: number;
@@ -38,6 +50,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [fotoFallo, setFotoFallo] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
@@ -152,19 +165,24 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
           ) : null}
 
-          <Image
-            src={product.imagen_url || '/promoxplus.png'}
-            alt={`${product.marca} ${product.modelo}`}
-            fill
-            // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
-            // ~64 KB) via scripts/optimizar_armazones.py, asi que no hace falta
-            // que Vercel las transforme. Son +1100 fotos distintas y cada una
-            // consumia varias transformaciones de la cuota mensual; el resto
-            // del sitio (portada, promos) si sigue optimizado por Vercel.
-            unoptimized
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className={`object-contain p-6 transition-transform duration-500 group-hover:scale-105 ${product.stock_visible === false ? 'opacity-50 grayscale' : ''}`}
-          />
+          {fotoFallo ? (
+            <FotoPendiente />
+          ) : (
+            <Image
+              src={product.imagen_url || '/promoxplus.png'}
+              alt={`${product.marca} ${product.modelo}`}
+              fill
+              // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
+              // ~64 KB) via scripts/optimizar_armazones.py, asi que no hace falta
+              // que Vercel las transforme. Son +1100 fotos distintas y cada una
+              // consumia varias transformaciones de la cuota mensual; el resto
+              // del sitio (portada, promos) si sigue optimizado por Vercel.
+              unoptimized
+              onError={() => setFotoFallo(true)}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className={`object-contain p-6 transition-transform duration-500 group-hover:scale-105 ${product.stock_visible === false ? 'opacity-50 grayscale' : ''}`}
+            />
+          )}
           {/* Overlay on hover */}
           <div className="absolute inset-0 bg-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
             <button
@@ -273,11 +291,15 @@ export default function ProductCard({ product }: { product: Product }) {
                   onClick={() => setIsZoomed(!isZoomed)}
                   style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}
                 >
+                  {fotoFallo ? (
+                    <FotoPendiente grande />
+                  ) : (
                   <Image
                     src={product.imagen_url || '/promoxplus.png'}
                     alt={`${product.marca} ${product.modelo}`}
                     fill
                     unoptimized
+                    onError={() => setFotoFallo(true)}
                     sizes="(max-width: 1024px) 100vw, 1024px"
                     className="object-contain p-4 transition-transform duration-100 ease-out"
                     style={{
@@ -285,6 +307,7 @@ export default function ProductCard({ product }: { product: Product }) {
                       transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
                     }}
                   />
+                  )}
                 </div>
                 {!isLenteContacto && (
                   <div className="p-6 border-t border-slate-100 bg-white flex justify-between items-center">
