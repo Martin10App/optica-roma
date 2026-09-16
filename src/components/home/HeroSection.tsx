@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { BadgeCheck, Eye, Wrench } from 'lucide-react';
 import { WHATSAPP_AGENDAR } from '@/lib/constants';
@@ -47,20 +46,6 @@ export default function HeroSection() {
           <div className="abrir-foto relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-[28px] bg-linea lg:ml-auto lg:mr-0">
             <VideoLocal />
           </div>
-          <figure style={{ '--retraso': '0.7s' } as React.CSSProperties} className="entrada absolute -bottom-10 left-0 hidden w-64 rounded-2xl bg-white p-2 shadow-[0_24px_60px_-24px_rgba(16,21,43,0.45)] sm:block lg:-left-2 xl:left-4">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-xl">
-              <Image
-                src="/media/local/especialista-varilux.jpg"
-                alt="Certificado de Óptica Roma como Especialista en lentes progresivos Varilux"
-                fill
-                sizes="256px"
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="px-2 pb-1.5 pt-2.5 text-sm leading-snug text-tinta">
-              Certificados como especialistas en lentes progresivos Varilux
-            </figcaption>
-          </figure>
         </div>
       </div>
     </section>
