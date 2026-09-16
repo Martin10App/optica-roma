@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import EncabezadoSeccion from './EncabezadoSeccion';
 
@@ -53,21 +53,30 @@ export default function CrystalsSection() {
   );
 }
 
-// El video no se descarga hasta que alguien pasa el mouse por la tarjeta: en el
-// celular (y para quien no lo mira) queda la imagen fija.
+// Cada video arranca solo cuando la tarjeta se ve en pantalla (en el celular
+// también) y se pausa al salir, así no se descargan los cuatro de golpe ni
+// siguen corriendo fuera de la vista. Con "reducir movimiento" queda la imagen fija.
 function TarjetaCristal({ titulo, texto, href, video }: (typeof CRISTALES)[number]) {
   const ref = useRef<HTMLVideoElement>(null);
 
-  const reproducir = () => {
+  useEffect(() => {
     const v = ref.current;
     if (!v || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // React no escribe "muted" en el HTML: sin esto el celular no deja reproducir
     v.muted = true;
-    v.play().catch(() => {});
-  };
-  const pausar = () => ref.current?.pause();
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.4 }
+    );
+    observador.observe(v);
+    return () => observador.disconnect();
+  }, []);
 
   return (
-    <Link href={href} className="group block" onMouseEnter={reproducir} onMouseLeave={pausar} onFocus={reproducir} onBlur={pausar}>
+    <Link href={href} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-linea">
         <video
           ref={ref}
