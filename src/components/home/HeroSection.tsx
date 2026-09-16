@@ -1,46 +1,67 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { BadgeCheck, Eye, Wrench } from 'lucide-react';
 import { WHATSAPP_AGENDAR } from '@/lib/constants';
+import VideoLocal from './VideoLocal';
 
-// Server component: la portada no necesita JavaScript para verse. Antes el
-// texto arrancaba invisible hasta que corría una animación, y en celulares
-// lentos la primera pantalla aparecía en blanco.
+const DIFERENCIALES = [
+  { icono: Eye, titulo: 'Revisión visual gratis', texto: 'En Las Piedras y en Canelones' },
+  { icono: Wrench, titulo: 'Taller propio', texto: 'Armamos tus lentes en el momento' },
+  { icono: BadgeCheck, titulo: 'Especialistas Varilux', texto: 'Certificados por Essilor' },
+];
+
 export default function HeroSection() {
   return (
-    <section className="bg-white pb-16 pt-28 md:pb-24 md:pt-32">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
-        <div className="lg:col-span-6 xl:col-span-6">
+    <section className="relative overflow-hidden bg-papel pt-[72px]">
+      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 pb-20 pt-12 sm:px-6 md:pt-16 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:pb-24">
+        <div className="lg:col-span-6">
           {/* "Tus lentes en el acto" es lo que dice la vidriera del local. */}
-          <h1 className="titular max-w-[12ch] text-[2.75rem] text-tinta sm:text-6xl lg:text-7xl">
-            Tus lentes, en el acto.
-          </h1>
-          <p className="mt-6 max-w-[38ch] text-lg leading-relaxed text-pizarra md:text-xl">
-            Revisión visual gratuita, taller propio y más de mil armazones. Frente a la plaza de Las Piedras y en
-            Canelones.
+          <h1 className="entrada titular max-w-[12ch] text-[2.75rem] text-tinta sm:text-6xl xl:text-7xl">Tus lentes, en el acto.</h1>
+          <p style={{ '--retraso': '0.12s' } as React.CSSProperties} className="entrada mt-6 max-w-[42ch] text-lg leading-relaxed text-pizarra md:text-xl">
+            Más de mil armazones con precio a la vista, cristales de las mejores marcas y revisión visual sin costo. Frente a
+            la plaza de Las Piedras y en Canelones.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+          <div style={{ '--retraso': '0.22s' } as React.CSSProperties} className="entrada mt-9 flex flex-wrap items-center gap-3">
             <a href={WHATSAPP_AGENDAR} target="_blank" rel="noopener noreferrer" className="btn-cta">
               Agendá tu revisión
             </a>
-            <Link href="/#catalogo" className="enlace">
-              Ver armazones
+            <Link href="/catalogo" className="btn-outline bg-white">
+              Ver catálogo
             </Link>
           </div>
+
+          <ul style={{ '--retraso': '0.34s' } as React.CSSProperties} className="entrada mt-12 grid gap-6 border-t border-linea pt-8 sm:grid-cols-3">
+            {DIFERENCIALES.map(({ icono: Icono, titulo, texto }) => (
+              <li key={titulo} className="flex gap-3 sm:block">
+                <Icono size={24} strokeWidth={1.75} className="shrink-0 text-cobalto" aria-hidden />
+                <div className="sm:mt-3">
+                  <p className="text-[15px] font-semibold text-tinta">{titulo}</p>
+                  <p className="mt-0.5 text-sm text-pizarra">{texto}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <figure className="lg:col-span-6 lg:justify-self-end xl:col-span-5 xl:col-start-8">
-          <div className="abrir-foto relative aspect-[4/5] w-full overflow-hidden rounded-[28px] bg-papel sm:max-w-[460px]">
-            <Image
-              src="/media/local/vidriera-las-piedras.jpg"
-              alt="Vidriera de Óptica Roma en Las Piedras, con exhibidores redondos llenos de armazones"
-              fill
-              priority
-              sizes="(max-width: 640px) 92vw, 460px"
-              className="object-cover"
-            />
+        <div className="relative lg:col-span-6">
+          <div className="abrir-foto relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-[28px] bg-linea lg:ml-auto lg:mr-0">
+            <VideoLocal />
           </div>
-          <figcaption className="mt-3 text-sm text-pizarra">Nuestra vidriera en Rivera 617, Las Piedras.</figcaption>
-        </figure>
+          <figure style={{ '--retraso': '0.7s' } as React.CSSProperties} className="entrada absolute -bottom-10 left-0 hidden w-64 rounded-2xl bg-white p-2 shadow-[0_24px_60px_-24px_rgba(16,21,43,0.45)] sm:block lg:-left-2 xl:left-4">
+            <div className="relative aspect-[3/2] overflow-hidden rounded-xl">
+              <Image
+                src="/media/local/especialista-varilux.jpg"
+                alt="Certificado de Óptica Roma como Especialista en lentes progresivos Varilux"
+                fill
+                sizes="256px"
+                className="object-cover"
+              />
+            </div>
+            <figcaption className="px-2 pb-1.5 pt-2.5 text-sm leading-snug text-tinta">
+              Certificados como especialistas en lentes progresivos Varilux
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </section>
   );

@@ -31,12 +31,18 @@ export function normalizarTexto(texto: string) {
     .trim();
 }
 
-/** "Armazones de Receta" -> "armazones-de-receta" (el formato de los links compartidos). */
+/**
+ * "Armazones de Receta" -> "armazones-de-receta", "REEF|" -> "reef".
+ * Es el formato de las rutas del catálogo (/catalogo/lentes-de-sol/ray-ban):
+ * solo letras, números y guiones, para que un link nunca se rompa al copiarlo.
+ */
 export function aSlug(texto: string) {
-  return normalizarTexto(texto).replace(/ /g, '-');
+  return normalizarTexto(texto)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
-/** Acepta el valor de `?categoria=` y devuelve la categoría exacta, o null. */
+/** Acepta el valor de `?categoria=` (o un tramo de la ruta) y devuelve la categoría exacta, o null. */
 export function categoriaDesdeParam(param: string | null) {
   if (!param) return null;
   return CATEGORIAS.find((c) => aSlug(c) === aSlug(param)) ?? null;

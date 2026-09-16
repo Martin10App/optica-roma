@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/constants';
+import { RUTAS_CATEGORIAS } from '@/lib/catalogoRutas';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -11,6 +12,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 1.0,
     },
+    {
+      url: `${baseUrl}/catalogo`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    ...RUTAS_CATEGORIAS.map((r) => ({
+      url: `${baseUrl}${r.ruta}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    })),
     {
       url: `${baseUrl}/projects/materiales`,
       lastModified: new Date(),

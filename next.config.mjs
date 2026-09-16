@@ -44,10 +44,16 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: '/shop-1', destination: '/?categoria=lentes-de-sol#catalogo', permanent: true },
+      // Links viejos del catálogo en la portada (los que se mandaron por
+      // WhatsApp): /?marcas=X#catalogo -> /catalogo?marcas=X. Los parámetros
+      // pasan solos a la nueva dirección.
+      { source: '/', has: [{ type: 'query', key: 'marcas' }], destination: '/catalogo', permanent: false },
+      { source: '/', has: [{ type: 'query', key: 'categoria' }], destination: '/catalogo', permanent: false },
+      { source: '/', has: [{ type: 'query', key: 'q' }], destination: '/catalogo', permanent: false },
+      { source: '/shop-1', destination: '/catalogo/lentes-de-sol', permanent: true },
       { source: '/shop-7', destination: '/', permanent: true }, // sin stock
-      { source: '/shop-9', destination: '/?categoria=armazones-de-receta&marcas=Di+Verona#catalogo', permanent: true },
-      { source: '/shop-18', destination: '/?marcas=Sunoptic#catalogo', permanent: true },
+      { source: '/shop-9', destination: '/catalogo/armazones-de-receta/di-verona', permanent: true },
+      { source: '/shop-18', destination: '/catalogo/lentes-de-sol', permanent: true }, // Sunoptic ya no está en stock
       // Placeholders para mapeo de Search Console:
       // { source: '/shop-2', destination: '/', permanent: true },
       // { source: '/shop-3', destination: '/', permanent: true },

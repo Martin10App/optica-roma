@@ -93,13 +93,13 @@ export default function ProductCard({ product, esNuevo = false }: { product: Pro
   const foto = product.imagen_url || '/promoxplus.png';
 
   const etiqueta = precioAnterior
-    ? { texto: 'Oferta', clase: 'text-cobalto' }
+    ? { texto: 'Oferta', clase: 'bg-cobalto text-white' }
     : agotado
-      ? { texto: 'Agotado', clase: 'text-pizarra' }
+      ? { texto: 'Agotado', clase: 'bg-papel text-pizarra' }
       : esNuevo
-        ? { texto: 'Nuevo', clase: 'text-cobalto' }
+        ? { texto: 'Nuevo', clase: 'bg-cobalto text-white' }
         : product.mas_vendido
-          ? { texto: 'Más vendido', clase: 'text-tinta' }
+          ? { texto: 'Más vendido', clase: 'bg-tinta text-white' }
           : null;
 
   const agregar = (e?: React.MouseEvent) => {
@@ -172,7 +172,7 @@ export default function ProductCard({ product, esNuevo = false }: { product: Pro
       <button
         type="button"
         onClick={abrir}
-        className="relative block aspect-square w-full overflow-hidden rounded-[20px] bg-white ring-1 ring-inset ring-linea transition-shadow hover:ring-tinta/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acento)]"
+        className="relative block aspect-square w-full overflow-hidden rounded-2xl bg-white ring-1 ring-inset ring-transparent transition-shadow hover:ring-cobalto/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acento)]"
       >
         {fotoFallo ? (
           <FotoPendiente />
@@ -181,53 +181,54 @@ export default function ProductCard({ product, esNuevo = false }: { product: Pro
             src={foto}
             alt={nombre}
             fill
-            // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
-            // ~64 KB) via scripts/publicar_fotos_armazones.py, así que no hace
-            // falta que Vercel las transforme: son +1100 fotos distintas y cada
-            // una consumía cuota de Image Optimization.
+            // Las fotos de armazones ya vienen optimizadas y con el fondo en
+            // blanco desde el disco (publicar_fotos_armazones.py +
+            // blanquear_fondo.py), así que no hace falta que Vercel las
+            // transforme: son +1100 fotos y cada una consumía cuota.
             unoptimized
             onError={() => setFotoFallo(true)}
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            // object-cover: las fotos son cuadradas como la tarjeta, así el fondo
-            // de la foto (blanco, gris o negro según cuándo se sacó) ocupa toda
-            // la tarjeta y no queda un rectángulo de otro tono adentro.
-            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04] ${
+            className={`object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03] ${
               agotado ? 'opacity-50 grayscale' : ''
             }`}
           />
         )}
+        {etiqueta && (
+          <span className={`absolute left-3 top-3 rounded-md px-2 py-1 text-[12px] font-semibold leading-none ${etiqueta.clase}`}>
+            {etiqueta.texto}
+          </span>
+        )}
       </button>
 
-      <div className="mt-3 flex items-start justify-between gap-3">
+      <div className="mt-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="flex gap-2 text-[13px]">
-            <span className="truncate text-pizarra">{marca}</span>
-            {etiqueta && <span className={`shrink-0 font-medium ${etiqueta.clase}`}>{etiqueta.texto}</span>}
-          </p>
+          <p className="truncate text-[13px] text-pizarra">{marca}</p>
           <h3 className="truncate text-[15px] font-medium text-tinta">{product.modelo}</h3>
-          <p className="mt-1 text-[15px] font-semibold tabular-nums text-tinta">
-            {precioAnterior && <s className="mr-2 font-normal text-pizarra">{precioAnterior}</s>}
-            {precio}
-          </p>
         </div>
-        {!esLenteContacto && (
-          <button
-            type="button"
-            onClick={agregar}
-            disabled={agotado}
-            aria-label={agotado ? `${nombre}: agotado` : `Agregar ${nombre} al carrito`}
-            className={`mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acento)] ${
-              agotado
-                ? 'cursor-not-allowed text-linea ring-1 ring-inset ring-linea'
-                : agregado
-                  ? 'bg-[var(--acento)] text-white'
-                  : 'text-tinta ring-1 ring-inset ring-linea hover:bg-[var(--acento)] hover:text-white hover:ring-transparent active:scale-95'
-            }`}
-          >
-            {agregado ? <Check size={18} aria-hidden /> : <ShoppingBag size={18} aria-hidden />}
-          </button>
-        )}
+        <p className="shrink-0 text-right text-[17px] font-semibold tabular-nums text-tinta">
+          {precioAnterior && <s className="mr-1.5 block text-[13px] font-normal text-pizarra sm:inline">{precioAnterior}</s>}
+          {precio}
+        </p>
       </div>
+
+      {esLenteContacto ? (
+        <button type="button" onClick={abrir} className="mt-2 text-sm font-semibold text-cobalto hover:underline">
+          Elegir graduación
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={agregar}
+          disabled={agotado}
+          aria-label={agotado ? `${nombre}: agotado` : `Agregar ${nombre} al carrito`}
+          className={`mt-2 inline-flex items-center gap-2 text-sm font-semibold ${
+            agotado ? 'cursor-not-allowed text-pizarra' : 'text-cobalto hover:underline'
+          }`}
+        >
+          {agregado ? <Check size={16} aria-hidden /> : <ShoppingBag size={16} aria-hidden />}
+          {agotado ? 'Agotado' : agregado ? 'Agregado al carrito' : 'Agregar al carrito'}
+        </button>
+      )}
 
       {abierto && (
         <div
@@ -269,7 +270,7 @@ export default function ProductCard({ product, esNuevo = false }: { product: Pro
                       unoptimized
                       onError={() => setFotoFallo(true)}
                       sizes="(max-width: 1024px) 100vw, 768px"
-                      className="object-cover transition-transform duration-150 ease-out"
+                      className="object-contain transition-transform duration-150 ease-out"
                       style={{
                         transform: zoom ? 'scale(2.5)' : 'scale(1)',
                         transformOrigin: 'var(--zx, 50%) var(--zy, 50%)',

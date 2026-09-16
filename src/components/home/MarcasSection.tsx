@@ -4,19 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
-// El valor de `marcas` debe coincidir exacto con la columna `marca` de la base:
-// la API filtra sin distinguir mayúsculas, pero el checkbox del catálogo compara
-// el string tal cual, y si no coincide queda sin marcar y se duplica el filtro.
+// Cada marca abre su página del catálogo (/catalogo/<marca>). El tramo de la
+// ruta es la marca escrita en minúsculas y con guiones: /catalogo/ray-ban
+// también encuentra "RAYBAN" tal como está en la base.
 const brands = [
-  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/?marcas=RAYBAN#catalogo' },
-  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/?marcas=ARMANI%20EXCHANGE#catalogo' },
-  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/?marcas=VIZZINI#catalogo' },
-  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/?marcas=ALMA%20SANTA#catalogo' },
-  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/?marcas=VIKY#catalogo' },
-  { name: 'Reef', logo: '', fallback: 'REEF', url: '/?marcas=REEF#catalogo' },
-  { name: 'Santorino', logo: '', fallback: 'SANTORINO', url: '/?marcas=SANTORINO#catalogo' },
-  { name: 'Amadeus', logo: '', fallback: 'Amadeus', url: '/?marcas=AMADEUS#catalogo' },
-  { name: 'Natalia Oreiro', logo: '/media/logos/natalia-oreiro-logo.svg', fallback: 'NATALIA OREIRO', url: '/?marcas=NATALIA%20OREIRO#catalogo' },
+  { name: 'Ray-Ban', logo: '/media/logos/Ray-Ban_logo.svg.png', fallback: 'Ray-Ban', url: '/catalogo/ray-ban' },
+  { name: 'Armani Exchange', logo: '/media/logos/armani-logo.webp', fallback: 'Armani Exchange', url: '/catalogo/armani-exchange' },
+  { name: 'Vizzini', logo: '', fallback: 'VIZZINI', url: '/catalogo/vizzini' },
+  { name: 'Alma Santa', logo: '', fallback: 'ALMA SANTA', url: '/catalogo/alma-santa' },
+  { name: 'Viky', logo: '', fallback: 'VIKY', url: '/catalogo/viky' },
+  { name: 'Reef', logo: '', fallback: 'REEF', url: '/catalogo/reef' },
+  { name: 'Santorino', logo: '', fallback: 'SANTORINO', url: '/catalogo/santorino' },
+  { name: 'Amadeus', logo: '', fallback: 'Amadeus', url: '/catalogo/amadeus' },
+  { name: 'Natalia Oreiro', logo: '/media/logos/natalia-oreiro-logo.svg', fallback: 'NATALIA OREIRO', url: '/catalogo/natalia-oreiro' },
   { name: 'Varilux', logo: '/media/logos/varilux-logo.png', fallback: 'Varilux', url: '/projects/varilux-x-series' },
 ];
 
@@ -36,15 +36,6 @@ export default function MarcasSection() {
             <Link
               key={brand.name}
               href={brand.url}
-              scroll={!brand.url.startsWith('/?')}
-              onClick={(e) => {
-                if (brand.url.startsWith('/?')) {
-                  const el = document.getElementById('catalogo');
-                  if (el) {
-                    el.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }
-              }}
               className="flex items-center justify-center h-24 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 px-6 group"
             >
               {brand.logo ? (
@@ -64,7 +55,7 @@ export default function MarcasSection() {
 
         <p className="text-center text-sm text-slate-500 mt-6">
           ¿Buscás una marca en particular?{' '}
-          <Link href="/#catalogo" className="text-blue-700 font-semibold hover:underline">
+          <Link href="/catalogo" className="text-blue-700 font-semibold hover:underline">
             Consultá en nuestro catálogo
           </Link>
         </p>

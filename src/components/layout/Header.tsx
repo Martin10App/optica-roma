@@ -10,7 +10,7 @@ import AuthModal from '@/components/auth/AuthModal';
 import { WHATSAPP_AGENDAR } from '@/lib/constants';
 
 const navegacion = [
-  { name: 'Catálogo', href: '/#catalogo' },
+  { name: 'Catálogo', href: '/catalogo' },
   { name: 'Promociones', href: '/#promociones' },
   { name: 'Cristales', href: '/#cristales' },
   { name: 'Salud visual', href: '/#chequeo' },

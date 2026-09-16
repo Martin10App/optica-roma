@@ -282,3 +282,51 @@
     animation: none;
   }
 }
+
+/* ============================================================
+   MOVIMIENTO
+   - Portada: el texto entra escalonado al cargar (solo CSS, no depende de JS).
+   - Secciones: aparecen al llegar a ellas (AnimacionesScroll.tsx, con la API
+     de animaciones del navegador: no hace falta CSS acá).
+   - Recién llegados: desfile continuo hacia el costado.
+   Todo se apaga si la persona pidió menos movimiento en su sistema.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .entrada {
+    animation: entrada 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--retraso, 0s);
+  }
+
+  @keyframes entrada {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .desfile {
+    animation: desfile var(--duracion, 70s) linear infinite;
+  }
+
+  .desfile-marco:hover .desfile,
+  .desfile-marco:focus-within .desfile {
+    animation-play-state: paused;
+  }
+
+  @keyframes desfile {
+    to { transform: translateX(-50%); }
+  }
+}
+
+/* Los bordes del desfile se desvanecen: los armazones entran y salen, no quedan cortados */
+.desfile-marco {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desfile-marco {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+

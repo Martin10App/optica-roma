@@ -100,12 +100,7 @@ export default function PromosSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent lg:bg-gradient-to-r" />
                 <div className="absolute bottom-6 left-6">
                   <Link
-                    href="/?categoria=armazones-de-receta&marcas=NINETY#catalogo"
-                    scroll={false}
-                    onClick={() => {
-                      const el = document.getElementById('catalogo');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }}
+                    href="/catalogo/armazones-de-receta/ninety"
                     className="px-4 py-2 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors shadow-lg inline-block"
                   >
                     Ver Colección Ninety →

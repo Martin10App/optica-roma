@@ -15,10 +15,10 @@ const FacebookIcon = () => (
 export default function Footer() {
   const links = {
     catalogo: [
-      { name: 'Armazones de Receta', href: '/?categoria=armazones-de-receta#catalogo' },
-      { name: 'Lentes de Sol', href: '/?categoria=lentes-de-sol#catalogo' },
-      { name: 'Lentes de Contacto', href: '/?categoria=lentes-de-contacto#catalogo' },
-      { name: 'Accesorios', href: '/?categoria=accesorios#catalogo' },
+      { name: 'Armazones de Receta', href: '/catalogo/armazones-de-receta' },
+      { name: 'Lentes de Sol', href: '/catalogo/lentes-de-sol' },
+      { name: 'Lentes de Contacto', href: '/catalogo/lentes-de-contacto' },
+      { name: 'Accesorios', href: '/catalogo/accesorios' },
     ],
     cristales: [
       { name: 'Materiales', href: '/projects/materiales' },

@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CartDrawer from "@/components/cart/CartDrawer";
+import AnimacionesScroll from "@/components/layout/AnimacionesScroll";
 
 // Archivo variable con el eje de ancho: los títulos usan una versión un poco
 // más ancha (clase .titular) y el texto corrido la normal.
@@ -170,6 +171,7 @@ export default function RootLayout({
             <Footer />
             <WhatsAppButton />
             <CartDrawer />
+            <AnimacionesScroll />
           </CartProvider>
         </AuthProvider>
       </body>

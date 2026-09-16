@@ -3,7 +3,7 @@ import RecienLlegadosSection from '@/components/home/RecienLlegadosSection';
 import MarcasSection from '@/components/home/MarcasSection';
 import PromosSection from '@/components/home/PromosSection';
 import ServicesSection from '@/components/home/ServicesSection';
-import CatalogSection from '@/components/home/CatalogSection';
+import CategoriasSection from '@/components/home/CategoriasSection';
 import AboutSection from '@/components/home/AboutSection';
 import CoverageSection from '@/components/home/CoverageSection';
 import CheckupSection from '@/components/home/CheckupSection';
@@ -18,12 +18,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <HeroSection />
+      <CategoriasSection />
       <RecienLlegadosSection />
       <MarcasSection />
       <PromosSection />
       <OreiroSection />
       <ServicesSection />
-      <CatalogSection />
       <CrystalsSection />
       <AboutSection />
       <CoverageSection />
