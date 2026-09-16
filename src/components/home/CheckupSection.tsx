@@ -6,7 +6,7 @@ export default function CheckupSection() {
   useScrollReveal();
 
   return (
-    <section className="relative py-28 overflow-hidden bg-slate-50">
+    <section id="chequeo" className="relative py-28 overflow-hidden bg-slate-50">
       {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50 to-slate-100" />

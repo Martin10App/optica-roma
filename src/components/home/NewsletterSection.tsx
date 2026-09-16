@@ -24,8 +24,8 @@ export default function NewsletterSection() {
     <section className="py-16 bg-blue-700">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <Gift size={28} className="text-orange-400" />
-          <span className="text-orange-400 font-bold text-sm uppercase tracking-wider">Beneficio exclusivo</span>
+          <Gift size={28} className="text-white" />
+          <span className="text-white font-semibold text-sm">Beneficio exclusivo</span>
         </div>
         <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">
           Suscribite y obtené un -10% en tu primera compra
@@ -41,11 +41,11 @@ export default function NewsletterSection() {
             value={email}
             onChange={(e) => { setEmail(e.target.value); setStatus('idle'); }}
             placeholder="tu@email.com"
-            className="flex-1 px-4 py-3 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 border-0"
+            className="flex-1 px-4 py-3 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-white border-0"
           />
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+            className="px-6 py-3 rounded-full bg-white hover:bg-blue-50 text-cobalto font-semibold transition-colors flex items-center justify-center gap-2"
           >
             <Send size={16} />
             Suscribirme
@@ -58,7 +58,7 @@ export default function NewsletterSection() {
           </p>
         )}
         {status === 'error' && (
-          <p className="mt-4 text-sm text-orange-300">
+          <p className="mt-4 text-sm text-white">
             Por favor ingresá un email válido.
           </p>
         )}

@@ -1,108 +1,126 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingCart, Eye, X, Glasses } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Check, Glasses, ShoppingBag, X } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { useState, useEffect } from 'react';
+import { formatearPrecio, nombreMarca, type Producto } from '@/lib/catalogoTipos';
 
 // Se muestra si la foto no carga (por ejemplo, un armazón recién cargado en
 // el programa cuya foto todavía no se publicó en la web), en lugar del ícono
 // de imagen rota del navegador.
 function FotoPendiente({ grande = false }: { grande?: boolean }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-300">
-      <Glasses size={grande ? 72 : 48} strokeWidth={1.25} />
-      <span className={`font-medium text-slate-400 ${grande ? 'text-sm' : 'text-xs'}`}>Foto próximamente</span>
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-linea">
+      <Glasses size={grande ? 72 : 44} strokeWidth={1.25} aria-hidden />
+      <span className={`text-pizarra ${grande ? 'text-sm' : 'text-xs'}`}>Foto próximamente</span>
     </div>
   );
 }
 
-interface Product {
-  id: number;
-  modelo: string;
-  marca: string;
-  categoria: string;
-  precio: number;
-  precio_original?: number | string | null;
-  imagen_url: string;
-  stock_visible?: boolean;
-  mas_vendido?: boolean;
+function pasos(desde: number, hasta: number, paso: number) {
+  const valores: string[] = [];
+  for (let v = desde; v <= hasta + 1e-9; v += paso) {
+    valores.push(v > 0 ? `+${v.toFixed(2)}` : v.toFixed(2));
+  }
+  return valores;
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+const ESFERICOS_ASTIGMATISMO = [...pasos(-6, -0.25, 0.25), ...pasos(0.25, 6, 0.25)];
+const CILINDRICOS = ['-0.75', '-1.25', '-1.75', '-2.25'];
+const EJES = Array.from({ length: 18 }, (_, i) => String((i + 1) * 10));
+const GRADUACIONES = [...pasos(-12, -0.25, 0.25), ...pasos(0.25, 8, 0.25)];
+
+function Selector({
+  id,
+  etiqueta,
+  valor,
+  opciones,
+  onChange,
+}: {
+  id: string;
+  etiqueta: string;
+  valor: string;
+  opciones: string[];
+  onChange: (valor: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-sm font-medium text-tinta">
+        {etiqueta}
+      </label>
+      <select
+        id={id}
+        value={valor}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-12 w-full rounded-xl border border-linea bg-white px-4 text-tinta focus:border-cobalto focus:outline-none focus:ring-2 focus:ring-cobalto/15"
+      >
+        <option value="">Elegir</option>
+        {opciones.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export default function ProductCard({ product, esNuevo = false }: { product: Producto; esNuevo?: boolean }) {
   const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const formattedPrice = new Intl.NumberFormat('es-UY', {
-    style: 'currency',
-    currency: 'UYU',
-    minimumFractionDigits: 0,
-  }).format(Number(product.precio));
-
-  const formattedOriginalPrice = product.precio_original
-    ? new Intl.NumberFormat('es-UY', {
-        style: 'currency',
-        currency: 'UYU',
-        minimumFractionDigits: 0,
-      }).format(Number(product.precio_original))
-    : null;
-
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [agregado, setAgregado] = useState(false);
+  const [abierto, setAbierto] = useState(false);
   const [fotoFallo, setFotoFallo] = useState(false);
+  const [zoom, setZoom] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  };
-
-  const isLiquid = product.modelo.toLowerCase().includes('alvera') || product.modelo.toLowerCase().includes('clarus') || product.modelo.toLowerCase().includes('liquido');
-  const isLenteContacto = product.categoria.toLowerCase() === 'lentes de contacto' && !isLiquid;
-  const isAstigmatismo = isLenteContacto && product.modelo.toLowerCase().includes('astigmatismo');
-  
   const [esferico, setEsferico] = useState('');
   const [cilindrico, setCilindrico] = useState('');
   const [eje, setEje] = useState('');
-  const [mensaje, setMensaje] = useState('');
   const [graduacion, setGraduacion] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [errorOpciones, setErrorOpciones] = useState('');
 
-  const generateSteps = (min: number, max: number, step: number) => {
-    const steps = [];
-    for (let i = min; i <= max; i += step) {
-      if (i > 0) steps.push('+' + i.toFixed(2));
-      else steps.push(i.toFixed(2));
-    }
-    return steps;
-  };
+  const modeloMinusculas = product.modelo.toLowerCase();
+  const esLiquido = ['alvera', 'clarus', 'liquido'].some((p) => modeloMinusculas.includes(p));
+  const esLenteContacto = product.categoria.toLowerCase() === 'lentes de contacto' && !esLiquido;
+  const esAstigmatismo = esLenteContacto && modeloMinusculas.includes('astigmatismo');
+  const agotado = !product.stock_visible;
 
-  const astigEsf = [...generateSteps(-6, -0.25, 0.25), ...generateSteps(0.25, 6, 0.25)];
-  const astigCil = ['-0.75', '-1.25', '-1.75', '-2.25'];
-  const ejes = Array.from({length: 18}, (_, i) => (i + 1) * 10);
-  const normalEsf = [...generateSteps(-12, -0.25, 0.25), ...generateSteps(0.25, 8, 0.25)];
+  const marca = nombreMarca(product.marca);
+  const nombre = `${marca} ${product.modelo}`;
+  const precio = formatearPrecio(product.precio);
+  const precioAnterior = product.precio_original ? formatearPrecio(product.precio_original) : null;
+  const foto = product.imagen_url || '/promoxplus.png';
 
-  const handleAddToCart = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (product.stock_visible === false) return;
+  const etiqueta = precioAnterior
+    ? { texto: 'Oferta', clase: 'text-cobalto' }
+    : agotado
+      ? { texto: 'Agotado', clase: 'text-pizarra' }
+      : esNuevo
+        ? { texto: 'Nuevo', clase: 'text-cobalto' }
+        : product.mas_vendido
+          ? { texto: 'Más vendido', clase: 'text-tinta' }
+          : null;
 
-    let opcionesText = '';
-    if (isLenteContacto) {
-      if (isAstigmatismo) {
+  const agregar = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (agotado) return;
+
+    let opciones = '';
+    if (esLenteContacto) {
+      if (esAstigmatismo) {
         if (!esferico || !cilindrico || !eje) {
-          alert('Por favor selecciona todos los valores (Esférico, Cilíndrico y Eje).');
+          setErrorOpciones('Elegí el valor esférico, el cilíndrico y el eje.');
           return;
         }
-        opcionesText = `Esf: ${esferico}, Cil: ${cilindrico}, Eje: ${eje}`;
-        if (mensaje) opcionesText += ` | Nota: ${mensaje}`;
+        opciones = `Esf: ${esferico}, Cil: ${cilindrico}, Eje: ${eje}`;
+        if (mensaje) opciones += ` | Nota: ${mensaje}`;
       } else {
         if (!graduacion) {
-          alert('Por favor selecciona la graduación.');
+          setErrorOpciones('Elegí la graduación.');
           return;
         }
-        opcionesText = `Graduación: ${graduacion}`;
+        opciones = `Graduación: ${graduacion}`;
       }
     }
 
@@ -111,322 +129,223 @@ export default function ProductCard({ product }: { product: Product }) {
       modelo: product.modelo,
       marca: product.marca,
       precio: product.precio,
-      imagen_url: product.imagen_url,
-      ...(opcionesText ? { opciones: opcionesText } : {})
+      imagen_url: product.imagen_url ?? '',
+      ...(opciones ? { opciones } : {}),
     });
-    setAdded(true);
-    if (isModalOpen) setIsModalOpen(false);
-    setTimeout(() => setAdded(false), 1500);
+    setAgregado(true);
+    setAbierto(false);
+    setTimeout(() => setAgregado(false), 1500);
   };
 
-  const toggleModal = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setIsModalOpen(!isModalOpen);
-    setIsZoomed(false); // Reset zoom when closing modal
-    if (!isModalOpen) {
-      // Reset options when opening
-      setEsferico('');
-      setCilindrico('');
-      setEje('');
-      setMensaje('');
-      setGraduacion('');
-    }
+  const abrir = () => {
+    setEsferico('');
+    setCilindrico('');
+    setEje('');
+    setGraduacion('');
+    setMensaje('');
+    setErrorOpciones('');
+    setZoom(false);
+    setAbierto(true);
   };
 
-  // Prevenir scroll cuando el modal está abierto
   useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (!abierto) return;
+    document.body.style.overflow = 'hidden';
+    const alTeclear = (e: KeyboardEvent) => e.key === 'Escape' && setAbierto(false);
+    window.addEventListener('keydown', alTeclear);
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', alTeclear);
     };
-  }, [isModalOpen]);
+  }, [abierto]);
+
+  // El punto del zoom va en variables CSS del propio elemento: seguir el mouse
+  // con useState redibujaría la tarjeta en cada movimiento.
+  const moverZoom = (e: React.MouseEvent<HTMLDivElement>) => {
+    const caja = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--zx', `${((e.clientX - caja.left) / caja.width) * 100}%`);
+    e.currentTarget.style.setProperty('--zy', `${((e.clientY - caja.top) / caja.height) * 100}%`);
+  };
 
   return (
-    <>
-      <div className="group card flex flex-col h-full overflow-hidden bg-white border border-slate-200 cursor-pointer hover:shadow-lg transition-shadow" onClick={toggleModal}>
-        {/* Image Container */}
-        <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden flex-shrink-0">
-          {/* Urgency Badge */}
-          {product.precio_original ? (
-            <div className="absolute top-3 left-3 z-10 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-indigo-200 shadow-sm animate-pulse-slow">
-              🏷️ En Oferta
-            </div>
-          ) : product.stock_visible === false ? (
-            <div className="absolute top-3 left-3 z-10 bg-red-50 text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-red-200">
-              🔴 Agotado
-            </div>
-          ) : product.mas_vendido === true ? (
-            <div className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-700 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md border border-amber-200">
-              🔥 Más vendido
-            </div>
-          ) : null}
+    <article className="group">
+      <button
+        type="button"
+        onClick={abrir}
+        className="relative block aspect-square w-full overflow-hidden rounded-[20px] bg-white ring-1 ring-inset ring-linea transition-shadow hover:ring-tinta/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acento)]"
+      >
+        {fotoFallo ? (
+          <FotoPendiente />
+        ) : (
+          <Image
+            src={foto}
+            alt={nombre}
+            fill
+            // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
+            // ~64 KB) via scripts/publicar_fotos_armazones.py, así que no hace
+            // falta que Vercel las transforme: son +1100 fotos distintas y cada
+            // una consumía cuota de Image Optimization.
+            unoptimized
+            onError={() => setFotoFallo(true)}
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            // object-cover: las fotos son cuadradas como la tarjeta, así el fondo
+            // de la foto (blanco, gris o negro según cuándo se sacó) ocupa toda
+            // la tarjeta y no queda un rectángulo de otro tono adentro.
+            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04] ${
+              agotado ? 'opacity-50 grayscale' : ''
+            }`}
+          />
+        )}
+      </button>
 
-          {fotoFallo ? (
-            <FotoPendiente />
-          ) : (
-            <Image
-              src={product.imagen_url || '/promoxplus.png'}
-              alt={`${product.marca} ${product.modelo}`}
-              fill
-              // Las fotos de armazones ya vienen optimizadas del disco (1200 px,
-              // ~64 KB) via scripts/optimizar_armazones.py, asi que no hace falta
-              // que Vercel las transforme. Son +1100 fotos distintas y cada una
-              // consumia varias transformaciones de la cuota mensual; el resto
-              // del sitio (portada, promos) si sigue optimizado por Vercel.
-              unoptimized
-              onError={() => setFotoFallo(true)}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className={`object-contain p-6 transition-transform duration-500 group-hover:scale-105 ${product.stock_visible === false ? 'opacity-50 grayscale' : ''}`}
-            />
-          )}
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-            <button
-              onClick={toggleModal}
-              className="flex items-center justify-center w-10 h-10 rounded-full text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors shadow-sm"
-              title="Ver imagen"
-            >
-              <Eye size={18} />
-            </button>
-            {!isLenteContacto && (
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock_visible === false}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
-              >
-                <ShoppingCart size={16} />
-                Agregar
-              </button>
-            )}
-          </div>
-
-          {/* Category badge */}
-          <div className="absolute top-3 right-3">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white/90 border border-slate-200 text-slate-700 shadow-sm">
-              {product.marca}
-            </span>
-          </div>
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex gap-2 text-[13px]">
+            <span className="truncate text-pizarra">{marca}</span>
+            {etiqueta && <span className={`shrink-0 font-medium ${etiqueta.clase}`}>{etiqueta.texto}</span>}
+          </p>
+          <h3 className="truncate text-[15px] font-medium text-tinta">{product.modelo}</h3>
+          <p className="mt-1 text-[15px] font-semibold tabular-nums text-tinta">
+            {precioAnterior && <s className="mr-2 font-normal text-pizarra">{precioAnterior}</s>}
+            {precio}
+          </p>
         </div>
-
-        {/* Content */}
-        <div className="p-4 flex flex-col flex-grow">
-          <p className="text-xs text-blue-700 font-semibold mb-1 uppercase tracking-wide">{product.categoria}</p>
-          <h3 className="text-sm font-semibold text-slate-900 mb-3 truncate group-hover:text-blue-700 transition-colors">
-            {product.modelo}
-          </h3>
-
-          <div className="mt-auto flex items-center justify-between">
-            <div className="flex flex-col items-start leading-tight">
-              {formattedOriginalPrice && (
-                <span className="text-xs text-slate-400 line-through font-medium mb-0.5">
-                  {formattedOriginalPrice}
-                </span>
-              )}
-              <p className="text-lg font-bold text-slate-900">{formattedPrice}</p>
-            </div>
-            {!isLenteContacto ? (
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock_visible === false}
-                className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 ${
-                  product.stock_visible === false
-                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                    : added
-                    ? 'bg-green-500 text-white scale-95'
-                    : 'bg-slate-100 text-slate-700 hover:bg-blue-700 hover:text-white'
-                }`}
-                aria-label="Añadir al carrito"
-              >
-                {added ? (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <ShoppingCart className="w-4 h-4" />
-                )}
-              </button>
-            ) : (
-              <button
-                onClick={toggleModal}
-                className="text-xs font-bold text-blue-700 hover:underline"
-              >
-                Elegir graduación
-              </button>
-            )}
-          </div>
-        </div>
+        {!esLenteContacto && (
+          <button
+            type="button"
+            onClick={agregar}
+            disabled={agotado}
+            aria-label={agotado ? `${nombre}: agotado` : `Agregar ${nombre} al carrito`}
+            className={`mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acento)] ${
+              agotado
+                ? 'cursor-not-allowed text-linea ring-1 ring-inset ring-linea'
+                : agregado
+                  ? 'bg-[var(--acento)] text-white'
+                  : 'text-tinta ring-1 ring-inset ring-linea hover:bg-[var(--acento)] hover:text-white hover:ring-transparent active:scale-95'
+            }`}
+          >
+            {agregado ? <Check size={18} aria-hidden /> : <ShoppingBag size={18} aria-hidden />}
+          </button>
+        )}
       </div>
 
-      {/* Image Modal */}
-      {isModalOpen && (
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-fade-in"
-          onClick={toggleModal}
+      {abierto && (
+        <div
+          className="animate-fade-in fixed inset-0 z-[100] flex items-end justify-center bg-tinta/60 backdrop-blur-sm sm:items-center sm:p-6"
+          onClick={() => setAbierto(false)}
         >
-          <div 
-            className={`relative bg-white rounded-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-fade-in-up ${isLenteContacto ? 'max-w-5xl' : 'max-w-4xl'}`}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={nombre}
             onClick={(e) => e.stopPropagation()}
+            className={`relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-white sm:rounded-[28px] ${
+              esLenteContacto ? 'sm:max-w-5xl' : 'sm:max-w-3xl'
+            }`}
           >
-            <button 
-              onClick={toggleModal}
-              className="absolute top-4 right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+            <button
+              type="button"
+              onClick={() => setAbierto(false)}
+              aria-label="Cerrar"
+              className="absolute right-4 top-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-papel text-tinta hover:bg-linea"
             >
-              <X size={20} />
+              <X size={20} aria-hidden />
             </button>
 
-            <div className={`flex flex-col ${isLenteContacto ? 'md:flex-row' : ''} h-full max-h-[90vh] overflow-y-auto custom-scrollbar`}>
-              {/* Left Side: Image */}
-              <div className={`flex flex-col ${isLenteContacto ? 'w-full md:w-1/2 border-r border-slate-100' : 'w-full'}`}>
-                <div className="p-6 border-b border-slate-100 bg-white">
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700">{product.marca}</span>
-                  <h2 className="text-2xl font-extrabold text-slate-900">{product.modelo}</h2>
-                </div>
-                <div 
-                  className="relative flex-grow bg-slate-50 flex items-center justify-center min-h-[40vh] p-8 overflow-hidden select-none"
-                  onMouseMove={handleMouseMove}
-                  onClick={() => setIsZoomed(!isZoomed)}
-                  style={{ cursor: isZoomed ? 'zoom-out' : 'zoom-in' }}
+            <div className={`overflow-y-auto ${esLenteContacto ? 'md:grid md:grid-cols-2' : ''}`}>
+              <div>
+                <div
+                  className={`relative mx-auto aspect-square w-full max-w-[min(100%,58vh)] select-none overflow-hidden bg-white ${zoom ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+                  onMouseMove={moverZoom}
+                  onClick={() => setZoom((z) => !z)}
                 >
                   {fotoFallo ? (
                     <FotoPendiente grande />
                   ) : (
-                  <Image
-                    src={product.imagen_url || '/promoxplus.png'}
-                    alt={`${product.marca} ${product.modelo}`}
-                    fill
-                    unoptimized
-                    onError={() => setFotoFallo(true)}
-                    sizes="(max-width: 1024px) 100vw, 1024px"
-                    className="object-contain p-4 transition-transform duration-100 ease-out"
-                    style={{
-                      transform: isZoomed ? 'scale(2.5)' : 'scale(1)',
-                      transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-                    }}
-                  />
+                    <Image
+                      src={foto}
+                      alt={nombre}
+                      fill
+                      unoptimized
+                      onError={() => setFotoFallo(true)}
+                      sizes="(max-width: 1024px) 100vw, 768px"
+                      className="object-cover transition-transform duration-150 ease-out"
+                      style={{
+                        transform: zoom ? 'scale(2.5)' : 'scale(1)',
+                        transformOrigin: 'var(--zx, 50%) var(--zy, 50%)',
+                      }}
+                    />
                   )}
                 </div>
-                {!isLenteContacto && (
-                  <div className="p-6 border-t border-slate-100 bg-white flex justify-between items-center">
-                    <div className="flex flex-col leading-none">
-                      {formattedOriginalPrice && (
-                        <span className="text-sm text-slate-400 line-through font-medium mb-1">
-                          {formattedOriginalPrice}
-                        </span>
-                      )}
-                      <p className="text-2xl font-bold text-slate-900">{formattedPrice}</p>
+
+                <div className="border-t border-linea p-6 sm:p-8">
+                  <p className="text-sm text-pizarra">{marca}</p>
+                  <h2 className="titular mt-1 text-2xl text-tinta sm:text-3xl">{product.modelo}</h2>
+                  {!esLenteContacto && (
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                      <p className="text-2xl font-semibold tabular-nums text-tinta">
+                        {precioAnterior && <s className="mr-3 text-lg font-normal text-pizarra">{precioAnterior}</s>}
+                        {precio}
+                      </p>
+                      <button type="button" onClick={agregar} disabled={agotado} className="btn-cta">
+                        {agotado ? 'Agotado' : 'Agregar al carrito'}
+                      </button>
                     </div>
-                    <button
-                      onClick={handleAddToCart}
-                      disabled={product.stock_visible === false}
-                      className={`flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white transition-colors shadow-lg ${product.stock_visible === false ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-800'}`}
-                    >
-                      <ShoppingCart size={18} />
-                      {product.stock_visible === false ? 'Agotado' : 'Agregar al Carrito'}
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
-              {/* Right Side: Options (Only for contact lenses) */}
-              {isLenteContacto && (
-                <div className="w-full md:w-1/2 bg-white p-8 flex flex-col">
-                  <div className="mb-6 pb-6 border-b border-slate-100">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">{formattedPrice}</h3>
-                    {formattedOriginalPrice && (
-                      <p className="text-sm text-slate-500 line-through">{formattedOriginalPrice}</p>
-                    )}
-                  </div>
+              {esLenteContacto && (
+                <div className="flex flex-col border-t border-linea p-6 sm:p-8 md:border-l md:border-t-0">
+                  <p className="text-2xl font-semibold tabular-nums text-tinta">
+                    {precioAnterior && <s className="mr-3 text-lg font-normal text-pizarra">{precioAnterior}</s>}
+                    {precio}
+                  </p>
 
-                  <div className="flex-grow space-y-5">
-                    {isAstigmatismo ? (
+                  <div className="mt-6 flex flex-col gap-5">
+                    {esAstigmatismo ? (
                       <>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Selecciona valor esférico *</label>
-                          <select 
-                            value={esferico} 
-                            onChange={(e) => setEsferico(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Elegir</option>
-                            {astigEsf.map(v => <option key={v} value={v}>{v}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Selecciona valor cilíndrico *</label>
-                          <select 
-                            value={cilindrico} 
-                            onChange={(e) => setCilindrico(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Elegir</option>
-                            {astigCil.map(v => <option key={v} value={v}>{v}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Selecciona eje *</label>
-                          <select 
-                            value={eje} 
-                            onChange={(e) => setEje(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Elegir</option>
-                            {ejes.map(v => <option key={v} value={v}>{v}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                            Si no sabes bien la graduación de tu receta contáctanos! (opcional)
+                        <Selector id={`esf-${product.id}`} etiqueta="Valor esférico" valor={esferico} opciones={ESFERICOS_ASTIGMATISMO} onChange={setEsferico} />
+                        <Selector id={`cil-${product.id}`} etiqueta="Valor cilíndrico" valor={cilindrico} opciones={CILINDRICOS} onChange={setCilindrico} />
+                        <Selector id={`eje-${product.id}`} etiqueta="Eje" valor={eje} opciones={EJES} onChange={setEje} />
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor={`nota-${product.id}`} className="text-sm font-medium text-tinta">
+                            Nota (opcional)
                           </label>
-                          <textarea 
+                          <textarea
+                            id={`nota-${product.id}`}
                             value={mensaje}
                             onChange={(e) => setMensaje(e.target.value)}
                             maxLength={500}
                             rows={3}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            placeholder="Escribe tu mensaje aquí..."
+                            className="resize-none rounded-xl border border-linea px-4 py-3 text-tinta focus:border-cobalto focus:outline-none focus:ring-2 focus:ring-cobalto/15"
                           />
-                          <p className="text-right text-xs text-slate-400 mt-1">{mensaje.length}/500</p>
+                          <p className="text-sm text-pizarra">Si no entendés bien tu receta, contanos acá y te ayudamos.</p>
                         </div>
                       </>
                     ) : (
-                      <>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Graduaciones *</label>
-                          <select 
-                            value={graduacion} 
-                            onChange={(e) => setGraduacion(e.target.value)}
-                            className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            <option value="">Elegir</option>
-                            {normalEsf.map(v => <option key={v} value={v}>{v}</option>)}
-                          </select>
-                        </div>
-                      </>
+                      <Selector id={`grad-${product.id}`} etiqueta="Graduación" valor={graduacion} opciones={GRADUACIONES} onChange={setGraduacion} />
                     )}
                   </div>
 
-                  <div className="mt-8 pt-6 border-t border-slate-100">
-                    <button
-                      onClick={handleAddToCart}
-                      className="w-full flex justify-center items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all"
-                    >
-                      <ShoppingCart size={18} />
-                      Agregar al carrito
-                    </button>
-                    <p className="text-center text-xs text-slate-500 mt-3">
-                      Podrás enviar el pedido por WhatsApp desde el carrito para confirmar el stock y graduación.
+                  {errorOpciones && (
+                    <p role="alert" className="mt-4 text-sm font-medium text-[#b42318]">
+                      {errorOpciones}
                     </p>
-                  </div>
+                  )}
+
+                  <button type="button" onClick={agregar} className="btn-cta mt-8 w-full">
+                    Agregar al carrito
+                  </button>
+                  <p className="mt-3 text-center text-sm text-pizarra">
+                    Desde el carrito nos mandás el pedido por WhatsApp y confirmamos stock y graduación.
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
       )}
-    </>
+    </article>
   );
 }

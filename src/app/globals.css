@@ -1,34 +1,55 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ÓPTICA ROMA — TEMA CLARO (estilo Optica2000)
+   ÓPTICA ROMA
+   El azul es el del logo (el ojo) y es el único color de acento de la web.
+   El verde de WhatsApp queda solo en el botón flotante.
    ============================================================ */
 
 @theme {
-  /* --- Paleta Principal (Estilo Lujo Internacional) --- */
-  --color-primary: #0f2b5c;          /* Azul marino profundo y elegante */
-  --color-primary-light: #2563eb;    /* Azul brillante premium */
-  --color-primary-dark: #07193b;     /* Azul marino oscuro casi negro */
-  --color-secondary: #0d9488;        /* Verde cerceta para salud visual */
-  --color-accent: #d97706;           /* Oro/Ámbar premium para CTAs */
-  --color-accent-hover: #b45309;     /* Oro oscuro */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Paleta --- */
+  --color-cobalto: #0b2bd6;        /* el azul del logo: botones, links, selección */
+  --color-cobalto-hondo: #0a1f8f;  /* hover y texto sobre fondos celestes */
+  --color-tinta: #10152b;          /* textos */
+  --color-pizarra: #5b6177;        /* textos secundarios */
+  --color-papel: #f3f5fa;          /* fondo alternativo (el gris frío de los cajones del local) */
+  --color-linea: #dde1ea;          /* bordes y separadores */
+  --color-vidrio: #eaefff;         /* seleccionado */
+
+  /* --- Nombres anteriores, apuntados a la paleta nueva --- */
+  --color-primary: #0b2bd6;
+  --color-primary-light: #0b2bd6;
+  --color-primary-dark: #0a1f8f;
+  --color-secondary: #0b2bd6;
+  --color-accent: #0b2bd6;
+  --color-accent-hover: #0a1f8f;
   --color-whatsapp: #25d366;
   --color-whatsapp-hover: #128c7e;
-
-  /* --- Fondos --- */
   --color-background: #ffffff;
-  --color-background-alt: #f8fafc;
+  --color-background-alt: #f3f5fa;
   --color-surface: #ffffff;
   --color-card: #ffffff;
-  --color-footer: #0f172a;
-
-  /* --- Texto --- */
-  --color-foreground: #1e293b;
-  --color-foreground-secondary: #475569;
-  --color-muted: #64748b;
+  --color-footer: #10152b;
+  --color-foreground: #10152b;
+  --color-foreground-secondary: #5b6177;
+  --color-muted: #5b6177;
   --color-text-inverted: #ffffff;
 
-  /* --- Animaciones --- */
+  /* Puente hasta rehacer las secciones de abajo: los azules sueltos de
+     Tailwind pasan a ser el azul del logo, para que no convivan dos azules. */
+  --color-blue-50: #eaefff;
+  --color-blue-100: #dbe3ff;
+  --color-blue-200: #c3cffc;
+  --color-blue-300: #9fb0f7;
+  --color-blue-400: #3f5ae6;
+  --color-blue-500: #1a38dc;
+  --color-blue-600: #0b2bd6;
+  --color-blue-700: #0b2bd6;
+  --color-blue-800: #0a1f8f;
+  --color-blue-900: #0a1f8f;
+
   --animate-marquee: marquee 40s linear infinite;
 
   @keyframes marquee {
@@ -37,342 +58,227 @@
   }
 }
 
+:root {
+  /* Acento de los controles del catálogo; la colección Natalia Oreiro lo cambia. */
+  --acento: var(--color-cobalto);
+}
+
 /* ============================================================
-   BASE STYLES
+   BASE
    ============================================================ */
 @layer base {
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-background);
+    background-color: #ffffff;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #ffffff;
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Que un link con #seccion no quede tapado por el encabezado fijo */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
   ::selection {
-    background-color: rgba(0, 86, 179, 0.15);
-    color: #0056b3;
+    background-color: var(--color-vidrio);
+    color: var(--color-cobalto-hondo);
   }
 
-  /* Custom Scrollbar — sutil, profesional */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #f1f5f9;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+  :focus-visible {
+    outline: 2px solid var(--color-cobalto);
+    outline-offset: 3px;
   }
 }
 
-/* ============================================================
-   KEYFRAME ANIMATIONS (mínimas, solo esenciales)
-   ============================================================ */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* ============================================================
-   ANIMATION UTILITY CLASSES
-   ============================================================ */
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-  opacity: 0;
-}
-
-/* Delays escalonados (más conservadores) */
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
-
-/* ============================================================
-   PREMIUM HERO ANIMATIONS
-   ============================================================ */
-
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
-
-  @keyframes aurora {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-    33% { transform: translate(30px, -50px) scale(1.1) rotate(120deg); }
-    66% { transform: translate(-20px, 20px) scale(0.9) rotate(240deg); }
-    100% { transform: translate(0, 0) scale(1) rotate(360deg); }
-  }
-
-  @keyframes shine {
-    100% { left: 125%; }
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .aurora-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.3;
-    animation: aurora 20s infinite alternate linear;
-    z-index: 0;
-  }
-
-  /* Micro-interacción premium para CTAs */
-  .btn-shine {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .btn-shine::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-20deg);
-    transition: all 0.5s;
-    z-index: 1;
-  }
-  
-  .btn-shine:hover::after {
-    animation: shine 1s ease-out forwards;
-  }
-
-  /* Reveal texto palabra por palabra o línea por línea */
-  .reveal-text-line {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .reveal.visible .reveal-text-line {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .delay-text-1 { transition-delay: 0.1s; }
-  .delay-text-2 { transition-delay: 0.25s; }
-}
-
-/* Fallback si reduced motion está activado */
 @media (prefers-reduced-motion: reduce) {
-  .aurora-blob { display: none; }
-  .reveal-text-line { opacity: 1; transform: translateY(0); }
+  html { scroll-behavior: auto; }
+}
+
+/* Clases propias dentro de @layer components: así una utilidad de Tailwind
+   (por ejemplo `hidden lg:inline-flex` sobre un .btn-cta) siempre les gana.
+   Fuera de una capa, estas reglas pisaban a las utilidades. */
+@layer components {
+/* ============================================================
+   TIPOGRAFÍA
+   Archivo, una sola familia. Los títulos usan la versión un poco más ancha
+   (eje wdth), que recuerda a la letra del logo.
+   ============================================================ */
+.titular {
+  font-stretch: 112%;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.enlace {
+  font-weight: 600;
+  color: var(--color-cobalto);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color 0.2s ease;
+}
+.enlace:hover {
+  text-decoration-color: currentColor;
 }
 
 /* ============================================================
-   SECTION SCROLL REVEAL (conservado, colores adaptados)
+   BOTONES
+   Siempre redondeados como las vitrinas del local.
    ============================================================ */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.reveal-left {
-  opacity: 0;
-  transform: translateX(-30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.reveal-left.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.reveal-right {
-  opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.reveal-right.visible {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.reveal-scale {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.reveal-scale.visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ============================================================
-   COMPONENT STYLES
-   ============================================================ */
-
-/* Card sutil */
-.card {
-  background: var(--color-card);
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-
-/* Section heading decorative (adaptado a claro) */
-.section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 1rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #0056b3;
-}
-
-/* Gradient text (muy sutil, solo azul) */
-.gradient-text {
-  background: linear-gradient(135deg, #0056b3, #3b82f6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Button primary */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  color: #ffffff;
-  background: linear-gradient(to right, #0056b3, #3b82f6);
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(to right, #004494, #2563eb);
-  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.25);
-  transform: translateY(-1px);
-}
-
-/* Button CTA (naranja) */
-.btn-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  color: #ffffff;
-  background: #f97316;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-cta:hover {
-  background: #ea580c;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
-  transform: translateY(-1px);
-}
-
-/* Button outline */
+.btn-cta,
+.btn-primary,
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.75rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 9999px;
   font-weight: 600;
   font-size: 0.9375rem;
-  color: var(--color-primary);
-  background: transparent;
-  border: 1.5px solid var(--color-primary);
-  transition: all 0.2s ease;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+.btn-cta:active,
+.btn-primary:active,
+.btn-outline:active {
+  transform: translateY(1px);
 }
 
+.btn-cta,
+.btn-primary {
+  color: #ffffff;
+  background: var(--acento);
+  border: 0;
+}
+.btn-cta:hover,
+.btn-primary:hover {
+  background: var(--color-cobalto-hondo);
+}
+.btn-cta:disabled,
+.btn-primary:disabled {
+  background: var(--color-linea);
+  color: var(--color-pizarra);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-outline {
+  color: var(--color-tinta);
+  background: transparent;
+  border: 0;
+  box-shadow: inset 0 0 0 1.5px var(--color-linea);
+}
 .btn-outline:hover {
-  background: #eff6ff;
-  color: var(--color-primary-dark);
+  box-shadow: inset 0 0 0 1.5px var(--color-tinta);
 }
 
-/* Mobile menu animation */
+/* Las secciones que todavía usan estas clases ya no aparecen deslizándose:
+   quedaban invisibles hasta que corría JavaScript. */
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale,
+.reveal-text-line {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   COMPONENTES QUE USAN LAS SECCIONES ANTERIORES
+   ============================================================ */
+.card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--color-linea);
+  border-radius: 20px;
+}
+
+/* La etiqueta chica arriba de cada título (y su puntito titilante) se repetía
+   en todas las secciones: se saca. El título alcanza. */
+.section-label {
+  display: none;
+}
+
+/* Una palabra del título en otro color: se deja del mismo color que el resto. */
+.gradient-text {
+  color: inherit;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Menú del celular */
 .mobile-menu-enter {
-  animation: slideInRight 0.25s ease-out forwards;
+  animation: slideInRight 0.25s ease-out both;
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
-/* Custom scrollbar for catalog sidebar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-papel);
   border-radius: 2px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-linea);
   border-radius: 2px;
 }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+}
+
+/* ============================================================
+   ANIMACIÓN
+   Un solo momento: la foto de la portada se abre al cargar. El resto de la
+   página no anima al hacer scroll.
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .abrir-foto {
+    animation: abrirFoto 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes abrirFoto {
+    from { clip-path: inset(7% 7% 7% 7% round 28px); }
+    to { clip-path: inset(0 0 0 0 round 28px); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-enter,
+  .animate-fade-in,
+  .animate-fade-in-up {
+    animation: none;
+  }
 }

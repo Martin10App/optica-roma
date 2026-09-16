@@ -47,7 +47,7 @@ export default function ServicesSection() {
   useScrollReveal();
 
   return (
-    <section className="relative py-28 overflow-hidden bg-white">
+    <section id="servicios" className="relative py-28 overflow-hidden bg-white">
       {/* Background Image subtle */}
       <div className="absolute inset-0">
         <Image

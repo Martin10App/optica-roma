@@ -126,7 +126,7 @@ export default function PromosSection() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute top-6 left-6 bg-orange-500 text-white px-4 py-2 rounded-lg font-extrabold text-sm shadow-lg">
+                <div className="absolute top-6 left-6 bg-white text-cobalto px-4 py-2 rounded-full font-semibold text-sm">
                   ¡2do par GRATIS!
                 </div>
               </div>
@@ -134,15 +134,15 @@ export default function PromosSection() {
               {/* Right: Info */}
               <div className="p-8 md:p-12 flex flex-col justify-center order-1 lg:order-2">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-orange-500" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+                  
+                  <span className="text-sm font-medium text-cobalto">
                     Promo Varilux — Por tiempo limitado
                   </span>
                 </div>
 
                 <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3 leading-tight">
                   Cristales Varilux +{' '}
-                  <span className="text-orange-600">2do par de multifocales de regalo</span>
+                  2do par de multifocales de regalo
                 </h3>
 
                 <p className="text-slate-500 mb-6 leading-relaxed">
@@ -158,8 +158,8 @@ export default function PromosSection() {
                     'Armado en nuestro taller propio',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check size={11} className="text-orange-600" />
+                      <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check size={11} className="text-blue-700" />
                       </div>
                       <span className="text-slate-600 text-sm">{item}</span>
                     </li>
@@ -180,8 +180,7 @@ export default function PromosSection() {
                   href={`https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20la%20Promo%20Varilux%20segundo%20par%20de%20regalo`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary bg-orange-500 hover:bg-orange-600 self-start"
-                  style={{ background: 'linear-gradient(to right, #f97316, #ea580c)' }}
+                  className="btn-primary self-start"
                 >
                   <Phone size={16} />
                   Consultar esta promo

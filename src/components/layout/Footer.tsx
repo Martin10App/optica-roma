@@ -48,7 +48,7 @@ export default function Footer() {
             href="https://wa.me/598098871673?text=Hola!%20Quiero%20agendarme%20para%20una%20revisión%20visual%20gratuita."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+            className="btn-cta"
           >
             <Phone size={18} />
             Agendá tu cita
@@ -136,7 +136,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={16} className="text-blue-400 flex-shrink-0" />
-                <span className="text-sm">opticaromalaspiedras@hotmail.com</span>
+                <span className="text-sm break-all">opticaromalaspiedras@hotmail.com</span>
               </li>
             </ul>
           </div>

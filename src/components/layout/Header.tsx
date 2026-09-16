@@ -2,43 +2,56 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, ShoppingBag, Phone } from 'lucide-react';
+import { Menu, X, ShoppingBag, User as UserIcon } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import AuthModal from '@/components/auth/AuthModal';
-import { User as UserIcon } from 'lucide-react';
+import { WHATSAPP_AGENDAR } from '@/lib/constants';
+
+const navegacion = [
+  { name: 'Catálogo', href: '/#catalogo' },
+  { name: 'Promociones', href: '/#promociones' },
+  { name: 'Cristales', href: '/#cristales' },
+  { name: 'Salud visual', href: '/#chequeo' },
+  { name: 'Nosotros', href: '/#nosotros' },
+  { name: 'Contacto', href: '/#contacto' },
+];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [conScroll, setConScroll] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { cartCount, setIsCartOpen } = useCart();
   const { user } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
+  const sensor = useRef<HTMLDivElement>(null);
 
-  // Focus trap for mobile menu
+  // La línea de abajo del encabezado aparece cuando la página ya bajó: un
+  // sensor de 1 px a 60 px del borde, en vez de escuchar cada evento de scroll.
+  useEffect(() => {
+    if (!sensor.current) return;
+    const observador = new IntersectionObserver(([entrada]) => setConScroll(!entrada.isIntersecting));
+    observador.observe(sensor.current);
+    return () => observador.disconnect();
+  }, []);
+
+  // Foco atrapado dentro del menú del celular
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isMenuOpen) return;
       if (e.key === 'Escape') setIsMenuOpen(false);
       if (e.key === 'Tab' && menuRef.current) {
-        const focusable = menuRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button, textarea, input, select'
-        );
+        const focusable = menuRef.current.querySelectorAll<HTMLElement>('a[href], button, textarea, input, select');
         if (focusable.length === 0) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            last.focus();
-            e.preventDefault();
-          }
-        } else {
-          if (document.activeElement === last) {
-            first.focus();
-            e.preventDefault();
-          }
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
         }
       }
     };
@@ -50,161 +63,122 @@ export default function Header() {
   }, [isMenuOpen]);
 
   useEffect(() => {
-    const handler = () => setIsScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', handler, { passive: true });
-    handler();
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isMenuOpen]);
 
-  const navigation = [
-    { name: 'Inicio', href: '/' },
-    { name: 'Salud Visual', href: '/#chequeo' },
-    { name: 'Catálogo', href: '/#catalogo' },
-    { name: 'Promociones', href: '/#promociones' },
-    { name: 'Cristales', href: '/#cristales' },
-    { name: 'Nosotros', href: '/#nosotros' },
-    { name: 'Contacto', href: '/#contacto' },
-  ];
+  const botonIcono =
+    'grid h-10 w-10 place-items-center rounded-full text-tinta transition-colors hover:bg-papel';
 
   return (
     <>
+      <div ref={sensor} aria-hidden className="pointer-events-none absolute left-0 top-[60px] h-px w-px" />
+
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 py-3'
-            : 'bg-white/80 backdrop-blur-sm py-4'
+        className={`fixed inset-x-0 top-0 z-50 border-b bg-white/92 backdrop-blur-md transition-colors duration-200 ${
+          conScroll ? 'border-linea' : 'border-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link href="/" className="flex items-center group">
-              <Image
-                src="/media/logooptica.png"
-                alt="Óptica Roma"
-                width={180}
-                height={55}
-                className="object-contain h-10 w-auto transition-opacity group-hover:opacity-90"
-                priority
-              />
-            </Link>
+        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="shrink-0" aria-label="Óptica Roma, inicio">
+            <Image
+              src="/media/logooptica.png"
+              alt="Óptica Roma"
+              width={180}
+              height={53}
+              className="h-9 w-auto object-contain"
+              priority
+            />
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="relative px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors duration-200 group"
-                >
-                  {item.name}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-blue-700 rounded-full group-hover:w-3/4 transition-all duration-200 ease-out" />
-                </Link>
-              ))}
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              {/* CTA Principal: Agendá cita */}
-              <a
-                href="https://wa.me/598098871673?text=Hola!%20Quiero%20agendarme%20para%20una%20revisión%20visual%20gratuita."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-all shadow-sm hover:shadow-md"
+          <nav aria-label="Principal" className="hidden items-center gap-7 xl:flex">
+            {navegacion.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-[15px] font-medium text-tinta/75 transition-colors hover:text-tinta"
               >
-                <Phone size={16} />
-                Agendá tu cita
-              </a>
+                {item.name}
+              </Link>
+            ))}
+          </nav>
 
-              {/* Auth / Mi cuenta */}
-              {user ? (
-                <Link
-                  href={user.rol === 'admin' ? '/admin' : '/perfil'}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all text-sm font-medium"
-                >
-                  <UserIcon size={20} />
-                  <span className="hidden sm:inline">{user.nombre.split(' ')[0]}</span>
-                </Link>
-              ) : (
-                <button
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all text-sm font-medium"
-                >
-                  <UserIcon size={20} />
-                  <span className="hidden sm:inline">Mi cuenta</span>
-                </button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <a
+              href={WHATSAPP_AGENDAR}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-cta mr-2 hidden !min-h-10 !px-5 lg:inline-flex"
+            >
+              Agendá tu revisión
+            </a>
+
+            {user ? (
+              <Link
+                href={user.rol === 'admin' ? '/admin' : '/perfil'}
+                className="flex h-10 items-center gap-2 rounded-full px-3 text-[15px] font-medium text-tinta transition-colors hover:bg-papel"
+              >
+                <UserIcon size={20} strokeWidth={1.75} aria-hidden />
+                <span className="hidden sm:inline">{user.nombre.split(' ')[0]}</span>
+              </Link>
+            ) : (
+              <button type="button" onClick={() => setIsAuthModalOpen(true)} className={botonIcono} aria-label="Mi cuenta">
+                <UserIcon size={20} strokeWidth={1.75} aria-hidden />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              className={`relative ${botonIcono}`}
+              aria-label={cartCount > 0 ? `Abrir carrito, ${cartCount} ${cartCount === 1 ? 'producto' : 'productos'}` : 'Abrir carrito'}
+            >
+              <ShoppingBag size={20} strokeWidth={1.75} aria-hidden />
+              {cartCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-cobalto px-1 text-[11px] font-semibold tabular-nums text-white">
+                  {cartCount}
+                </span>
               )}
+            </button>
 
-              {/* Cart */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200"
-                aria-label="Abrir carrito"
-              >
-                <ShoppingBag size={22} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-blue-700 rounded-full">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Mobile Hamburger */}
-              <button
-                type="button"
-                className="xl:hidden p-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
-                onClick={() => setIsMenuOpen(true)}
-                aria-label="Abrir menú"
-              >
-                <Menu size={22} />
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`xl:hidden ${botonIcono}`}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Abrir menú"
+            >
+              <Menu size={22} strokeWidth={1.75} aria-hidden />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-[100]">
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setIsMenuOpen(false)}
-          />
+          <div className="animate-fade-in absolute inset-0 bg-tinta/40" onClick={() => setIsMenuOpen(false)} />
           <div
             ref={menuRef}
             role="dialog"
             aria-modal="true"
-            aria-label="Menú de navegación principal"
-            className="absolute right-0 top-0 bottom-0 w-full max-w-xs bg-white border-l border-slate-200 shadow-2xl mobile-menu-enter flex flex-col p-8 pt-16"
+            aria-label="Menú"
+            className="mobile-menu-enter absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-white px-6 pb-8 pt-5"
           >
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all"
-            >
-              <X size={24} />
-            </button>
+            <div className="flex items-center justify-between">
+              <Image src="/media/logooptica.png" alt="Óptica Roma" width={140} height={41} className="h-8 w-auto object-contain" />
+              <button type="button" onClick={() => setIsMenuOpen(false)} className={botonIcono} aria-label="Cerrar menú">
+                <X size={22} aria-hidden />
+              </button>
+            </div>
 
-            <Image
-              src="/media/logooptica.png"
-              alt="Óptica Roma"
-              width={140}
-              height={40}
-              className="h-8 w-auto object-contain mb-10"
-            />
-
-            <nav className="flex flex-col gap-1 flex-1">
-              {navigation.map((item, i) => (
+            <nav aria-label="Principal" className="mt-10 flex flex-1 flex-col">
+              {navegacion.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  style={{ animationDelay: `${i * 40}ms` }}
-                  className="flex items-center gap-3 px-4 py-3.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-50 font-medium text-lg transition-all animate-fade-in"
+                  className="border-b border-linea py-4 text-xl font-medium text-tinta"
                 >
                   {item.name}
                 </Link>
@@ -212,23 +186,19 @@ export default function Header() {
             </nav>
 
             <a
-              href="https://wa.me/598098871673?text=Hola!%20Quiero%20agendarme%20para%20una%20revisión%20visual%20gratuita."
+              href={WHATSAPP_AGENDAR}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMenuOpen(false)}
-              className="mt-6 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold text-white bg-orange-500 hover:bg-orange-600 transition-colors"
+              className="btn-cta w-full"
             >
-              <Phone size={18} />
-              Agendá tu cita gratis
+              Agendá tu revisión
             </a>
           </div>
         </div>
       )}
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-      />
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </>
   );
 }

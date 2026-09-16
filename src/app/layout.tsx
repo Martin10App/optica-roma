@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,12 +7,14 @@ import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CartDrawer from "@/components/cart/CartDrawer";
-import Script from "next/script";
 
-const inter = Inter({
+// Archivo variable con el eje de ancho: los títulos usan una versión un poco
+// más ancha (clase .titular) y el texto corrido la normal.
+const archivo = Archivo({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  axes: ["wdth"],
+  variable: "--font-archivo",
 });
 
 import { SITE_URL } from "@/lib/constants";
@@ -43,10 +45,10 @@ export const metadata: Metadata = {
     siteName: "Óptica Roma",
     images: [
       {
-        url: `${SITE_URL}/media/expositor-armazoens2.png`,
-        width: 1200,
-        height: 630,
-        alt: "Óptica Roma - Interior del local",
+        url: `${SITE_URL}/media/local/vidriera-las-piedras.jpg`,
+        width: 720,
+        height: 900,
+        alt: "Vidriera de Óptica Roma frente a la plaza de Las Piedras",
       },
     ],
     locale: "es_UY",
@@ -57,7 +59,7 @@ export const metadata: Metadata = {
     title: "Óptica Roma | Tu visión es nuestra prioridad",
     description:
       "Encontrá los mejores armazones y cristales en Óptica Roma. Visitanos en Las Piedras y Canelones.",
-    images: ["/media/expositor-armazoens2.png"],
+    images: ["/media/local/vidriera-las-piedras.jpg"],
   },
   robots: {
     index: true,
@@ -74,25 +76,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="scroll-smooth">
-      <head>
-        {/* Google Analytics — Reemplazar G-XXXXXXXXXX con tu ID real */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX');
-          `}
-        </Script>
-      </head>
-      <body
-        className={`${inter.variable} antialiased min-h-screen flex flex-col font-sans`}
-      >
+    // Se sacó el Google Analytics: tenía el ID de ejemplo (G-XXXXXXXXXX), así que
+    // descargaba el script en cada visita sin medir nada. Si se crea una cuenta
+    // real, se vuelve a agregar con el ID verdadero.
+    <html lang="es" className={archivo.variable}>
+      <body className="antialiased min-h-screen flex flex-col font-sans">
         {/* Schema.org LocalBusiness */}
         <script
           type="application/ld+json"
