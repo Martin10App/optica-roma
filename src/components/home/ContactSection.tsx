@@ -1,147 +1,155 @@
 'use client';
 
-import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useState } from 'react';
-import { Send, Phone, MapPin, Mail } from 'lucide-react';
+import { ArrowUpRight, Mail, MessageCircle, Phone } from 'lucide-react';
+import EncabezadoSeccion from './EncabezadoSeccion';
 
+const WHATSAPP = 'https://wa.me/598098871673';
+
+const SUCURSALES = [
+  {
+    nombre: 'Las Piedras',
+    direccion: 'Rivera 617, frente a la plaza',
+    telefono: { texto: '2364 1800', href: 'tel:23641800' },
+    mapa: 'https://maps.google.com/maps?q=Rivera%20617,%20Las%20Piedras,%20Uruguay&t=&z=16&ie=UTF8&iwloc=&output=embed',
+    comoLlegar: 'https://www.google.com/maps/search/?api=1&query=%C3%93ptica%20Roma%20Rivera%20617%20Las%20Piedras%20Uruguay',
+  },
+  {
+    nombre: 'Canelones',
+    direccion: 'Enrique Rodó 319',
+    telefono: { texto: '4333 9869', href: 'tel:43339869' },
+    mapa: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3286.262843075677!2d-56.28189672378411!3d-34.54687597297491!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a1ab0f4a821e25%3A0x6b45037d2f9b8898!2zSm9zw6kgRW5yaXF1ZSBSb2TDsyAzMTksIDkwMDAwIENhbmVsb25lcywgRGVwYXJ0YW1lbnRvIGRlIENhbmVsb25lcw!5e0!3m2!1ses-419!2suy!4v1718000000000!5m2!1ses-419!2suy',
+    comoLlegar: 'https://www.google.com/maps/search/?api=1&query=%C3%93ptica%20Roma%20Enrique%20Rod%C3%B3%20319%20Canelones%20Uruguay',
+  },
+];
+
+const HORARIO = [
+  { dias: 'Lunes a viernes', horas: '9:00 a 18:30' },
+  { dias: 'Sábados', horas: '9:00 a 13:00' },
+];
+
+const MOTIVOS = ['Consulta general', 'Presupuesto con receta', 'Agendar revisión visual', 'Estado de mi pedido'];
+
+// Contacto y sucursales en una sola sección. Conserva id="contacto" (menú) e
+// id="sucursales". El formulario no guarda nada: arma el mensaje y abre WhatsApp.
 export default function ContactSection() {
-  useScrollReveal();
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    reason: 'Consulta general',
-    message: ''
-  });
+  const [nombre, setNombre] = useState('');
+  const [motivo, setMotivo] = useState(MOTIVOS[0]);
+  const [mensaje, setMensaje] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const enviar = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hola! Soy ${formData.name}.%0A%0A*Motivo:* ${formData.reason}%0A*Mensaje:* ${formData.message}`;
-    window.open(`https://wa.me/598098871673?text=${text}`, '_blank');
+    const texto = `Hola! Soy ${nombre.trim()}.\n\n*Motivo:* ${motivo}\n*Mensaje:* ${mensaje.trim()}`;
+    window.open(`${WHATSAPP}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer');
   };
 
-  return (
-    <section id="contacto" className="py-24 bg-slate-50 relative overflow-hidden">
-      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-teal-500/5 rounded-full blur-[100px] pointer-events-none" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16 reveal">
-          <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping-slow" />
-            Atención al cliente
-          </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Envianos un <span className="gradient-text">mensaje</span>
-          </h2>
-          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto">
-            Completá el formulario y te responderemos por WhatsApp al instante.
-          </p>
-        </div>
+  const campo =
+    'mt-2 block w-full rounded-xl border-0 bg-white px-4 py-3 text-[15px] text-tinta ring-1 ring-linea placeholder:text-pizarra/70 focus:outline-none focus:ring-2 focus:ring-cobalto';
 
-        <div className="grid lg:grid-cols-5 gap-12">
-          {/* Form */}
-          <div className="lg:col-span-3 reveal-left">
-            <form onSubmit={handleSubmit} className="bg-white border border-slate-200 p-8 rounded-3xl shadow-xl">
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-slate-500 mb-2">
-                    Tu Nombre <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
-                    placeholder="Ej. Juan Pérez"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="reason" className="block text-sm font-medium text-slate-500 mb-2">
-                    Motivo de consulta <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <select
-                    id="reason"
-                    required
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors"
-                    value={formData.reason}
-                    onChange={(e) => setFormData({...formData, reason: e.target.value})}
-                  >
-                    <option>Consulta general</option>
-                    <option>Presupuesto con receta</option>
-                    <option>Agendar chequeo visual</option>
-                    <option>Estado de mi pedido</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-slate-500 mb-2">
-                    Mensaje <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={4}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 transition-colors resize-none"
-                    placeholder="Escribí tu consulta acá..."
-                    value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
-                >
-                  <Send size={18} />
-                  Enviar mensaje por WhatsApp
-                </button>
-              </div>
+  return (
+    <section id="contacto" className="bg-white py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <EncabezadoSeccion titulo="Contacto" bajada="Escribinos por WhatsApp o pasá por cualquiera de los dos locales." />
+
+        <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-8">
+          <div data-aparecer className="rounded-3xl bg-papel p-6 sm:p-8 lg:col-span-4">
+            <a
+              href={WHATSAPP}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-4"
+            >
+              <span>
+                <span className="block text-sm text-pizarra">WhatsApp</span>
+                <span className="titular block text-3xl tabular-nums text-tinta group-hover:text-cobalto">098 871 673</span>
+              </span>
+              <MessageCircle size={28} strokeWidth={1.75} className="shrink-0 text-cobalto" aria-hidden />
+            </a>
+
+            <ul className="mt-6 space-y-3 border-t border-linea pt-6 text-[15px]">
+              <li className="flex items-center gap-3">
+                <Mail size={18} className="shrink-0 text-pizarra" aria-hidden />
+                <a href="mailto:opticaromalaspiedras@hotmail.com" className="break-all text-tinta hover:text-cobalto">
+                  opticaromalaspiedras@hotmail.com
+                </a>
+              </li>
+            </ul>
+
+            <form onSubmit={enviar} className="mt-8 space-y-4 border-t border-linea pt-6">
+              <p className="font-semibold text-tinta">Dejanos tu consulta</p>
+              <label className="block text-sm text-pizarra">
+                Tu nombre
+                <input required value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} autoComplete="name" />
+              </label>
+              <label className="block text-sm text-pizarra">
+                Motivo
+                <select value={motivo} onChange={(e) => setMotivo(e.target.value)} className={campo}>
+                  {MOTIVOS.map((m) => (
+                    <option key={m}>{m}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-sm text-pizarra">
+                Mensaje
+                <textarea
+                  required
+                  rows={3}
+                  value={mensaje}
+                  onChange={(e) => setMensaje(e.target.value)}
+                  className={`${campo} resize-none`}
+                />
+              </label>
+              <button type="submit" className="btn-primary w-full">
+                Enviar por WhatsApp
+              </button>
             </form>
           </div>
 
-          {/* Quick Info */}
-          <div className="lg:col-span-2 flex flex-col justify-center space-y-8 reveal-right">
-            <div>
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Información directa</h3>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
-                    <Phone size={20} />
-                  </div>
-                  <div>
-                    <p className="text-slate-900 font-bold mb-1">Teléfonos</p>
-                    <a href="https://wa.me/598098871673" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm mb-1">
-                      📱 WhatsApp: +598 098 871 673
+          <ul id="sucursales" className="grid scroll-mt-24 gap-6 md:grid-cols-2 lg:col-span-8">
+            {SUCURSALES.map((s, i) => (
+              <li
+                key={s.nombre}
+                data-aparecer
+                data-aparecer-retraso={100 + i * 100}
+                className="flex flex-col overflow-hidden rounded-3xl ring-1 ring-linea"
+              >
+                <div className="p-6 sm:p-8">
+                  <h3 className="titular text-2xl text-tinta md:text-3xl">{s.nombre}</h3>
+                  <p className="mt-2 text-[15px] text-pizarra">{s.direccion}</p>
+
+                  <dl className="mt-6 space-y-2 text-[15px]">
+                    {HORARIO.map(({ dias, horas }) => (
+                      <div key={dias} className="flex justify-between gap-4 border-b border-linea pb-2">
+                        <dt className="text-pizarra">{dias}</dt>
+                        <dd className="tabular-nums text-tinta">{horas}</dd>
+                      </div>
+                    ))}
+                  </dl>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[15px]">
+                    <a href={s.telefono.href} className="flex items-center gap-2 font-semibold text-tinta hover:text-cobalto">
+                      <Phone size={16} aria-hidden />
+                      {s.telefono.texto}
                     </a>
-                    <a href="tel:23641800" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm mb-1">
-                      📞 Fijo Las Piedras: 2364 1800
-                    </a>
-                    <a href="tel:43339869" className="block text-slate-500 hover:text-blue-400 transition-colors text-sm">
-                      📞 Fijo Canelones: 4333 9869
+                    <a href={s.comoLlegar} target="_blank" rel="noopener noreferrer" className="enlace flex items-center gap-1">
+                      Cómo llegar
+                      <ArrowUpRight size={16} aria-hidden />
                     </a>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
-                    <MapPin size={20} />
-                  </div>
-                  <div>
-                    <p className="text-slate-900 font-bold mb-1">Visitanos</p>
-                    <p className="text-slate-500 text-sm">Rivera 617 (frente a la plaza), Las Piedras</p>
-                    <p className="text-slate-500 text-sm mt-1">Enrique Rodó 319, Canelones</p>
-                  </div>
+
+                <div className="relative min-h-64 flex-1 border-t border-linea bg-papel">
+                  <iframe
+                    src={s.mapa}
+                    title={`Mapa del local de ${s.nombre}`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 h-full w-full border-0"
+                  />
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 text-blue-400">
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <p className="text-slate-900 font-bold mb-1">Correo (Opcional)</p>
-                    <p className="text-slate-500 text-sm break-all">opticaromalaspiedras@hotmail.com</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

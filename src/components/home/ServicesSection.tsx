@@ -1,117 +1,88 @@
-'use client';
-
-import { useScrollReveal } from '@/hooks/useScrollReveal';
 import Image from 'next/image';
+import { Check, Eye, ShieldCheck, Wrench } from 'lucide-react';
+import { WHATSAPP_AGENDAR } from '@/lib/constants';
+import EncabezadoSeccion from './EncabezadoSeccion';
 
-const services = [
-  {
-    number: '01',
-    title: 'Atención Personalizada',
-    description: 'Te asesoramos para que encuentres el armazón perfecto para tu rostro y los cristales ideales para tus necesidades visuales diarias.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
-    color: 'from-blue-500 to-cyan-400',
-    glow: 'rgba(79,142,247,0.4)',
-  },
-  {
-    number: '02',
-    title: 'Taller Óptico Propio',
-    description: 'Calibrado y armado de tus lentes con la mayor precisión y en tiempo récord gracias a nuestro equipamiento de última generación.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    color: 'from-violet-500 to-purple-400',
-    glow: 'rgba(139,92,246,0.4)',
-  },
-  {
-    number: '03',
-    title: 'Garantía de Adaptación',
-    description: 'Si tus nuevos multifocales no te resultan cómodos en los primeros 30 días, los ajustamos o cambiamos sin costo adicional.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-    color: 'from-emerald-500 to-teal-400',
-    glow: 'rgba(16,185,129,0.4)',
-  },
-];
-
+// Servicios del local. La revisión visual conserva id="chequeo" (el menú
+// "Salud visual" y el pie apuntan ahí) y la sección id="servicios".
 export default function ServicesSection() {
-  useScrollReveal();
-
   return (
-    <section id="servicios" className="relative py-28 overflow-hidden bg-white">
-      {/* Background Image subtle */}
-      <div className="absolute inset-0">
-        <Image
-          src="/media/expositor-armazoens2.png"
-          alt="Óptica Roma"
-          fill
-          className="object-cover opacity-[0.03]"
+    <section id="servicios" className="bg-papel py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <EncabezadoSeccion
+          titulo="Servicios"
+          bajada="La revisión, el armado y los ajustes se hacen en el local."
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white" />
-      </div>
 
-      {/* Decorative glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-900/15 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-20 reveal">
-          <div className="section-label mb-5 inline-flex">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping-slow" />
-            Nuestros Servicios
-          </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Tecnología y <span className="gradient-text">calidez humana</span>
-          </h2>
-          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto">
-            Cuidamos tu salud visual con equipamiento de última generación y la atención que merecés.
-          </p>
-        </div>
-
-        {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className={`card p-8 group cursor-default reveal`}
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
-              {/* Big number in bg */}
-              <span className="absolute top-4 right-6 text-8xl font-black text-slate-900/[0.03] select-none leading-none">
-                {service.number}
-              </span>
-
-              {/* Icon */}
-              <div
-                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300`}
-                style={{ boxShadow: `0 0 20px ${service.glow}` }}
+        <div className="mt-12 grid gap-5 lg:grid-cols-12">
+          <article
+            id="chequeo"
+            data-aparecer
+            className="flex scroll-mt-24 flex-col rounded-3xl bg-cobalto p-8 text-white md:p-10 lg:col-span-5 lg:row-span-2"
+          >
+            <Eye size={32} strokeWidth={1.75} aria-hidden />
+            <h3 className="titular mt-10 text-3xl md:text-4xl">Revisión visual sin costo</h3>
+            <p className="mt-4 text-lg leading-relaxed text-white/80">
+              Te revisamos la vista antes de elegir los lentes, en Las Piedras y en Canelones. Agendá por WhatsApp.
+            </p>
+            <ul className="mt-8 space-y-3">
+              {['Sin costo y sin compromiso', 'En los dos locales', 'Resultado en el momento'].map((item) => (
+                <li key={item} className="flex gap-3 text-[15px]">
+                  <Check size={18} strokeWidth={2.25} className="mt-px shrink-0" aria-hidden />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-auto pt-10">
+              <a
+                href={WHATSAPP_AGENDAR}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-cta bg-white text-cobalto hover:bg-vidrio"
               >
-                {service.icon}
-              </div>
-
-              {/* Number label */}
-              <div className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-3">{service.number}</div>
-
-              <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors duration-300">
-                {service.title}
-              </h3>
-              <p className="text-slate-500 leading-relaxed text-sm">
-                {service.description}
-              </p>
-
-              {/* Bottom glow line on hover */}
-              <div className={`mt-6 h-[2px] w-0 group-hover:w-full bg-gradient-to-r ${service.color} rounded-full transition-all duration-500`} />
+                Agendá tu revisión
+              </a>
             </div>
-          ))}
+          </article>
+
+          <article
+            data-aparecer
+            data-aparecer-retraso={100}
+            className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-linea sm:grid-cols-2 lg:col-span-7"
+          >
+            <div className="relative aspect-[16/10] bg-linea sm:aspect-auto">
+              <Image
+                src="/media/local/taller-biseladora.jpg"
+                alt="Biseladora digital del taller de Óptica Roma"
+                fill
+                unoptimized
+                sizes="(max-width: 640px) 100vw, 30vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="p-8">
+              <Wrench size={26} strokeWidth={1.75} className="text-cobalto" aria-hidden />
+              <h3 className="titular mt-6 text-2xl text-tinta">Taller propio</h3>
+              <p className="mt-3 leading-relaxed text-pizarra">
+                Armamos y ajustamos tus lentes en nuestro taller, con biseladora digital. Por eso muchos trabajos salen en
+                el momento.
+              </p>
+            </div>
+          </article>
+
+          <article
+            data-aparecer
+            data-aparecer-retraso={200}
+            className="flex flex-col gap-6 rounded-3xl bg-white p-8 ring-1 ring-linea sm:flex-row sm:items-start lg:col-span-7"
+          >
+            <ShieldCheck size={26} strokeWidth={1.75} className="shrink-0 text-cobalto" aria-hidden />
+            <div>
+              <h3 className="titular text-2xl text-tinta">Garantía de adaptación</h3>
+              <p className="mt-3 leading-relaxed text-pizarra">
+                Si tus multifocales no te resultan cómodos en los primeros 30 días, los ajustamos o los cambiamos sin costo.
+              </p>
+            </div>
+          </article>
         </div>
       </div>
     </section>

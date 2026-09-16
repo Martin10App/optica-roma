@@ -1,71 +1,61 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Gift } from 'lucide-react';
 
+// Todavía no hay un sistema de newsletter: el email llega por WhatsApp y el
+// descuento se da en el local.
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [enviado, setEnviado] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const enviar = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.includes('@')) {
-      setStatus('error');
-      return;
-    }
-    // Por ahora, enviar a WhatsApp con el email (hasta tener backend de newsletter)
-    const message = `Hola! Me quiero suscribir al newsletter de Óptica Roma. Mi email es: ${email}`;
-    window.open(`https://wa.me/598098871673?text=${encodeURIComponent(message)}`, '_blank');
-    setStatus('success');
+    const mensaje = `Hola! Me quiero suscribir a las novedades de Óptica Roma. Mi email es: ${email.trim()}`;
+    window.open(`https://wa.me/598098871673?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener,noreferrer');
+    setEnviado(true);
     setEmail('');
   };
 
   return (
-    <section className="py-16 bg-blue-700">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <Gift size={28} className="text-white" />
-          <span className="text-white font-semibold text-sm">Beneficio exclusivo</span>
+    <section aria-labelledby="novedades" className="bg-papel">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:py-16 lg:px-8">
+        <div data-aparecer className="grid items-center gap-8 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <h2 id="novedades" className="titular text-2xl text-tinta md:text-3xl">
+              10% de descuento en tu primera compra
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-pizarra">
+              Dejanos tu email y te avisamos cuando lleguen modelos nuevos y promociones. No lo compartimos con nadie.
+            </p>
+          </div>
+
+          <form onSubmit={enviar} className="lg:col-span-6">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label htmlFor="email-novedades" className="sr-only">
+                Tu email
+              </label>
+              <input
+                id="email-novedades"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEnviado(false);
+                }}
+                placeholder="tu@email.com"
+                className="min-h-12 flex-1 rounded-full border-0 bg-white px-5 text-[15px] text-tinta ring-1 ring-linea placeholder:text-pizarra/70 focus:outline-none focus:ring-2 focus:ring-cobalto"
+              />
+              <button type="submit" className="btn-primary">
+                Suscribirme
+              </button>
+            </div>
+            <p className="mt-3 min-h-5 text-sm text-pizarra" aria-live="polite">
+              {enviado ? 'Listo: te abrimos WhatsApp para terminar y te respondemos con tu descuento.' : ''}
+            </p>
+          </form>
         </div>
-        <h2 className="text-2xl md:text-4xl font-extrabold text-white mb-4">
-          Suscribite y obtené un -10% en tu primera compra
-        </h2>
-        <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-          Recibí las últimas promociones, novedades de armazones y consejos de salud visual directamente en tu email.
-        </p>
-
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setStatus('idle'); }}
-            placeholder="tu@email.com"
-            className="flex-1 px-4 py-3 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-white border-0"
-          />
-          <button
-            type="submit"
-            className="px-6 py-3 rounded-full bg-white hover:bg-blue-50 text-cobalto font-semibold transition-colors flex items-center justify-center gap-2"
-          >
-            <Send size={16} />
-            Suscribirme
-          </button>
-        </form>
-
-        {status === 'success' && (
-          <p className="mt-4 text-sm text-blue-200">
-            ¡Gracias! Te contactaremos por WhatsApp con tu beneficio.
-          </p>
-        )}
-        {status === 'error' && (
-          <p className="mt-4 text-sm text-white">
-            Por favor ingresá un email válido.
-          </p>
-        )}
-
-        <p className="mt-4 text-xs text-blue-300">
-          No compartimos tu email con terceros. Podés darte de baja en cualquier momento.
-        </p>
       </div>
     </section>
   );

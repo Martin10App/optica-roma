@@ -1,71 +1,68 @@
 'use client';
 
 import Image from 'next/image';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { CheckCircle2 } from 'lucide-react';
+import { useMemo } from 'react';
+import { useCatalogo } from '@/lib/useCatalogo';
 
 export default function AboutSection() {
-  useScrollReveal();
+  const { productos, estado } = useCatalogo();
+
+  const armazones = useMemo(
+    () => productos.filter((p) => p.stock_visible && (p.categoria === 'Armazones de Receta' || p.categoria === 'Lentes de Sol')).length,
+    [productos]
+  );
+
+  const datos = [
+    { valor: '+10', texto: 'años haciendo lentes' },
+    { valor: '2', texto: 'locales: Las Piedras y Canelones' },
+    { valor: estado === 'listo' ? armazones.toLocaleString('es-UY') : '+1.000', texto: 'armazones en stock' },
+    { valor: '4,9', texto: 'de puntaje en Google' },
+  ];
 
   return (
-    <section id="nosotros" className="py-24 bg-slate-50 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left: Image */}
-          <div className="relative reveal-left">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] md:aspect-square border border-slate-200 shadow-xl">
-              <Image
-                src="/media/expositor-armazoens2.png"
-                alt="Óptica Roma Local"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-50/80 via-transparent to-transparent" />
-            </div>
-            
-            {/* Floating Card */}
-            <div className="absolute -bottom-8 -right-8 md:bottom-8 md:-right-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xl animate-float-delayed z-10 max-w-[200px]">
-              <p className="text-4xl font-extrabold text-blue-700 mb-1">
-                +15
+    <section id="nosotros" className="bg-white py-20 md:py-28">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8">
+        <div data-aparecer className="lg:col-span-5">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-linea">
+            <Image
+              src="/media/local/interior-las-piedras.jpg"
+              alt="Pared de armazones del local de Óptica Roma en Las Piedras"
+              fill
+              unoptimized
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
+
+        <div className="lg:col-span-7">
+          <div data-aparecer>
+            <h2 className="titular text-3xl text-tinta md:text-5xl">Nosotros</h2>
+            <div className="mt-6 space-y-4 text-lg leading-relaxed text-pizarra">
+              <p>
+                Óptica Roma está frente a la plaza de Las Piedras, en Rivera 617, y tiene un segundo local en Canelones.
+                Hace más de 10 años que hacemos lentes para las familias de la zona.
               </p>
-              <p className="text-slate-600 text-sm font-medium leading-snug">
-                Años cuidando la visión de tu familia.
+              <p>
+                Te atendemos de principio a fin: la revisión visual, la elección del armazón, los cristales y el armado en
+                nuestro taller. Además estamos certificados como especialistas en lentes progresivos Varilux.
               </p>
             </div>
           </div>
 
-          {/* Right: Content */}
-          <div className="reveal-right mt-12 lg:mt-0">
-            <div className="section-label mb-5 inline-flex">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping-slow" />
-              Nuestra Historia
-            </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-              Tu óptica de confianza <br />
-              <span className="gradient-text">con tecnología de vanguardia.</span>
-            </h2>
-            <p className="text-slate-500 text-lg mb-6 leading-relaxed">
-              En Óptica Roma combinamos la atención personalizada con los últimos avances en salud visual. Empezamos hace más de 10 años con una misión clara: ofrecer excelencia y el mejor asesoramiento a las familias de Las Piedras y Canelones.
-            </p>
-            <p className="text-slate-500 text-lg mb-10 leading-relaxed">
-              Conocemos a cada cliente por su nombre. Sabemos qué tipo de cristal necesitas para trabajar cómodo frente a la computadora y qué armazón resiste el día a día de tus hijos.
-            </p>
-
-            <ul className="space-y-4 mb-10">
-              {[
-                'Atención cálida, humana y sincera',
-                'Taller propio para armados urgentes',
-                'Garantía real sin letra chica'
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-slate-600 font-medium">
-                  <CheckCircle2 className="text-blue-700" size={20} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
+          <dl
+            data-aparecer
+            data-aparecer-retraso={120}
+            className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-linea pt-10 sm:grid-cols-4"
+          >
+            {datos.map(({ valor, texto }) => (
+              <div key={texto}>
+                <dt className="sr-only">{texto}</dt>
+                <dd className="titular text-4xl tabular-nums text-tinta xl:text-5xl">{valor}</dd>
+                <dd className="mt-2 text-sm leading-snug text-pizarra">{texto}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </section>

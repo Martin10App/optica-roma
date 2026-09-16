@@ -12,16 +12,15 @@ let pool: Pool | null = null;
 type Fila = Omit<Producto, 'precio' | 'precio_original'> & {
   precio: string | number;
   precio_original: string | number | null;
+  // false = el armazón ya no está en el inventario del programa (lo marca /api/armazones/sync)
+  en_inventario?: boolean | null;
 };
 
 async function leerNeon(): Promise<Fila[]> {
   pool ??= new Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
-  const { rows } = await pool.query<Fila>(`
-    SELECT id, marca, modelo, categoria, precio, precio_original,
-           imagen_url, stock_visible, mas_vendido
-    FROM armazones_publico
-    ORDER BY id DESC
-  `);
+  // SELECT * y no la lista de columnas: en_inventario la crea la sincronización
+  // la primera vez que corre, y nombrarla antes rompería el catálogo entero.
+  const { rows } = await pool.query<Fila>('SELECT * FROM armazones_publico ORDER BY id DESC');
   return rows;
 }
 
@@ -55,5 +54,8 @@ function esPublicable(producto: Producto) {
 export async function leerCatalogo(): Promise<Producto[]> {
   const archivoLocal = process.env.CATALOGO_ARCHIVO_LOCAL;
   const filas = archivoLocal ? await leerArchivoLocal(archivoLocal) : await leerNeon();
-  return filas.map(normalizar).filter(esPublicable);
+  return filas
+    .filter((fila) => fila.en_inventario !== false)
+    .map(normalizar)
+    .filter(esPublicable);
 }

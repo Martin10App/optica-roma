@@ -1,188 +1,210 @@
 'use client';
 
-import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { ShieldPlus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { ArrowRight, X } from 'lucide-react';
 
-const mutualistas = [
-  { name: 'BPS', img: '/media/logos/BPS-logo.png' },
-  { name: 'CASMU', img: '/media/logos/casmu-logo.jpg' },
-  { name: 'CRAMI', img: '/media/logos/mutualista-crami.png' },
-  { name: 'Círculo Católico', img: '/media/logos/mutualista-circulo-catolico.png' },
-  { name: 'Asistencia Integral', img: '/media/logos/asistencia-integral-asse.svg' },
-  { name: 'Médica Uruguaya', img: '/media/logos/medica-uruguaya.webp' },
-  { name: 'Hospital Policial', img: '' },
-  { name: 'Y todas las demás...', img: '' }
+const WHATSAPP = 'https://wa.me/598098871673?text=';
+
+type Cobertura = {
+  nombre: string;
+  logo?: string;
+  detalle?: 'bps' | 'asse';
+};
+
+const COBERTURAS: Cobertura[] = [
+  { nombre: 'BPS', logo: '/media/logos/BPS-logo.png', detalle: 'bps' },
+  { nombre: 'Asistencia Integral', logo: '/media/logos/asistencia-integral-asse.svg', detalle: 'asse' },
+  { nombre: 'CASMU', logo: '/media/logos/casmu-logo.jpg' },
+  { nombre: 'CRAMI', logo: '/media/logos/mutualista-crami.png' },
+  { nombre: 'Círculo Católico', logo: '/media/logos/mutualista-circulo-catolico.png' },
+  { nombre: 'Médica Uruguaya', logo: '/media/logos/medica-uruguaya.webp' },
+  { nombre: 'Hospital Policial' },
 ];
 
 export default function CoverageSection() {
-  useScrollReveal();
-  const [isBpsModalOpen, setIsBpsModalOpen] = useState(false);
-  const [isAsseModalOpen, setIsAsseModalOpen] = useState(false);
+  const [abierto, setAbierto] = useState<'bps' | 'asse' | null>(null);
+  const cerrarVentana = useCallback(() => setAbierto(null), []);
 
   return (
-    <section id="coberturas" className="py-20 bg-white border-t border-slate-100 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* Left: Info */}
-          <div className="lg:w-1/3 text-center lg:text-left reveal-left">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-700 text-white mb-6 shadow-lg">
-              <ShieldPlus size={24} />
-            </div>
-            <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
-              Trabajamos con <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-blue-500">todas las mutualistas</span>
-            </h2>
-            <p className="text-slate-500 mb-8">
-              Consultá por tu receta de BPS, Asistencia Integral o cualquier prestador de salud. Gestionamos los trámites y te asesoramos para que aproveches al máximo tus beneficios.
-            </p>
-            <a
-              href="https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20mi%20cobertura%20por%20mutualista."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-blue-700 bg-white border border-blue-200 hover:bg-blue-50 transition-colors"
-            >
-              Consultá tu cobertura →
-            </a>
-          </div>
-
-          {/* Right: Logos/Names */}
-          <div className="lg:w-2/3 grid grid-cols-2 md:grid-cols-4 gap-4 reveal-right">
-            {mutualistas.map((item, i) => (
-              <div 
-                key={item.name}
-                onClick={() => {
-                  if (item.name === 'BPS') setIsBpsModalOpen(true);
-                  if (item.name === 'Asistencia Integral') setIsAsseModalOpen(true);
-                }}
-                className={`flex items-center justify-center h-24 rounded-2xl bg-white border border-slate-200 text-slate-500 font-bold text-center p-4 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ${(item.name === 'BPS' || item.name === 'Asistencia Integral') ? 'cursor-pointer' : ''}`}
-                style={{ transitionDelay: `${i * 50}ms` }}
-              >
-                {item.img ? (
-                  <img src={item.img} alt={item.name} className="max-h-full max-w-full object-contain filter grayscale hover:grayscale-0 transition-all opacity-80 hover:opacity-100 mix-blend-multiply" />
-                ) : (
-                  <span>{item.name}</span>
-                )}
-              </div>
-            ))}
-          </div>
+    <section id="coberturas" className="bg-white py-20 md:py-28">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+        <div data-aparecer className="lg:col-span-5">
+          <h2 className="titular text-3xl text-tinta md:text-5xl">Mutualistas y BPS</h2>
+          <p className="mt-4 text-lg leading-relaxed text-pizarra">
+            Trabajamos con todas las mutualistas. Si tenés el subsidio de BPS o el beneficio de Asistencia Integral, hacemos
+            el trámite en el local.
+          </p>
+          <a
+            href={WHATSAPP + encodeURIComponent('Hola! Quiero consultar por mi cobertura de mutualista.')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline mt-8"
+          >
+            Consultá tu cobertura
+          </a>
         </div>
+
+        <ul
+          data-aparecer
+          data-aparecer-retraso={100}
+          className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-linea ring-1 ring-linea sm:grid-cols-4 lg:col-span-7"
+        >
+          {COBERTURAS.map((c) => {
+            const contenido = (
+              <>
+                {c.logo ? (
+                  <img
+                    src={c.logo}
+                    alt={c.nombre}
+                    loading="lazy"
+                    className="max-h-12 max-w-[80%] object-contain mix-blend-multiply grayscale transition group-hover:grayscale-0"
+                  />
+                ) : (
+                  <span className="text-center text-[15px] font-semibold text-tinta">{c.nombre}</span>
+                )}
+                {c.detalle && (
+                  <span className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-1 text-[12px] font-medium text-cobalto">
+                    Cómo funciona <ArrowRight size={12} aria-hidden />
+                  </span>
+                )}
+              </>
+            );
+            return (
+              <li key={c.nombre} className="bg-white">
+                {c.detalle ? (
+                  <button
+                    type="button"
+                    onClick={() => setAbierto(c.detalle!)}
+                    className="group relative flex h-28 w-full items-center justify-center transition-colors hover:bg-papel sm:h-32"
+                    aria-label={`${c.nombre}: cómo funciona`}
+                  >
+                    {contenido}
+                  </button>
+                ) : (
+                  <div className="group relative flex h-28 items-center justify-center px-3 sm:h-32">{contenido}</div>
+                )}
+              </li>
+            );
+          })}
+          <li className="flex h-28 items-center justify-center bg-white px-3 text-center text-[15px] text-pizarra sm:h-32">
+            y todas las demás
+          </li>
+        </ul>
       </div>
 
-      {/* BPS Modal */}
-      {isBpsModalOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsBpsModalOpen(false)} />
-          
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in p-8">
-            <button 
-              onClick={() => setIsBpsModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors"
-            >
-              <X size={24} />
-            </button>
+      <Ventana
+        abierta={abierto === 'bps'}
+        alCerrar={cerrarVentana}
+        titulo="Subsidio de BPS"
+        logo="/media/logos/BPS-logo.png"
+        mensaje="Hola! Quiero consultar por el subsidio del BPS."
+      >
+        <p>
+          Hacemos la gestión del subsidio de BPS en el local, para que no tengas que hacer el trámite por tu cuenta. Con tu
+          receta y tu cédula lo ingresamos en el sistema de BPS y el subsidio se descuenta del total de tu compra.
+        </p>
+        <h3>Qué necesitás traer</h3>
+        <ul>
+          <li>Tu cédula de identidad vigente.</li>
+          <li>Tu receta oftalmológica, emitida dentro de los últimos 60 días.</li>
+        </ul>
+        <p>El trámite se puede hacer una vez cada dos años y suele completarse en pocos minutos.</p>
+        <h3>Menores de 14 años</h3>
+        <p>
+          Si sos trabajador dependiente de la actividad privada, cobrás seguro de desempleo o sos jubilado con menores de 14
+          años a cargo, también podés pedir el beneficio para los lentes recetados a tus hijos o a los menores a tu cargo.
+        </p>
+      </Ventana>
 
-            <div className="text-slate-600 leading-relaxed">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-blue-800 flex items-center gap-3 mb-6">
-                <img src="/media/logos/BPS-logo.png" alt="BPS" className="h-10 object-contain m-0" />
-                Subsidio en Óptica Roma
-              </h2>
-              
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Cómo obtener el subsidio del BPS?</h3>
-              <p className="mb-4">En Óptica Roma realizamos la gestión del subsidio BPS para que no tengas que realizar trámites personalmente.</p>
-              <p className="mb-4">Presentando tu receta oftalmológica con menos de 60 días de vigencia y tu cédula de identidad, gestionaremos tu solicitud para acceder al beneficio de lentes convencionales otorgado por BPS.</p>
-              <p className="mb-4">Este trámite puede realizarse una vez cada dos años y suele completarse en pocos minutos.</p>
-
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Qué necesitamos para tramitarlo?</h3>
-              <p className="mb-3">Simplemente acercanos:</p>
-              <ul className="list-disc pl-5 mb-6 space-y-2">
-                <li>Tu cédula de identidad vigente.</li>
-                <li>Tu receta oftalmológica vigente (emitida dentro de los últimos 60 días).</li>
-              </ul>
-              <p className="mb-4">Con esa documentación ingresaremos la solicitud correspondiente en el sistema de BPS para gestionar el beneficio aplicable a tus lentes. El subsidio otorgado será descontado directamente del importe total de tu compra.</p>
-
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Sabías que tus hijos menores de 14 años también pueden acceder a este beneficio?</h3>
-              <p className="mb-4">Si sos trabajador dependiente de la actividad privada, percibís seguro de desempleo o sos jubilado con menores de 14 años a cargo, también podés solicitar el beneficio para los lentes recetados a tus hijos o menores bajo tu tutela.</p>
-
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-5 mt-10 rounded-r-xl">
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Consultas</h3>
-                <p className="mb-3">Si tenés dudas sobre el beneficio o la documentación necesaria, comunicate con nosotros y con gusto te asesoraremos.</p>
-                <p className="font-medium text-blue-900">¡En Óptica Roma nos encargamos del trámite para que vos solo tengas que elegir los lentes ideales para vos!</p>
-              </div>
-
-              <div className="mt-10 text-center">
-                <a
-                  href="https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20el%20subsidio%20del%20BPS."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 no-underline"
-                >
-                  Consultar por WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ASSE Modal */}
-      {isAsseModalOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsAsseModalOpen(false)} />
-          
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in p-8">
-            <button 
-              onClick={() => setIsAsseModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:bg-slate-100 rounded-full transition-colors"
-            >
-              <X size={24} />
-            </button>
-
-            <div className="text-slate-600 leading-relaxed">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-blue-800 flex items-center gap-3 mb-6">
-                <img src="/media/logos/asistencia-integral-asse.svg" alt="Asistencia Integral ASSE" className="h-10 object-contain m-0" />
-                Asistencia Integral
-              </h2>
-              
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Sos funcionario de ASSE?</h3>
-              <p className="mb-4">En Óptica Roma trabajamos con el beneficio de Asistencia Integral, permitiéndote acceder a descuentos y facilidades para la adquisición de tus lentes.</p>
-
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Cómo acceder al beneficio?</h3>
-              <p className="mb-3">Es muy sencillo. Solo necesitás presentar:</p>
-              <ul className="list-disc pl-5 mb-6 space-y-2">
-                <li>Tu cédula de identidad.</li>
-                <li>Tu receta oftalmológica vigente.</li>
-                <li>La documentación requerida por Asistencia Integral para acreditar tu condición de beneficiario.</li>
-              </ul>
-              <p className="mb-4">Nuestro equipo te asesorará y realizará las verificaciones necesarias para que puedas aprovechar el beneficio correspondiente al momento de realizar tu compra.</p>
-
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">¿Qué incluye el beneficio?</h3>
-              <p className="mb-4">Los beneficiarios de Asistencia Integral pueden acceder a importantes descuentos y condiciones especiales en lentes y cristales, de acuerdo con la cobertura vigente al momento de la compra.</p>
-
-              <h3 className="text-xl font-bold text-slate-800 mt-8 mb-4">Te asesoramos en todo el proceso</h3>
-              <p className="mb-4">En Óptica Roma te ayudamos a gestionar la documentación necesaria y a encontrar la mejor opción para tus necesidades visuales, aprovechando al máximo los beneficios disponibles.</p>
-
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-5 mt-10 rounded-r-xl">
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Consultas</h3>
-                <p className="mb-3">Si tenés dudas sobre tu cobertura o la documentación requerida, comunicate con nosotros. Con gusto te brindaremos toda la información necesaria.</p>
-                <p className="font-medium text-blue-900">¡Acercate a Óptica Roma y aprovechá los beneficios de Asistencia Integral para cuidar tu salud visual!</p>
-              </div>
-
-              <div className="mt-10 text-center">
-                <a
-                  href="https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20el%20beneficio%20de%20Asistencia%20Integral%20ASSE."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 no-underline"
-                >
-                  Consultar por WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Ventana
+        abierta={abierto === 'asse'}
+        alCerrar={cerrarVentana}
+        titulo="Asistencia Integral"
+        logo="/media/logos/asistencia-integral-asse.svg"
+        mensaje="Hola! Quiero consultar por el beneficio de Asistencia Integral ASSE."
+      >
+        <p>
+          Trabajamos con el beneficio de Asistencia Integral para funcionarios de ASSE: descuentos y facilidades en lentes y
+          cristales, según la cobertura vigente al momento de la compra.
+        </p>
+        <h3>Qué necesitás traer</h3>
+        <ul>
+          <li>Tu cédula de identidad.</li>
+          <li>Tu receta oftalmológica vigente.</li>
+          <li>La documentación de Asistencia Integral que acredita que sos beneficiario.</li>
+        </ul>
+        <p>Te asesoramos con la documentación y hacemos las verificaciones en el momento de la compra.</p>
+      </Ventana>
     </section>
+  );
+}
+
+type VentanaProps = {
+  abierta: boolean;
+  alCerrar: () => void;
+  titulo: string;
+  logo: string;
+  mensaje: string;
+  children: ReactNode;
+};
+
+function Ventana({ abierta, alCerrar, titulo, logo, mensaje, children }: VentanaProps) {
+  const cerrar = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!abierta) return;
+    const previo = document.activeElement as HTMLElement | null;
+    cerrar.current?.focus();
+    const alTeclear = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') alCerrar();
+    };
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', alTeclear);
+    return () => {
+      document.removeEventListener('keydown', alTeclear);
+      document.body.style.overflow = overflow;
+      previo?.focus();
+    };
+  }, [abierta, alCerrar]);
+
+  if (!abierta) return null;
+
+  return (
+    <div className="fixed inset-0 z-[120] flex items-end justify-center sm:items-center sm:p-4">
+      <div className="animate-fade-in absolute inset-0 bg-tinta/50" onClick={alCerrar} aria-hidden />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={titulo}
+        className="animate-fade-in-up relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-6 sm:rounded-3xl sm:p-10"
+      >
+        <button
+          ref={cerrar}
+          type="button"
+          onClick={alCerrar}
+          className="absolute right-4 top-4 rounded-full p-2 text-pizarra transition-colors hover:bg-papel hover:text-tinta"
+          aria-label="Cerrar"
+        >
+          <X size={22} />
+        </button>
+
+        <img src={logo} alt="" className="h-10 w-auto object-contain" />
+        <h2 className="titular mt-6 text-3xl text-tinta">{titulo}</h2>
+
+        <div className="mt-5 space-y-4 text-[15px] leading-relaxed text-pizarra [&_h3]:pt-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-tinta [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1.5">
+          {children}
+        </div>
+
+        <a
+          href={WHATSAPP + encodeURIComponent(mensaje)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary mt-8 w-full sm:w-auto"
+        >
+          Consultar por WhatsApp
+        </a>
+      </div>
+    </div>
   );
 }

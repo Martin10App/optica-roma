@@ -1,188 +1,124 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { Check, Phone } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { formatearPrecio } from '@/lib/catalogoTipos';
+import EncabezadoSeccion from './EncabezadoSeccion';
+
+const WHATSAPP = 'https://wa.me/598098871673?text=';
+
+type Promo = {
+  etiqueta: string;
+  titulo: string;
+  precio?: number;
+  foto: string;
+  fotoAlt: string;
+  incluye: string[];
+  nota: string;
+  mensaje: string;
+  link?: { texto: string; href: string };
+};
+
+const PROMOS: Promo[] = [
+  {
+    etiqueta: 'Armazón y cristales',
+    titulo: 'Armazón Ninety con cristales monofocales y antirreflejo',
+    precio: 4900,
+    foto: '/media/promo-ninety-web.jpg',
+    fotoAlt: 'Armazones de la colección Ninety',
+    incluye: [
+      'Armazón de la colección Ninety (modelos seleccionados)',
+      'Cristales monofocales de índice 1.56 con antirreflejo',
+      'Armado en nuestro taller',
+      'Garantía de adaptación de 30 días',
+    ],
+    nota: 'Traé la receta de tu médico con la graduación.',
+    mensaje: 'Hola! Quiero consultar por la promo de $4.900: armazón Ninety con cristales monofocales.',
+    link: { texto: 'Ver armazones Ninety', href: '/catalogo/armazones-de-receta/ninety' },
+  },
+  {
+    etiqueta: 'Varilux',
+    titulo: 'Tu segundo par de lentes progresivos, de regalo',
+    foto: '/media/promo-varilux-web.jpg',
+    fotoAlt: 'Varilux: tu segundo par de lentes progresivos de regalo',
+    incluye: [
+      'Cristales progresivos Varilux',
+      'Un segundo par de progresivos de regalo',
+      'Antirreflejo en los dos pares',
+      'Armazón a elección del catálogo',
+    ],
+    nota: '¿No tenés receta? Te hacemos la revisión visual sin costo.',
+    mensaje: 'Hola! Quiero consultar por la promo Varilux con el segundo par de regalo.',
+    link: { texto: 'Conocé Varilux', href: '/projects/varilux-x-series' },
+  },
+];
 
 export default function PromosSection() {
-  useScrollReveal();
-
   return (
-    <section id="promociones" className="py-20 md:py-28 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16 reveal">
-          <div className="section-label mb-4 inline-flex">Promociones Exclusivas</div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Aprovechá nuestros <span className="text-blue-700">beneficios</span>
-          </h2>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-            Ofertas reales con todo incluido, sin letras chicas.
-          </p>
-        </div>
+    <section id="promociones" className="bg-white py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <EncabezadoSeccion titulo="Promociones" />
 
-        <div className="flex flex-col gap-8">
-          {/* Promo 1: $4.900 Armazón + Cristales */}
-          <div className="card overflow-hidden reveal">
-            <div className="grid lg:grid-cols-2 gap-0">
-              {/* Left: Info */}
-              <div className="p-8 md:p-12 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700">
-                    Promo Completa — Todo incluido
-                  </span>
-                </div>
-
-                <p className="text-sm text-slate-500 font-medium mb-1 uppercase tracking-wider">
-                  Precio final
-                </p>
-                <p className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-none mb-6">
-                  $<span className="text-blue-700">4.900</span>
-                </p>
-
-                <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3">
-                  Armazón Ninety + Cristales Monofocales con Antirreflejo
-                </h3>
-                <p className="text-slate-500 mb-6 leading-relaxed">
-                  Llevate un armazón de la colección <strong className="text-slate-700">Ninety</strong> con cristales{' '}
-                  <strong className="text-slate-700">monofocales</strong> de material índice 1.56 y tratamiento antirreflejo.
-                  <strong className="text-slate-900"> Traé tu receta del médico</strong> y lo hacemos en el momento en nuestro taller propio.
-                </p>
-
-                <ul className="space-y-2.5 mb-8">
-                  {[
-                    'Armazón de la colección Ninety (modelos seleccionados)',
-                    'Cristales monofocales material índice 1.56',
-                    'Tratamiento antirreflejo completo',
-                    'Armado en nuestro taller propio',
-                    'Garantía de adaptación 30 días',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check size={11} className="text-blue-700" />
-                      </div>
-                      <span className="text-slate-600 text-sm">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 mb-8">
-                  <span className="text-lg">📋</span>
-                  <div>
-                    <p className="text-amber-700 font-semibold text-sm">Requiere receta médica</p>
-                    <p className="text-amber-600/80 text-xs mt-0.5">
-                      Traé la receta de tu oftalmólogo o médico de cabecera para poder hacer los cristales con tu graduación exacta.
-                    </p>
-                  </div>
-                </div>
-
-                <a
-                  href={`https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20la%20Promo%20$4900%20Armazón%20Ninety%20+%20Cristales%20Monofocales`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary self-start"
-                >
-                  <Phone size={16} />
-                  Consultar esta promo
-                </a>
-              </div>
-
-              {/* Right: Visual */}
-              <div className="relative min-h-[300px] lg:min-h-0 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100">
+        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+          {PROMOS.map((promo, i) => (
+            <article
+              key={promo.titulo}
+              data-aparecer
+              data-aparecer-retraso={i * 120}
+              className="flex flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-linea"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden bg-papel">
                 <Image
-                  src="/media/promo-ninety.jpg"
-                  alt="Colección Ninety"
+                  src={promo.foto}
+                  alt={promo.fotoAlt}
                   fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent lg:bg-gradient-to-r" />
-                <div className="absolute bottom-6 left-6">
-                  <Link
-                    href="/catalogo/armazones-de-receta/ninety"
-                    className="px-4 py-2 bg-blue-700 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-colors shadow-lg inline-block"
-                  >
-                    Ver Colección Ninety →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Promo 2: Varilux + 2do par gratis */}
-          <div className="card overflow-hidden reveal" style={{ transitionDelay: '150ms' }}>
-            <div className="grid lg:grid-cols-2 gap-0">
-              {/* Left: Visual */}
-              <div className="relative min-h-[300px] bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-100 order-2 lg:order-1">
-                <Image
-                  src="/media/promo-varilux.png"
-                  alt="Promo Varilux"
-                  fill
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
-                <div className="absolute top-6 left-6 bg-white text-cobalto px-4 py-2 rounded-full font-semibold text-sm">
-                  ¡2do par GRATIS!
-                </div>
               </div>
 
-              {/* Right: Info */}
-              <div className="p-8 md:p-12 flex flex-col justify-center order-1 lg:order-2">
-                <div className="flex items-center gap-2 mb-4">
-                  
-                  <span className="text-sm font-medium text-cobalto">
-                    Promo Varilux — Por tiempo limitado
-                  </span>
-                </div>
+              <div className="flex flex-1 flex-col p-6 sm:p-8 md:p-10">
+                <p className="text-sm font-semibold text-cobalto">{promo.etiqueta}</p>
+                <h3 className="titular mt-2 text-2xl text-tinta md:text-[1.75rem]">{promo.titulo}</h3>
 
-                <h3 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3 leading-tight">
-                  Cristales Varilux +{' '}
-                  2do par de multifocales de regalo
-                </h3>
+                {promo.precio != null && (
+                  <p className="mt-5 flex items-baseline gap-2">
+                    <span className="text-4xl font-semibold tabular-nums tracking-tight text-tinta md:text-5xl">
+                      {formatearPrecio(promo.precio)}
+                    </span>
+                    <span className="text-sm text-pizarra">precio final</span>
+                  </p>
+                )}
 
-                <p className="text-slate-500 mb-6 leading-relaxed">
-                  Con la compra de tus cristales progresivos <strong className="text-slate-700">Varilux</strong>, te llevás un segundo par de multifocales completamente gratis. Ideal para tener uno en el trabajo y otro para el día a día.
-                </p>
-
-                <ul className="space-y-2.5 mb-8">
-                  {[
-                    'Cristales multifocales Varilux (tecnología digital)',
-                    '2do par de multifocales de regalo',
-                    'Armazón a elección del catálogo',
-                    'Antirreflejo incluido en ambos pares',
-                    'Armado en nuestro taller propio',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check size={11} className="text-blue-700" />
-                      </div>
-                      <span className="text-slate-600 text-sm">{item}</span>
+                <ul className="mt-6 space-y-3">
+                  {promo.incluye.map((item) => (
+                    <li key={item} className="flex gap-3 text-[15px] leading-snug text-tinta/85">
+                      <Check size={18} strokeWidth={2.25} className="mt-px shrink-0 text-cobalto" aria-hidden />
+                      {item}
                     </li>
                   ))}
                 </ul>
 
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50 border border-green-200 mb-8">
-                  <span className="text-lg">✅</span>
-                  <div>
-                    <p className="text-green-700 font-semibold text-sm">¡Sin receta previa necesaria!</p>
-                    <p className="text-green-600/80 text-xs mt-0.5">
-                      No importa si no tenés receta. Te agendamos con nuestro profesional para el chequeo visual sin costo.
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-6 border-t border-linea pt-5 text-[15px] text-pizarra">{promo.nota}</p>
 
-                <a
-                  href={`https://wa.me/598098871673?text=Hola!%20Quiero%20consultar%20por%20la%20Promo%20Varilux%20segundo%20par%20de%20regalo`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary self-start"
-                >
-                  <Phone size={16} />
-                  Consultar esta promo
-                </a>
+                <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-4 pt-8">
+                  <a
+                    href={WHATSAPP + encodeURIComponent(promo.mensaje)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                  >
+                    Consultar por WhatsApp
+                  </a>
+                  {promo.link && (
+                    <Link href={promo.link.href} className="enlace text-[15px]">
+                      {promo.link.texto}
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>
