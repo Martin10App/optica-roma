@@ -46,7 +46,7 @@ const PROMOS: Promo[] = [
       'Antirreflejo en los dos pares',
       'Armazón a elección del catálogo',
     ],
-    nota: '¿No tenés receta? Te hacemos la revisión visual sin costo.',
+    nota: '¿No tenés receta? Te derivamos a un médico oftalmólogo.',
     mensaje: 'Hola! Quiero consultar por la promo Varilux con el segundo par de regalo.',
     link: { texto: 'Conocé Varilux', href: '/projects/varilux-x-series' },
   },

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Óptica Roma | Tu visión es nuestra prioridad",
   description:
-    "Encontrá los mejores armazones y cristales en Óptica Roma. Visitanos en Las Piedras y Canelones. Atención personalizada, revisión visual gratuita y calidad profesional.",
+    "Encontrá los mejores armazones y cristales en Óptica Roma. Visitanos en Las Piedras y Canelones. Atención personalizada, taller propio y trámite de BPS en el local.",
   keywords: [
     "óptica",
     "lentes",
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     "Las Piedras",
     "Canelones",
     "Uruguay",
-    "revisión visual",
-    "chequeo de ojos",
+    "lentes de sol",
+    "subsidio BPS",
   ],
   openGraph: {
     title: "Óptica Roma | Tu visión es nuestra prioridad",

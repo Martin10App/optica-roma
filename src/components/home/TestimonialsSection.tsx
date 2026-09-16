@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import { Star } from 'lucide-react';
 import EncabezadoSeccion from './EncabezadoSeccion';
 
@@ -60,7 +57,10 @@ const RESENAS = [
   { nombre: 'Karina Perez', texto: 'Excelente en Todo... Recomiendo 100%' },
 ];
 
-const INICIALES = 6;
+// Dos filas que avanzan hacia lados opuestos, como el desfile de Recién llegados:
+// se frenan al pasar el mouse y con "reducir movimiento" quedan quietas con
+// scroll horizontal.
+const FILAS = [RESENAS.slice(0, 7), RESENAS.slice(7)];
 
 function Estrellas({ tamano = 16 }: { tamano?: number }) {
   return (
@@ -73,11 +73,8 @@ function Estrellas({ tamano = 16 }: { tamano?: number }) {
 }
 
 export default function TestimonialsSection() {
-  const [todas, setTodas] = useState(false);
-  const visibles = todas ? RESENAS : RESENAS.slice(0, INICIALES);
-
   return (
-    <section aria-labelledby="opiniones" className="bg-papel py-20 md:py-28">
+    <section aria-labelledby="opiniones" className="overflow-hidden bg-papel py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <EncabezadoSeccion
           idTitulo="opiniones"
@@ -93,40 +90,45 @@ export default function TestimonialsSection() {
             </a>
           }
         />
+      </div>
 
-        <ul className="mt-12 gap-5 sm:columns-2 lg:columns-3">
-          {visibles.map((r, i) => (
-            <li
-              key={r.nombre}
-              data-aparecer
-              data-aparecer-retraso={(i % 3) * 80}
-              className="mb-5 break-inside-avoid rounded-2xl bg-white p-6 ring-1 ring-linea md:p-7"
+      <div data-aparecer className="mt-12 space-y-5">
+        {FILAS.map((fila, f) => (
+          <div key={f} className="desfile-marco py-1">
+            <ul
+              className={`desfile flex w-max ${f === 1 ? 'desfile-inverso' : ''}`}
+              style={{ '--duracion': `${fila.length * 10}s` } as React.CSSProperties}
             >
-              <Estrellas tamano={14} />
-              <blockquote className="mt-4 text-[16px] leading-relaxed text-tinta">{r.texto}</blockquote>
-              <footer className="mt-5 flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vidrio text-sm font-semibold text-cobalto"
-                >
-                  {r.nombre.charAt(0)}
-                </span>
-                <span className="text-sm">
-                  <span className="block font-semibold text-tinta">{r.nombre}</span>
-                  <span className="text-pizarra">{r.detalle ? `${r.detalle} en Google` : 'Reseña de Google'}</span>
-                </span>
-              </footer>
-            </li>
-          ))}
-        </ul>
-
-        {!todas && (
-          <div className="mt-6 text-center">
-            <button type="button" onClick={() => setTodas(true)} className="btn-outline bg-white">
-              Ver más opiniones
-            </button>
+              {[...fila, ...fila].map((r, i) => {
+                const copia = i >= fila.length;
+                return (
+                  // Margen a la izquierda (y no gap) para que el -50% del desfile caiga justo
+                  <li key={`${r.nombre}-${i}`} aria-hidden={copia || undefined} className="ml-5 flex w-[300px] shrink-0 md:w-[380px]">
+                    <figure className="flex w-full flex-col rounded-2xl bg-white p-6 ring-1 ring-linea md:p-7">
+                      <div className="flex items-center justify-between">
+                        <Estrellas tamano={14} />
+                        <img src="/media/logos/google-g-logo.svg" alt="" width={18} height={18} loading="lazy" />
+                      </div>
+                      <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-tinta md:text-base">{r.texto}</blockquote>
+                      <figcaption className="mt-5 flex items-center gap-3">
+                        <span
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vidrio text-sm font-semibold text-cobalto"
+                        >
+                          {r.nombre.charAt(0)}
+                        </span>
+                        <span className="text-sm">
+                          <span className="block font-semibold text-tinta">{r.nombre}</span>
+                          <span className="text-pizarra">{r.detalle ? `${r.detalle} en Google` : 'Reseña de Google'}</span>
+                        </span>
+                      </figcaption>
+                    </figure>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-        )}
+        ))}
       </div>
     </section>
   );

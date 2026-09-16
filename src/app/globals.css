@@ -306,6 +306,11 @@
     animation: desfile var(--duracion, 70s) linear infinite;
   }
 
+  /* Segunda fila de opiniones y de marcas: va hacia el otro lado */
+  .desfile-inverso {
+    animation-direction: reverse;
+  }
+
   .desfile-marco:hover .desfile,
   .desfile-marco:focus-within .desfile {
     animation-play-state: paused;

@@ -7,13 +7,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import AuthModal from '@/components/auth/AuthModal';
-import { WHATSAPP_AGENDAR } from '@/lib/constants';
+import { WHATSAPP_CONSULTA } from '@/lib/constants';
 
 const navegacion = [
   { name: 'Catálogo', href: '/catalogo' },
   { name: 'Promociones', href: '/#promociones' },
   { name: 'Cristales', href: '/#cristales' },
-  { name: 'Salud visual', href: '/#chequeo' },
+  { name: 'Servicios', href: '/#servicios' },
   { name: 'Nosotros', href: '/#nosotros' },
   { name: 'Contacto', href: '/#contacto' },
 ];
@@ -107,12 +107,12 @@ export default function Header() {
 
           <div className="flex items-center gap-1 sm:gap-2">
             <a
-              href={WHATSAPP_AGENDAR}
+              href={WHATSAPP_CONSULTA}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-cta mr-2 hidden !min-h-10 !px-5 lg:inline-flex"
             >
-              Agendá tu revisión
+              Consultanos
             </a>
 
             {user ? (
@@ -186,13 +186,13 @@ export default function Header() {
             </nav>
 
             <a
-              href={WHATSAPP_AGENDAR}
+              href={WHATSAPP_CONSULTA}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setIsMenuOpen(false)}
               className="btn-cta w-full"
             >
-              Agendá tu revisión
+              Consultanos por WhatsApp
             </a>
           </div>
         </div>

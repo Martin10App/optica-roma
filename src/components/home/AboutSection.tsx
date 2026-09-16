@@ -23,10 +23,10 @@ export default function AboutSection() {
     <section id="nosotros" className="bg-white py-20 md:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-8">
         <div data-aparecer className="lg:col-span-5">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-linea">
+          <div className="relative aspect-square overflow-hidden rounded-3xl bg-linea">
             <Image
-              src="/media/local/interior-las-piedras.jpg"
-              alt="Pared de armazones del local de Óptica Roma en Las Piedras"
+              src="/media/local/vidriera-optica-roma.jpg"
+              alt="Vidriera de Óptica Roma con los árboles de la plaza de Las Piedras reflejados"
               fill
               unoptimized
               sizes="(max-width: 1024px) 100vw, 40vw"
@@ -44,8 +44,9 @@ export default function AboutSection() {
                 Hace más de 10 años que hacemos lentes para las familias de la zona.
               </p>
               <p>
-                Te atendemos de principio a fin: la revisión visual, la elección del armazón, los cristales y el armado en
-                nuestro taller. Además estamos certificados como especialistas en lentes progresivos Varilux.
+                Te acompañamos en todo el proceso: si no tenés receta te derivamos a un médico oftalmólogo, te ayudamos a
+                elegir el armazón y los cristales, y armamos tus lentes en nuestro taller. Además estamos certificados como
+                especialistas en lentes progresivos Varilux.
               </p>
             </div>
           </div>

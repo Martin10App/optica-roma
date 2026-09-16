@@ -28,7 +28,7 @@ const HORARIO = [
   { dias: 'Sábados', horas: '9:00 a 13:00' },
 ];
 
-const MOTIVOS = ['Consulta general', 'Presupuesto con receta', 'Agendar revisión visual', 'Estado de mi pedido'];
+const MOTIVOS = ['Consulta general', 'Presupuesto con receta', 'No tengo receta', 'Estado de mi pedido'];
 
 // Contacto y sucursales en una sola sección. Conserva id="contacto" (menú) e
 // id="sucursales". El formulario no guarda nada: arma el mensaje y abre WhatsApp.

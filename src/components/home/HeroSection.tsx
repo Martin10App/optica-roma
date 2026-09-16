@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { BadgeCheck, Eye, Wrench } from 'lucide-react';
-import { WHATSAPP_AGENDAR } from '@/lib/constants';
+import { BadgeCheck, ShieldCheck, Wrench } from 'lucide-react';
+import { WHATSAPP_CONSULTA } from '@/lib/constants';
 import VideoLocal from './VideoLocal';
 
 const DIFERENCIALES = [
-  { icono: Eye, titulo: 'Revisión visual gratis', texto: 'En Las Piedras y en Canelones' },
   { icono: Wrench, titulo: 'Taller propio', texto: 'Armamos tus lentes en el momento' },
+  { icono: ShieldCheck, titulo: 'Mutualistas y BPS', texto: 'Hacemos el trámite en el local' },
   { icono: BadgeCheck, titulo: 'Especialistas Varilux', texto: 'Certificados por Essilor' },
 ];
 
@@ -17,12 +17,12 @@ export default function HeroSection() {
           {/* "Tus lentes en el acto" es lo que dice la vidriera del local. */}
           <h1 className="entrada titular max-w-[12ch] text-[2.75rem] text-tinta sm:text-6xl xl:text-7xl">Tus lentes, en el acto.</h1>
           <p style={{ '--retraso': '0.12s' } as React.CSSProperties} className="entrada mt-6 max-w-[42ch] text-lg leading-relaxed text-pizarra md:text-xl">
-            Más de mil armazones con precio a la vista, cristales de las mejores marcas y revisión visual sin costo. Frente a
+            Más de mil armazones con precio a la vista y cristales de las mejores marcas, armados en nuestro taller. Frente a
             la plaza de Las Piedras y en Canelones.
           </p>
           <div style={{ '--retraso': '0.22s' } as React.CSSProperties} className="entrada mt-9 flex flex-wrap items-center gap-3">
-            <a href={WHATSAPP_AGENDAR} target="_blank" rel="noopener noreferrer" className="btn-cta">
-              Agendá tu revisión
+            <a href={WHATSAPP_CONSULTA} target="_blank" rel="noopener noreferrer" className="btn-cta">
+              Consultanos por WhatsApp
             </a>
             <Link href="/catalogo" className="btn-outline bg-white">
               Ver catálogo

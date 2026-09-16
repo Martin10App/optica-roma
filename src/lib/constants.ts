@@ -1,5 +1,6 @@
 export const SITE_URL = 'https://www.opticaroma.store';
 
-// Un solo texto para "agendar la revisión" en toda la web (encabezado, portada, pie).
-export const WHATSAPP_AGENDAR =
-  'https://wa.me/598098871673?text=Hola!%20Quiero%20agendarme%20para%20una%20revisi%C3%B3n%20visual%20gratuita.';
+// Botón principal de WhatsApp (encabezado y portada). Ojo: la óptica NO hace
+// revisiones de la vista en el local; deriva a un médico oftalmólogo, que no se
+// puede nombrar en la web. No volver a prometer "revisión visual" acá.
+export const WHATSAPP_CONSULTA = 'https://wa.me/598098871673?text=Hola!%20Quiero%20hacer%20una%20consulta.';

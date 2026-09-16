@@ -34,7 +34,7 @@ const COLUMNAS = [
   {
     titulo: 'Servicios',
     links: [
-      { nombre: 'Revisión visual sin costo', href: '/#chequeo' },
+      { nombre: 'Si no tenés receta', href: '/#chequeo' },
       { nombre: 'Taller propio', href: '/#servicios' },
       { nombre: 'Mutualistas y BPS', href: '/#coberturas' },
       { nombre: 'Promociones', href: '/#promociones' },
