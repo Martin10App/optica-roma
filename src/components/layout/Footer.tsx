@@ -34,6 +34,7 @@ const COLUMNAS = [
   {
     titulo: 'Servicios',
     links: [
+      { nombre: 'Test de visión online', href: '/test-de-vision' },
       { nombre: 'Si no tenés receta', href: '/#chequeo' },
       { nombre: 'Taller propio', href: '/#servicios' },
       { nombre: 'Mutualistas y BPS', href: '/#coberturas' },

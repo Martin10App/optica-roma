@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Check, FileText, ShieldCheck, Wrench } from 'lucide-react';
 import EncabezadoSeccion from './EncabezadoSeccion';
 
@@ -42,6 +43,12 @@ export default function ServicesSection() {
                 </li>
               ))}
             </ul>
+            <Link
+              href="/test-de-vision"
+              className="mt-6 w-fit text-[15px] font-semibold text-white underline decoration-white/40 underline-offset-[0.3em] transition hover:decoration-white"
+            >
+              Probá tu vista con el test online
+            </Link>
             <div className="mt-auto pt-10">
               <a
                 href={WHATSAPP_SIN_RECETA}

@@ -17,7 +17,10 @@ type Diapositiva = {
   secundario: { texto: string; href: string; externo?: boolean };
   /** Segundos que queda en pantalla antes de pasar a la siguiente */
   segundos: number;
-  medio: { tipo: 'video'; src: string; poster: string; reiniciar?: boolean } | { tipo: 'foto'; src: string };
+  medio:
+    | { tipo: 'video'; src: string; poster: string; reiniciar?: boolean }
+    | { tipo: 'foto'; src: string }
+    | { tipo: 'dibujo' };
   alt: string;
 };
 
@@ -44,6 +47,18 @@ const DIAPOSITIVAS: Diapositiva[] = [
       reiniciar: true,
     },
     alt: 'Comercial de Varilux Doble Disfrute',
+  },
+  {
+    nombre: 'Test de visión',
+    etiqueta: 'Gratis · 3 minutos',
+    titulo: '¿Cómo está tu vista? Hacé el test online.',
+    texto:
+      'Letras, astigmatismo, rejilla de Amsler y contraste, desde el celular o la computadora. Es orientativo: si algo no da bien, te derivamos a un médico oftalmólogo.',
+    principal: { texto: 'Hacer el test', href: '/test-de-vision' },
+    secundario: { texto: '¿No tenés receta?', href: '/#chequeo' },
+    segundos: 8,
+    medio: { tipo: 'dibujo' },
+    alt: 'Letras E de distintos tamaños, como en un test de visión',
   },
   {
     nombre: 'El local',
@@ -135,6 +150,43 @@ function VideoDiapositiva({ medio, activa, pausado, alt }: { medio: Extract<Diap
       aria-label={alt}
       className="h-full w-full object-cover"
     />
+  );
+}
+
+// Cartel de letras E para la pantalla del test de visión: dibujo propio, sin fotos
+const FILAS_E: { tamano: number; giros: number[] }[] = [
+  { tamano: 17, giros: [0] },
+  { tamano: 11, giros: [90, 270] },
+  { tamano: 7.5, giros: [180, 0, 90] },
+  { tamano: 5, giros: [270, 90, 180, 0] },
+  { tamano: 3.4, giros: [0, 180, 270, 90, 180] },
+];
+
+function DibujoTestVision({ activa, alt }: { activa: boolean; alt: string }) {
+  let y = 12;
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-white">
+      <svg viewBox="0 0 100 100" className={`h-[82%] w-[82%] ${activa ? 'acercamiento-lento' : ''}`} role="img" aria-label={alt} style={{ '--duracion': '9s' } as CSSProperties}>
+        {FILAS_E.map((fila) => {
+          const hueco = fila.tamano * 0.9;
+          const ancho = fila.giros.length * fila.tamano + (fila.giros.length - 1) * hueco;
+          const fy = y;
+          y += fila.tamano + 7;
+          return fila.giros.map((giro, j) => {
+            const x = 50 - ancho / 2 + j * (fila.tamano + hueco);
+            return (
+              <path
+                key={`${fy}-${j}`}
+                d="M0 0H5V1H1V2H5V3H1V4H5V5H0Z"
+                fill="#10152b"
+                transform={`translate(${x} ${fy}) scale(${fila.tamano / 5}) rotate(${giro} 2.5 2.5)`}
+              />
+            );
+          });
+        })}
+        <rect x="18" y={y + 1} width="64" height="0.8" fill="#0b2bd6" />
+      </svg>
+    </div>
   );
 }
 
@@ -243,6 +295,8 @@ export default function HeroSection() {
                 <div key={d.nombre} className={`absolute inset-0 ${claseMedio(i)}`} aria-hidden={i !== activa}>
                   {d.medio.tipo === 'video' ? (
                     <VideoDiapositiva medio={d.medio} activa={i === activa} pausado={pausado} alt={d.alt} />
+                  ) : d.medio.tipo === 'dibujo' ? (
+                    <DibujoTestVision activa={i === activa} alt={d.alt} />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
