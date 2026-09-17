@@ -15,6 +15,9 @@
 // - Las filas de armazones que ya no están en el inventario se marcan
 //   en_inventario = false y la web no las muestra. No se borra nada: si el
 //   armazón vuelve a cargarse, la fila se reactiva sola.
+// - La categoría (receta o sol) la elige el programa al cargar el armazón
+//   (desde septiembre de 2026). Si un armazón llega sin categoría, se deja la
+//   que tenga la fila; si es nuevo, entra como receta.
 
 export type FilaPublica = {
   id: number;
@@ -34,6 +37,7 @@ export type ItemLocal = {
   stock?: string | number;
   precio_venta?: string | number;
   imagen?: string;
+  categoria?: string | null;
 };
 
 type Armazon = {
@@ -42,9 +46,11 @@ type Armazon = {
   precio: number;
   imagenUrl: string | null;
   stockVisible: boolean;
+  /** null: el programa no la mandó y se conserva la que haya */
+  categoria: CategoriaArmazon | null;
 };
 
-export type CambioFila = Armazon & { id: number; renombrada: boolean };
+export type CambioFila = Armazon & { id: number; renombrada: boolean; recategorizada: boolean };
 
 export type PlanSincronizacion = {
   nuevos: Armazon[];
@@ -59,11 +65,29 @@ export type PlanSincronizacion = {
 // a mano en la web y no están en el inventario: nunca se dan de baja.
 const CATEGORIAS_DEL_PROGRAMA = new Set(['armazones de receta', 'lentes de sol']);
 
+export const CATEGORIA_RECETA = 'Armazones de Receta';
+export const CATEGORIA_SOL = 'Lentes de Sol';
+export type CategoriaArmazon = typeof CATEGORIA_RECETA | typeof CATEGORIA_SOL;
+
+/** Lo que manda el programa → el nombre exacto que usa la web (o null) */
+export function categoriaDelPrograma(valor: unknown): CategoriaArmazon | null {
+  const texto = String(valor ?? '').trim().toLowerCase();
+  if (texto === 'sol' || texto === 'lentes de sol') return CATEGORIA_SOL;
+  if (texto === 'receta' || texto === 'armazones de receta') return CATEGORIA_RECETA;
+  return null;
+}
+
 // Si el inventario recibido tiene menos del 80% de los armazones publicados, no
 // se da de baja nada: es más probable una lectura incompleta que un borrado real.
 const MINIMO_PARA_BAJAS = 0.8;
 
 const clave = (marca: string, modelo: string) => `${marca}||${modelo}`;
+
+// Solo se cambia entre receta y sol, y solo si el programa dijo cuál es
+const cambiaCategoria = (fila: FilaPublica, armazon: Armazon) =>
+  armazon.categoria !== null &&
+  CATEGORIAS_DEL_PROGRAMA.has((fila.categoria || '').trim().toLowerCase()) &&
+  fila.categoria !== armazon.categoria;
 const mayus = (texto: string) => texto.trim().toUpperCase();
 
 export function armazonDesdeItem(it: ItemLocal): Armazon | null {
@@ -78,6 +102,7 @@ export function armazonDesdeItem(it: ItemLocal): Armazon | null {
     precio: parseFloat(String(it.precio_venta ?? '0')) || 0,
     imagenUrl: it.imagen ? `/armazones/${it.imagen}` : null,
     stockVisible: (parseInt(String(it.stock ?? '0'), 10) || 0) > 0,
+    categoria: categoriaDelPrograma(it.categoria),
   };
 }
 
@@ -119,8 +144,9 @@ export function planificarArmazonesPublico(existentes: FilaPublica[], items: Ite
       const cambioImagen = existente.imagen_url !== armazon.imagenUrl;
       const cambioStock = existente.stock_visible !== armazon.stockVisible;
       const reaparece = existente.en_inventario === false;
-      if (cambioPrecio || cambioImagen || cambioStock || reaparece) {
-        cambios.push({ ...armazon, marca: existente.marca, id: existente.id, renombrada: false });
+      const recategorizada = cambiaCategoria(existente, armazon);
+      if (cambioPrecio || cambioImagen || cambioStock || reaparece || recategorizada) {
+        cambios.push({ ...armazon, marca: existente.marca, id: existente.id, renombrada: false, recategorizada });
       }
       return;
     }
@@ -128,7 +154,7 @@ export function planificarArmazonesPublico(existentes: FilaPublica[], items: Ite
     const vieja = viejasPorModelo.get(mayus(armazon.modelo))?.find((f) => !usadas.has(f.id));
     if (vieja) {
       usadas.add(vieja.id);
-      cambios.push({ ...armazon, id: vieja.id, renombrada: true });
+      cambios.push({ ...armazon, id: vieja.id, renombrada: true, recategorizada: cambiaCategoria(vieja, armazon) });
       return;
     }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
-import { planificarArmazonesPublico, type FilaPublica } from '@/lib/sincronizacionArmazones';
+import { CATEGORIA_RECETA, planificarArmazonesPublico, type FilaPublica } from '@/lib/sincronizacionArmazones';
 
 export const maxDuration = 60;
 
@@ -25,6 +25,7 @@ type ItemLocal = {
   p?: string;
   notas?: string;
   imagen?: string;
+  categoria?: string | null;
 };
 
 // Punto único de sincronización de armazones: el programa de escritorio manda
@@ -33,8 +34,8 @@ type ItemLocal = {
 //   1. armazones_publico  → catálogo de la tienda online (opticaroma.store)
 //   2. rabaquino_armazones_stock → portal del laboratorio Rabaquino
 // Los dos tienen campos curados a mano que esta sincronización NUNCA debe
-// pisar: armazones_publico tiene categoria/mas_vendido/precio_original
-// (marketing), y rabaquino_armazones_stock tiene stock_rabaquino (lo edita
+// pisar: armazones_publico tiene mas_vendido/precio_original (marketing) y la
+// categoría solo cambia si el programa la manda, y rabaquino_armazones_stock tiene stock_rabaquino (lo edita
 // el laboratorio desde su propio portal). Por eso es un UPSERT selectivo en
 // los dos casos, no un borrar-y-reinsertar.
 export async function POST(request: NextRequest) {
@@ -89,6 +90,7 @@ async function sincronizarArmazonesPublico(items: ItemLocal[]) {
   let insertados = 0;
   let actualizados = 0;
   let renombrados = 0;
+  let recategorizados = 0;
   let ocultados = 0;
   let bajasRetenidas = 0;
   try {
@@ -104,7 +106,7 @@ async function sincronizarArmazonesPublico(items: ItemLocal[]) {
     }
 
     // Insertar armazones nuevos, en lotes, con valores por defecto seguros
-    // (categoria fija porque esta tabla local es solo armazones de receta;
+    // (la categoría que eligió el programa, o receta si no mandó ninguna;
     // mas_vendido/precio_original quedan para curar a mano después).
     const FILAS_POR_LOTE = 300;
     for (let i = 0; i < plan.nuevos.length; i += FILAS_POR_LOTE) {
@@ -115,7 +117,7 @@ async function sincronizarArmazonesPublico(items: ItemLocal[]) {
         valores.push(
           armazon.marca,
           armazon.modelo,
-          'Armazones de Receta',
+          armazon.categoria ?? CATEGORIA_RECETA,
           armazon.precio,
           armazon.imagenUrl,
           armazon.stockVisible,
@@ -133,15 +135,19 @@ async function sincronizarArmazonesPublico(items: ItemLocal[]) {
 
     // Actualizar solo lo que cambió, uno por uno por id (suelen ser pocos).
     // La marca se escribe siempre: en las filas renombradas es la corregida.
+    // La categoría solo si cambió de receta a sol o al revés.
     for (const cambio of plan.cambios) {
       await client.query(
         `UPDATE armazones_publico
-         SET marca=$1, precio=$2, imagen_url=$3, stock_visible=$4, en_inventario=true
+         SET marca=$1, precio=$2, imagen_url=$3, stock_visible=$4, en_inventario=true,
+             categoria = CASE WHEN $6::boolean THEN $7 ELSE categoria END
          WHERE id=$5`,
-        [cambio.marca, cambio.precio, cambio.imagenUrl, cambio.stockVisible, cambio.id]
+        [cambio.marca, cambio.precio, cambio.imagenUrl, cambio.stockVisible, cambio.id,
+         cambio.recategorizada, cambio.categoria]
       );
       actualizados++;
       if (cambio.renombrada) renombrados++;
+      if (cambio.recategorizada) recategorizados++;
     }
 
     if (plan.bajas.length > 0) {
@@ -160,7 +166,7 @@ async function sincronizarArmazonesPublico(items: ItemLocal[]) {
     client.release();
   }
 
-  return { insertados, actualizados, renombrados, ocultados, bajasRetenidas };
+  return { insertados, actualizados, renombrados, recategorizados, ocultados, bajasRetenidas };
 }
 
 async function sincronizarRabaquinoStock(items: ItemLocal[]) {
