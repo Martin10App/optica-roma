@@ -16,7 +16,8 @@ const CRISTALES = [
     titulo: 'Multifocales',
     texto: 'Progresivos digitales para ver de lejos, a media distancia y de cerca con el mismo lente.',
     href: '/projects/multifocales',
-    video: '/media/ess_varilux_seenolimits_30s_arg_1080x1080px.mp4',
+    // Distinto del de Varilux X Series: los comerciales de 30 y 45 s comparten escenas
+    video: '/media/ess_varilux_seenolimits_product_benefice_15s_arg-1080x1080.mp4',
   },
   {
     titulo: 'Blue Block',
@@ -28,7 +29,7 @@ const CRISTALES = [
     titulo: 'Varilux X Series',
     texto: 'Los progresivos más avanzados de Varilux. Óptica Roma está certificada como especialista Varilux.',
     href: '/projects/varilux-x-series',
-    video: '/media/ess_varilux_seenolimits_45s_arg-1080x1080.mp4',
+    video: '/media/ess_varilux_seenolimits_techno_15s_arg-1080x1080.mp4',
   },
 ];
 

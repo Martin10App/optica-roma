@@ -61,7 +61,7 @@ const DIAPOSITIVAS: Diapositiva[] = [
     alt: 'Letras E de distintos tamaños, como en un test de visión',
   },
   {
-    nombre: 'El local',
+    nombre: 'Óptica Roma',
     etiqueta: 'Óptica Roma · Las Piedras y Canelones',
     titulo: 'Tus lentes, en el acto.',
     texto:
