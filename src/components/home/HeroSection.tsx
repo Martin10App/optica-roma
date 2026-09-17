@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, BadgeCheck, ShieldCheck, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BadgeCheck, Pause, Play, ShieldCheck, Wrench } from 'lucide-react';
 import { WHATSAPP_CONSULTA } from '@/lib/constants';
 import { formatearPrecio } from '@/lib/catalogoTipos';
 
@@ -142,8 +142,22 @@ function VideoDiapositiva({
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     // El que sale se pausa en el acto: dos videos decodificando a la vez mientras
     // se deslizan hacían que el cambio se trabara
-    if (activa && !pausado) v.play().catch(() => {});
-    else v.pause();
+    if (!activa || pausado) {
+      v.pause();
+      return;
+    }
+    // Si el play llega antes de que el video tenga datos, el navegador lo puede
+    // rechazar y quedaba quieto: se reintenta apenas se puede reproducir
+    const reproducir = () => {
+      if (v.paused) v.play().catch(() => {});
+    };
+    reproducir();
+    v.addEventListener('canplay', reproducir);
+    v.addEventListener('loadeddata', reproducir);
+    return () => {
+      v.removeEventListener('canplay', reproducir);
+      v.removeEventListener('loadeddata', reproducir);
+    };
   }, [activa, pausado]);
 
   // Varilux vuelve a empezar cada vez que entra, para que se vea la historia completa
@@ -210,13 +224,16 @@ export default function HeroSection() {
   const [anterior, setAnterior] = useState<number | null>(null);
   const [direccion, setDireccion] = useState<1 | -1>(1);
   const [vuelta, setVuelta] = useState(0);
-  const [encima, setEncima] = useState(false);
+  const [pausaManual, setPausaManual] = useState(false);
   const [fueraDeVista, setFueraDeVista] = useState(false);
   const [pestanaOculta, setPestanaOculta] = useState(false);
   const seccion = useRef<HTMLElement>(null);
   const toque = useRef<number | null>(null);
   const total = DIAPOSITIVAS.length;
-  const pausado = encima || fueraDeVista || pestanaOculta;
+  // No se frena con el mouse encima: la portada ocupa casi toda la pantalla y los
+  // videos quedaban quietos. Se frena fuera de vista, con la pestaña oculta o con
+  // el botón de pausa.
+  const pausado = pausaManual || fueraDeVista || pestanaOculta;
 
   const ir = useCallback(
     (destino: number, sentido: 1 | -1) => {
@@ -281,8 +298,6 @@ export default function HeroSection() {
       aria-roledescription="carrusel"
       aria-label="Promociones destacadas"
       className="relative overflow-hidden bg-papel pt-[72px]"
-      onMouseEnter={() => setEncima(true)}
-      onMouseLeave={() => setEncima(false)}
       onKeyDown={(e) => {
         if (e.key === 'ArrowRight') siguiente();
         if (e.key === 'ArrowLeft') previa();
@@ -401,6 +416,15 @@ export default function HeroSection() {
                 ))}
               </ol>
               <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPausaManual((p) => !p)}
+                  aria-label={pausaManual ? 'Reanudar el carrusel' : 'Pausar el carrusel'}
+                  aria-pressed={pausaManual}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-tinta ring-1 ring-linea transition hover:ring-tinta"
+                >
+                  {pausaManual ? <Play size={16} aria-hidden /> : <Pause size={16} aria-hidden />}
+                </button>
                 <button
                   type="button"
                   onClick={previa}
