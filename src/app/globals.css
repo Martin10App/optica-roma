@@ -306,6 +306,32 @@
     animation: desfile var(--duracion, 70s) linear infinite;
   }
 
+  /* Portada (HeroSection.tsx): la imagen nueva entra desde el costado y empuja
+     a la anterior, que se corre un poco y se oscurece. El texto cambia con un
+     fundido corto en el mismo sentido. */
+  .hero-entra-der { animation: heroEntraDer 900ms cubic-bezier(0.77, 0, 0.175, 1) both; }
+  .hero-entra-izq { animation: heroEntraIzq 900ms cubic-bezier(0.77, 0, 0.175, 1) both; }
+  .hero-sale-izq { animation: heroSaleIzq 900ms cubic-bezier(0.77, 0, 0.175, 1) both; }
+  .hero-sale-der { animation: heroSaleDer 900ms cubic-bezier(0.77, 0, 0.175, 1) both; }
+  .hero-texto-entra-der { animation: heroTextoEntraDer 800ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both; }
+  .hero-texto-entra-izq { animation: heroTextoEntraIzq 800ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both; }
+  .hero-texto-sale-izq { animation: heroTextoSaleIzq 350ms ease both; }
+  .hero-texto-sale-der { animation: heroTextoSaleDer 350ms ease both; }
+  .acercamiento-lento { animation: acercamientoLento var(--duracion, 8s) ease-out both; }
+  .avance-carrusel { transform-origin: left; animation: avanceCarrusel var(--duracion, 8s) linear both; }
+  .carrusel-pausado .avance-carrusel { animation-play-state: paused; }
+
+  @keyframes heroEntraDer { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes heroEntraIzq { from { transform: translateX(-100%); } to { transform: none; } }
+  @keyframes heroSaleIzq { to { transform: translateX(-30%); filter: brightness(0.55); } }
+  @keyframes heroSaleDer { to { transform: translateX(30%); filter: brightness(0.55); } }
+  @keyframes heroTextoEntraDer { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+  @keyframes heroTextoEntraIzq { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+  @keyframes heroTextoSaleIzq { to { opacity: 0; transform: translateX(-40px); } }
+  @keyframes heroTextoSaleDer { to { opacity: 0; transform: translateX(40px); } }
+  @keyframes acercamientoLento { from { transform: scale(1); } to { transform: scale(1.07); } }
+  @keyframes avanceCarrusel { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
   /* Segunda fila de opiniones y de marcas: va hacia el otro lado */
   .desfile-inverso {
     animation-direction: reverse;
@@ -349,6 +375,14 @@
   @keyframes fotoTexto {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: none; }
+  }
+}
+
+/* Sin animaciones, el texto que sale se oculta de golpe (si no, queda encimado) */
+@media (prefers-reduced-motion: reduce) {
+  .hero-texto-sale-izq,
+  .hero-texto-sale-der {
+    visibility: hidden;
   }
 }
 
