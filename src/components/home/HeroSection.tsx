@@ -50,10 +50,10 @@ const DIAPOSITIVAS: Diapositiva[] = [
   },
   {
     nombre: 'Test de visión',
-    etiqueta: 'Gratis · 3 minutos',
+    etiqueta: 'Gratis · 4 minutos',
     titulo: '¿Cómo está tu vista? Hacé el test online.',
     texto:
-      'Letras, astigmatismo, rejilla de Amsler y contraste, desde el celular o la computadora. Es orientativo: si algo no da bien, te derivamos a un médico oftalmólogo.',
+      'De lejos, de cerca, astigmatismo y más, desde el celular o la computadora. Te explica qué puede estar pasando según tu edad y, si hace falta, te derivamos a un médico oftalmólogo.',
     principal: { texto: 'Hacer el test', href: '/test-de-vision' },
     secundario: { texto: '¿No tenés receta?', href: '/#chequeo' },
     segundos: 8,
@@ -69,7 +69,12 @@ const DIAPOSITIVAS: Diapositiva[] = [
     principal: { texto: 'Ver catálogo', href: '/catalogo' },
     secundario: { texto: 'Consultanos por WhatsApp', href: WHATSAPP_CONSULTA, externo: true },
     segundos: 9,
-    medio: { tipo: 'video', src: '/media/local/local-las-piedras.mp4', poster: '/media/local/local-las-piedras-poster.jpg' },
+    // Versión cuadrada y liviana (1,4 MB): la de 4,5 MB se trababa al entrar
+    medio: {
+      tipo: 'video',
+      src: '/media/local/local-las-piedras-cuadrado.mp4',
+      poster: '/media/local/local-las-piedras-cuadrado-poster.jpg',
+    },
     alt: 'Recorrido por la vidriera y el interior de Óptica Roma en Las Piedras',
   },
   {
@@ -115,7 +120,19 @@ function Enlace({ destino, className, children }: { destino: Diapositiva['princi
 // El video de cada diapositiva corre solo mientras está en pantalla. React no
 // escribe "muted" en el HTML del servidor, y sin eso el navegador no lo deja
 // arrancar solo: por eso se silencia y se le da play desde acá.
-function VideoDiapositiva({ medio, activa, pausado, alt }: { medio: Extract<Diapositiva['medio'], { tipo: 'video' }>; activa: boolean; pausado: boolean; alt: string }) {
+function VideoDiapositiva({
+  medio,
+  activa,
+  proxima,
+  pausado,
+  alt,
+}: {
+  medio: Extract<Diapositiva['medio'], { tipo: 'video' }>;
+  activa: boolean;
+  proxima: boolean;
+  pausado: boolean;
+  alt: string;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -123,13 +140,10 @@ function VideoDiapositiva({ medio, activa, pausado, alt }: { medio: Extract<Diap
     if (!v) return;
     v.muted = true;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (activa && !pausado) {
-      v.play().catch(() => {});
-      return;
-    }
-    // Al salir se deja terminar el deslizamiento antes de pausar
-    const t = setTimeout(() => v.pause(), activa ? 0 : TRANSICION_MS);
-    return () => clearTimeout(t);
+    // El que sale se pausa en el acto: dos videos decodificando a la vez mientras
+    // se deslizan hacían que el cambio se trabara
+    if (activa && !pausado) v.play().catch(() => {});
+    else v.pause();
   }, [activa, pausado]);
 
   // Varilux vuelve a empezar cada vez que entra, para que se vea la historia completa
@@ -146,7 +160,8 @@ function VideoDiapositiva({ medio, activa, pausado, alt }: { medio: Extract<Diap
       muted
       loop
       playsInline
-      preload={activa ? 'auto' : 'none'}
+      // El de la próxima diapositiva se empieza a bajar antes de que le toque
+      preload={activa || proxima ? 'auto' : 'none'}
       aria-label={alt}
       className="h-full w-full object-cover"
     />
@@ -292,9 +307,19 @@ export default function HeroSection() {
               }}
             >
               {DIAPOSITIVAS.map((d, i) => (
-                <div key={d.nombre} className={`absolute inset-0 ${claseMedio(i)}`} aria-hidden={i !== activa}>
+                <div
+                  key={d.nombre}
+                  className={`absolute inset-0 will-change-transform ${claseMedio(i)}`}
+                  aria-hidden={i !== activa}
+                >
                   {d.medio.tipo === 'video' ? (
-                    <VideoDiapositiva medio={d.medio} activa={i === activa} pausado={pausado} alt={d.alt} />
+                    <VideoDiapositiva
+                      medio={d.medio}
+                      activa={i === activa}
+                      proxima={i === (activa + 1) % total}
+                      pausado={pausado}
+                      alt={d.alt}
+                    />
                   ) : d.medio.tipo === 'dibujo' ? (
                     <DibujoTestVision activa={i === activa} alt={d.alt} />
                   ) : (

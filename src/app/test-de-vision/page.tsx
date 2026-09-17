@@ -5,7 +5,7 @@ import { SITE_URL } from '@/lib/constants';
 export const metadata: Metadata = {
   title: 'Test de visión online gratis | Óptica Roma',
   description:
-    'Probá tu vista en 3 minutos desde el celular o la computadora: letras, astigmatismo, rejilla de Amsler y contraste. Orientativo, no reemplaza al oftalmólogo.',
+    'Probá tu vista en 4 minutos desde el celular o la computadora: de lejos, de cerca, astigmatismo, rejilla de Amsler y contraste, con una explicación según tu edad (presbicia, miopía, hipermetropía). Orientativo, no reemplaza al oftalmólogo.',
   alternates: { canonical: `${SITE_URL}/test-de-vision` },
 };
 
